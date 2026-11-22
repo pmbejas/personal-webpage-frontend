@@ -19,6 +19,7 @@ import {
   ChevronRight,
   ShieldCheck,
 } from "lucide-react";
+import { LogoAdmin } from "@/components/ui/LogoAdmin";
 
 interface ElementoNavegacion {
   nombre: string;
@@ -52,39 +53,39 @@ export function ShellAdmin({ children }: { children: React.ReactNode }) {
         }`}
       >
         {/* Cabecera Sidebar */}
-        <div className="h-16 px-4 flex items-center justify-between border-b border-white/10">
-          <Link href="/dashboard" className="flex items-center gap-3 overflow-hidden">
-            <div className="w-9 h-9 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(56,189,248,0.2)]">
-              {/* Isotipo Robot */}
-              <svg viewBox="0 0 100 100" className="w-5 h-5 text-sky-400 fill-current">
-                <circle cx="50" cy="18" r="6" />
-                <path d="M47 24h6v12h-6z" />
-                <rect x="24" y="36" width="52" height="42" rx="10" />
-                <circle cx="39" cy="54" r="5" fill="#07090E" />
-                <circle cx="61" cy="54" r="5" fill="#07090E" />
-                <path d="M40 68h20" stroke="#07090E" strokeWidth="4" strokeLinecap="round" />
-              </svg>
-            </div>
-            {!sidebarColapsada && (
-              <div className="flex flex-col min-w-0">
-                <span className="text-sm font-bold tracking-tight text-white truncate">
-                  Pablo Bejas
-                </span>
-                <span className="text-[10px] font-mono text-sky-400 tracking-wider">
-                  ERP PRIVADO CORE
-                </span>
-              </div>
-            )}
-          </Link>
+        <div
+          className={`h-16 px-3 flex items-center border-b border-white/10 ${
+            sidebarColapsada ? "justify-center" : "justify-between"
+          }`}
+        >
+          {sidebarColapsada ? (
+            <button
+              type="button"
+              onClick={() => setSidebarColapsada(false)}
+              className="p-1 rounded-xl hover:bg-white/5 transition-all flex items-center justify-center cursor-pointer group"
+              title="Expandir menú"
+            >
+              <LogoAdmin colapsado={true} className="w-8 h-8 group-hover:scale-105 transition-transform" />
+            </button>
+          ) : (
+            <>
+              <Link
+                href="/dashboard"
+                className="flex items-center overflow-hidden hover:opacity-90 transition-opacity"
+              >
+                <LogoAdmin colapsado={false} className="h-9 w-auto" />
+              </Link>
 
-          <button
-            type="button"
-            onClick={() => setSidebarColapsada(!sidebarColapsada)}
-            className="p-1.5 rounded-lg text-neutral-500 hover:text-white hover:bg-white/5 transition-colors"
-            title={sidebarColapsada ? "Expandir menú" : "Colapsar menú"}
-          >
-            <Menu className="w-4 h-4" />
-          </button>
+              <button
+                type="button"
+                onClick={() => setSidebarColapsada(true)}
+                className="p-1.5 rounded-lg text-neutral-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
+                title="Colapsar menú"
+              >
+                <Menu className="w-4 h-4" />
+              </button>
+            </>
+          )}
         </div>
 
         {/* Enlaces de Navegación */}
@@ -156,16 +157,9 @@ export function ShellAdmin({ children }: { children: React.ReactNode }) {
 
       {/* 2. Barra Superior Móvil */}
       <header className="lg:hidden h-16 bg-[#0B0F17] border-b border-white/10 px-4 flex items-center justify-between z-20">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center">
-            <svg viewBox="0 0 100 100" className="w-4 h-4 text-sky-400 fill-current">
-              <circle cx="50" cy="18" r="6" />
-              <path d="M47 24h6v12h-6z" />
-              <rect x="24" y="36" width="52" height="42" rx="10" />
-            </svg>
-          </div>
-          <span className="text-sm font-bold text-white">ERP Privado</span>
-        </div>
+        <Link href="/dashboard" className="flex items-center">
+          <LogoAdmin colapsado={false} className="h-8 w-auto" />
+        </Link>
 
         <button
           type="button"
