@@ -16,6 +16,12 @@ export default function DashboardLayout({
   useEffect(() => {
     if (!cargando && !estaAutenticado) {
       router.replace("/login");
+      const temporizador = setTimeout(() => {
+        if (typeof window !== "undefined" && window.location.pathname !== "/login") {
+          window.location.href = "/login";
+        }
+      }, 300);
+      return () => clearTimeout(temporizador);
     }
   }, [estaAutenticado, cargando, router]);
 

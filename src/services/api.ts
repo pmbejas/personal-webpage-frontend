@@ -2,7 +2,7 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 
 // Instancia de Axios configurada para comunicación con el backend .NET Core
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:5055/api",
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "https://pablobejas-backend-api.onrender.com/api",
   headers: {
     "Content-Type": "application/json",
   },
@@ -18,7 +18,11 @@ api.interceptors.request.use(
     if (typeof window !== "undefined") {
       const token = sessionStorage.getItem("pablo_erp_token");
       if (token && config.headers) {
-        config.headers.Authorization = `Bearer ${token}`;
+        if (typeof config.headers.set === "function") {
+          config.headers.set("Authorization", `Bearer ${token}`);
+        } else {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
       }
     }
 

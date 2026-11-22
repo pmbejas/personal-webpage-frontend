@@ -18,6 +18,12 @@ export default function PaginaLogin() {
   useEffect(() => {
     if (!cargando && estaAutenticado) {
       router.replace("/dashboard");
+      const temporizador = setTimeout(() => {
+        if (typeof window !== "undefined" && window.location.pathname !== "/dashboard") {
+          window.location.href = "/dashboard";
+        }
+      }, 300);
+      return () => clearTimeout(temporizador);
     }
   }, [estaAutenticado, cargando, router]);
 
