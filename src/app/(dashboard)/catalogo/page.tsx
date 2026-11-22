@@ -611,7 +611,7 @@ export default function PaginaCatalogoAdmin() {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-white/[0.02] border-b border-white/10 text-neutral-400 font-mono">
+                  <thead className="bg-white/[0.04] border-b border-white/10 text-neutral-300 font-mono">
                     <tr>
                       <th className="py-3 px-4">Nombre y Clave</th>
                       <th className="py-3 px-4">Categoría</th>
@@ -623,48 +623,51 @@ export default function PaginaCatalogoAdmin() {
                       <th className="py-3 px-4 text-right">Acciones</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-white/5">
+                  <tbody className="divide-y divide-white/10">
                     {adicionales.map((adicional) => (
-                      <tr key={adicional.id} className="hover:bg-white/[0.02] transition-colors">
-                        <td className="py-3.5 px-4">
+                      <tr
+                        key={adicional.id}
+                        className="border-b border-white/[0.08] odd:bg-white/[0.015] even:bg-white/[0.04] hover:bg-sky-500/[0.08] transition-colors duration-150"
+                      >
+                        <td className="py-4 px-4 align-middle">
                           <div className="font-semibold text-white">{adicional.nombre}</div>
-                          <div className="font-mono text-[11px] text-sky-400">{adicional.clave}</div>
+                          <div className="font-mono text-[11px] text-sky-400 mt-0.5">{adicional.clave}</div>
                         </td>
 
-                        <td className="py-3.5 px-4 font-mono text-neutral-300">
-                          <span className="px-2 py-0.5 rounded-lg bg-white/5 border border-white/10">
+                        <td className="py-4 px-4 align-middle">
+                          <span className="inline-flex items-center whitespace-nowrap px-2.5 py-1 rounded-md text-[11px] font-mono bg-sky-500/10 border border-sky-500/20 text-sky-300">
                             {adicional.nombreGrupo}
                           </span>
                         </td>
 
-                        <td className="py-3.5 px-4 text-neutral-300 max-w-xs truncate">
+                        <td className="py-4 px-4 text-neutral-300 min-w-[280px] max-w-md text-xs leading-relaxed break-words align-middle">
                           {adicional.descripcionComercial}
                         </td>
 
-                        <td className="py-3.5 px-4 font-mono font-bold text-white">
+                        <td className="py-4 px-4 font-mono font-bold text-white whitespace-nowrap align-middle">
                           ${adicional.precio.toLocaleString("es-AR")} ARS
                         </td>
 
-                        <td className="py-3.5 px-4 font-mono text-neutral-300">
+                        <td className="py-4 px-4 font-mono text-neutral-300 whitespace-nowrap align-middle">
                           {adicional.diasEntregaExtra > 0 ? `+${adicional.diasEntregaExtra} días` : "Inmediato"}
                         </td>
 
-                        <td className="py-3.5 px-4 text-center font-mono">
+                        <td className="py-4 px-4 text-center font-mono align-middle">
                           {adicional.esRecurrente ? (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/30 whitespace-nowrap">
                               <Repeat className="w-3 h-3" /> Mensual
                             </span>
                           ) : (
-                            <span className="inline-block px-2 py-0.5 rounded-full text-[10px] bg-white/5 text-neutral-300 border border-white/10">
+                            <span className="inline-block px-2 py-0.5 rounded-full text-[10px] bg-white/5 text-neutral-300 border border-white/10 whitespace-nowrap">
                               Pago único
                             </span>
                           )}
                         </td>
 
-                        <td className="py-3.5 px-4 text-center">
+                        <td className="py-4 px-4 text-center align-middle">
                           <button
                             onClick={() => conmutarEstadoAdicional(adicional)}
-                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all cursor-pointer ${
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all cursor-pointer whitespace-nowrap ${
                               adicional.activo
                                 ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20"
                                 : "bg-neutral-800 text-neutral-400 border border-white/10 hover:bg-neutral-700"
@@ -675,7 +678,7 @@ export default function PaginaCatalogoAdmin() {
                           </button>
                         </td>
 
-                        <td className="py-3.5 px-4 text-right">
+                        <td className="py-4 px-4 text-right align-middle">
                           <button
                             onClick={() => abrirEdicionAdicional(adicional)}
                             className="p-1.5 text-neutral-400 hover:text-white rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
