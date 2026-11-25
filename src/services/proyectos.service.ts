@@ -213,5 +213,10 @@ export const servicioProyectos = {
   conmutarHito: async (proyectoId: string, hitoId: string, datos: ConmutarHitoRequest): Promise<boolean> => {
     const respuesta = await api.patch<never, boolean>(`/admin/proyectos/${proyectoId}/hitos/${hitoId}`, datos);
     return respuesta;
+  },
+
+  cargarEtapasEstandar: async (proyectoId: string): Promise<boolean> => {
+    const respuesta = await api.post<never, boolean>(`/admin/proyectos/${proyectoId}/etapas-estandar`);
+    return respuesta;
   }
 };

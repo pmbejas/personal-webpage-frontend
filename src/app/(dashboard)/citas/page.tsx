@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useEffect, useState, useCallback, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   CalendarDays,
   Search,
@@ -22,13 +24,26 @@ import {
   X,
   AlertCircle,
   FileSpreadsheet,
+  FileText,
+  FolderGit2,
+  Sparkles,
+  Layers,
 } from "lucide-react";
 import {
   servicioCitas,
   CitaAdminDto,
   CrearCitaManualDto,
   CoordinarCitaDto,
+  RegistrarInformeCitaDto,
 } from "@/services/citas.service";
+import {
+  servicioPresupuestos,
+  PresupuestoListadoAdminDto,
+} from "@/services/presupuestos.service";
+import {
+  servicioProyectos,
+  ProyectoListadoAdminDto,
+} from "@/services/proyectos.service";
 
 // Configuración de Estados de Reunión
 const ESTADOS_CITAS: Record<number, { etiqueta: string; badgeClase: string }> = {
@@ -51,6 +66,7 @@ const ESTADOS_CITAS: Record<number, { etiqueta: string; badgeClase: string }> = 
 };
 
 export default function CitasPage() {
+  const router = useRouter();
   const [citas, setCitas] = useState<CitaAdminDto[]>([]);
   const [cargando, setCargando] = useState<boolean>(true);
   const [errorCarga, setErrorCarga] = useState<string | null>(null);
@@ -69,6 +85,10 @@ export default function CitasPage() {
   });
 
   const [modalCrearAbierto, setModalCrearAbierto] = useState<boolean>(false);
+  const [origenSeleccionado, setOrigenSeleccionado] = useState<"prospecto" | "presupuesto" | "proyecto">("prospecto");
+  const [presupuestosDisponibles, setPresupuestosDisponibles] = useState<PresupuestoListadoAdminDto[]>([]);
+  const [proyectosDisponibles, setProyectosDisponibles] = useState<ProyectoListadoAdminDto[]>([]);
+
   const [formCrear, setFormCrear] = useState<CrearCitaManualDto>({
     nombreCompleto: "",
     email: "",
@@ -80,6 +100,15 @@ export default function CitasPage() {
     linkMeet: "",
     notas: "",
   });
+
+  // Modal Informe de Cita
+  const [citaParaInforme, setCitaParaInforme] = useState<CitaAdminDto | null>(null);
+  const [formInforme, setFormInforme] = useState<RegistrarInformeCitaDto>({
+    informeReunion: "",
+    acuerdosCompromisos: "",
+    resultadoComercial: "Presupuesto Aprobado",
+  });
+  const [guardandoInforme, setGuardandoInforme] = useState<boolean>(false);
 
   const [citaParaCancelar, setCitaParaCancelar] = useState<CitaAdminDto | null>(null);
   const [motivoCancelacion, setMotivoCancelacion] = useState<string>("");
@@ -210,6 +239,24 @@ export default function CitasPage() {
     }
   };
 
+  // Abrir Modal Crear Cita con carga previa de opciones vinculables
+  const abrirModalCrearCita = async () => {
+    setModalCrearAbierto(true);
+    setOrigenSeleccionado("prospecto");
+    try {
+      if (presupuestosDisponibles.length === 0) {
+        const resPres = await servicioPresupuestos.listar({ tamanioPagina: 50 });
+        setPresupuestosDisponibles(resPres.elementos);
+      }
+      if (proyectosDisponibles.length === 0) {
+        const resProy = await servicioProyectos.obtenerTodos();
+        setProyectosDisponibles(resProy);
+      }
+    } catch (e) {
+      console.error("Error al cargar presupuestos o proyectos vinculables:", e);
+    }
+  };
+
   // Guardar Cita Manual
   const guardarCitaManual = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -221,6 +268,7 @@ export default function CitasPage() {
     try {
       setGuardando(true);
       await servicioCitas.crearManual({
+        clienteId: formCrear.clienteId || null,
         nombreCompleto: formCrear.nombreCompleto.trim(),
         email: formCrear.email.trim(),
         telefonoWhatsApp: formCrear.telefonoWhatsApp.trim(),
@@ -231,6 +279,8 @@ export default function CitasPage() {
           ? new Date(formCrear.fechaHoraCoordinada).toISOString()
           : null,
         linkMeet: formCrear.linkMeet?.trim() || null,
+        presupuestoId: formCrear.presupuestoId || null,
+        proyectoId: formCrear.proyectoId || null,
         notas: formCrear.notas?.trim() || null,
       });
 
@@ -253,6 +303,105 @@ export default function CitasPage() {
       mostrarFeedback("No se pudo agendar la cita manual.");
     } finally {
       setGuardando(false);
+    }
+  };
+
+  // Manejo de Modal de Informe de Cita
+  const abrirModalInforme = (cita: CitaAdminDto) => {
+    setCitaParaInforme(cita);
+    setFormInforme({
+      informeReunion: cita.informeReunion || "",
+      acuerdosCompromisos: cita.acuerdosCompromisos || "",
+      resultadoComercial:
+        cita.resultadoComercial ||
+        (cita.presupuestoId ? "Presupuesto Aprobado" : "Presupuesto Nuevo Necesario"),
+    });
+  };
+
+  const guardarSoloInforme = async () => {
+    if (!citaParaInforme) return;
+    if (!formInforme.informeReunion.trim()) {
+      mostrarFeedback("Por favor completá los apuntes o informe de la reunión.");
+      return;
+    }
+    try {
+      setGuardandoInforme(true);
+      await servicioCitas.registrarInforme(citaParaInforme.id, formInforme);
+      mostrarFeedback("Informe y acuerdos de la reunión guardados con éxito.");
+      setCitaParaInforme(null);
+      await cargarCitas();
+    } catch (err) {
+      console.error("Error al registrar informe:", err);
+      mostrarFeedback("No se pudo guardar el informe.");
+    } finally {
+      setGuardandoInforme(false);
+    }
+  };
+
+  const aprobarYCrearProyecto = async () => {
+    if (!citaParaInforme) return;
+    try {
+      setGuardandoInforme(true);
+      await servicioCitas.registrarInforme(citaParaInforme.id, {
+        ...formInforme,
+        resultadoComercial: "Presupuesto Aprobado",
+      });
+      await servicioCitas.convertirAProyecto(citaParaInforme.id, {
+        tituloProyecto: `Proyecto ${citaParaInforme.clienteNombre}`,
+      });
+      mostrarFeedback("¡Presupuesto Aprobado y Proyecto creado exitosamente!");
+      setCitaParaInforme(null);
+      router.push("/proyectos");
+    } catch (err) {
+      console.error("Error al convertir a proyecto:", err);
+      mostrarFeedback("No se pudo crear el proyecto desde la cita.");
+    } finally {
+      setGuardandoInforme(false);
+    }
+  };
+
+  const reajustarPresupuestoDesdeCita = async () => {
+    if (!citaParaInforme || !citaParaInforme.presupuestoId) return;
+    try {
+      setGuardandoInforme(true);
+      await servicioCitas.registrarInforme(citaParaInforme.id, {
+        ...formInforme,
+        resultadoComercial: "Reajustar Presupuesto",
+      });
+      setCitaParaInforme(null);
+      router.push(`/presupuestos?reajustar=${citaParaInforme.presupuestoId}&citaId=${citaParaInforme.id}`);
+    } catch (err) {
+      console.error("Error al guardar informe previo al reajuste:", err);
+      mostrarFeedback("No se pudo procesar la solicitud.");
+    } finally {
+      setGuardandoInforme(false);
+    }
+  };
+
+  const generarPresupuestoDesdeCita = async () => {
+    if (!citaParaInforme) return;
+    try {
+      setGuardandoInforme(true);
+      await servicioCitas.registrarInforme(citaParaInforme.id, {
+        ...formInforme,
+        resultadoComercial: "Presupuesto Nuevo Necesario",
+      });
+      const citaTemp = citaParaInforme;
+      setCitaParaInforme(null);
+      const params = new URLSearchParams({
+        nuevaCitaId: citaTemp.id,
+        clienteNombre: citaTemp.clienteNombre,
+        clienteEmail: citaTemp.clienteEmail,
+        clienteTelefono: citaTemp.clienteTelefonoWhatsApp,
+        empresa: citaTemp.clienteEmpresa || "",
+        necesidad: formInforme.informeReunion || "",
+      });
+      router.push(`/presupuestos?${params.toString()}`);
+    } catch (err) {
+      console.error("Error al guardar informe previo:", err);
+      mostrarFeedback("No se pudo procesar la solicitud.");
+    } finally {
+      setGuardandoInforme(false);
     }
   };
 
@@ -294,7 +443,7 @@ export default function CitasPage() {
         <div className="flex items-center gap-2 self-start sm:self-auto">
           <button
             type="button"
-            onClick={() => setModalCrearAbierto(true)}
+            onClick={abrirModalCrearCita}
             className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-sky-500 hover:bg-sky-400 text-white transition-all cursor-pointer shadow-lg shadow-sky-500/20"
           >
             <Plus className="w-4 h-4" />
@@ -551,15 +700,35 @@ export default function CitasPage() {
                         )}
                       </td>
 
-                      {/* Origen / Presupuesto */}
+                      {/* Origen / Presupuesto / Proyecto */}
                       <td className="py-4 px-4 align-middle">
                         <div className="text-neutral-300 font-medium">
                           {c.origenDescripcion || "Contacto Web"}
                         </div>
                         {c.presupuestoCodigo && (
-                          <div className="text-[11px] text-sky-400 font-mono mt-0.5 flex items-center gap-1">
-                            <FileSpreadsheet className="w-3 h-3" />
+                          <Link
+                            href="/presupuestos"
+                            className="text-[11px] text-sky-400 hover:text-sky-300 font-mono mt-0.5 flex items-center gap-1 hover:underline"
+                            title="Ver presupuesto en el sistema"
+                          >
+                            <FileSpreadsheet className="w-3 h-3 shrink-0" />
                             <span>#{c.presupuestoCodigo}</span>
+                          </Link>
+                        )}
+                        {c.proyectoId && (
+                          <Link
+                            href="/proyectos"
+                            className="text-[11px] text-indigo-400 hover:text-indigo-300 font-mono mt-0.5 flex items-center gap-1 hover:underline"
+                            title="Ver proyecto en el sistema"
+                          >
+                            <FolderGit2 className="w-3 h-3 shrink-0" />
+                            <span>Proyecto Vinculado</span>
+                          </Link>
+                        )}
+                        {c.informeReunion && (
+                          <div className="text-[10px] text-emerald-400 font-mono mt-0.5 flex items-center gap-1">
+                            <FileText className="w-2.5 h-2.5 shrink-0" />
+                            <span>Informe: {c.resultadoComercial || "Registrado"}</span>
                           </div>
                         )}
                       </td>
@@ -576,6 +745,20 @@ export default function CitasPage() {
                       {/* Acciones */}
                       <td className="py-4 px-4 text-right align-middle">
                         <div className="flex items-center justify-end gap-1">
+                          {/* Registrar / Ver Informe */}
+                          <button
+                            type="button"
+                            onClick={() => abrirModalInforme(c)}
+                            className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                              c.informeReunion
+                                ? "text-emerald-400 hover:bg-emerald-500/10"
+                                : "text-neutral-400 hover:text-sky-300 hover:bg-white/10"
+                            }`}
+                            title={c.informeReunion ? "Ver / Editar informe de reunión" : "Registrar informe de reunión"}
+                          >
+                            <FileText className="w-4 h-4" />
+                          </button>
+
                           {/* Coordinar / Reprogramar */}
                           {c.estado !== 3 && c.estado !== 4 && (
                             <button
@@ -752,6 +935,123 @@ export default function CitasPage() {
             </div>
 
             <form onSubmit={guardarCitaManual} className="flex-1 overflow-y-auto py-4 space-y-4 text-xs">
+              {/* Origen Inteligente del Cliente */}
+              <div>
+                <label className="block text-neutral-400 mb-1.5 font-medium">Origen del Cliente / Vínculo</label>
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOrigenSeleccionado("prospecto");
+                      setFormCrear((prev) => ({
+                        ...prev,
+                        clienteId: null,
+                        presupuestoId: null,
+                        proyectoId: null,
+                      }));
+                    }}
+                    className={`p-2 rounded-xl border text-xs font-medium transition-all ${
+                      origenSeleccionado === "prospecto"
+                        ? "bg-sky-500/20 border-sky-500/50 text-sky-200"
+                        : "bg-white/5 border-white/10 text-neutral-400 hover:text-white"
+                    }`}
+                  >
+                    Prospecto Nuevo
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setOrigenSeleccionado("presupuesto")}
+                    className={`p-2 rounded-xl border text-xs font-medium transition-all ${
+                      origenSeleccionado === "presupuesto"
+                        ? "bg-sky-500/20 border-sky-500/50 text-sky-200"
+                        : "bg-white/5 border-white/10 text-neutral-400 hover:text-white"
+                    }`}
+                  >
+                    Desde Presupuesto
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setOrigenSeleccionado("proyecto")}
+                    className={`p-2 rounded-xl border text-xs font-medium transition-all ${
+                      origenSeleccionado === "proyecto"
+                        ? "bg-sky-500/20 border-sky-500/50 text-sky-200"
+                        : "bg-white/5 border-white/10 text-neutral-400 hover:text-white"
+                    }`}
+                  >
+                    Desde Proyecto
+                  </button>
+                </div>
+              </div>
+
+              {origenSeleccionado === "presupuesto" && (
+                <div className="p-3 rounded-2xl bg-sky-500/10 border border-sky-500/20 space-y-1.5">
+                  <label className="block text-sky-300 font-medium">Vincular con Presupuesto Emitido</label>
+                  <select
+                    value={formCrear.presupuestoId || ""}
+                    onChange={(e) => {
+                      const pres = presupuestosDisponibles.find((p) => p.id === e.target.value);
+                      if (pres) {
+                        setFormCrear((prev) => ({
+                          ...prev,
+                          presupuestoId: pres.id,
+                          proyectoId: null,
+                          nombreCompleto: pres.clienteNombre,
+                          email: pres.clienteEmail,
+                          telefonoWhatsApp: pres.clienteTelefono || prev.telefonoWhatsApp,
+                          empresa: pres.clienteEmpresa || prev.empresa,
+                          notas: prev.notas || `Reunión para revisión del presupuesto #${pres.codigo} (${pres.servicioPrincipal}).`,
+                        }));
+                      }
+                    }}
+                    className="w-full px-3 py-2 rounded-xl bg-neutral-900 border border-white/10 text-white focus:outline-none focus:border-sky-500"
+                  >
+                    <option value="">-- Seleccionar Presupuesto --</option>
+                    {presupuestosDisponibles.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        #{p.codigo} - {p.clienteNombre} ({p.servicioPrincipal})
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-[11px] text-sky-400/80">
+                    Los datos del cliente se completan de forma automática a partir del presupuesto seleccionado.
+                  </p>
+                </div>
+              )}
+
+              {origenSeleccionado === "proyecto" && (
+                <div className="p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 space-y-1.5">
+                  <label className="block text-indigo-300 font-medium">Vincular con Proyecto Activo</label>
+                  <select
+                    value={formCrear.proyectoId || ""}
+                    onChange={(e) => {
+                      const proy = proyectosDisponibles.find((p) => p.id === e.target.value);
+                      if (proy) {
+                        setFormCrear((prev) => ({
+                          ...prev,
+                          proyectoId: proy.id,
+                          presupuestoId: null,
+                          nombreCompleto: proy.clienteNombre,
+                          email: proy.clienteEmail,
+                          empresa: proy.clienteEmpresa || prev.empresa,
+                          notas: prev.notas || `Reunión de avance para el proyecto ${proy.codigo} - ${proy.titulo}.`,
+                        }));
+                      }
+                    }}
+                    className="w-full px-3 py-2 rounded-xl bg-neutral-900 border border-white/10 text-white focus:outline-none focus:border-indigo-500"
+                  >
+                    <option value="">-- Seleccionar Proyecto --</option>
+                    {proyectosDisponibles.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.codigo} - {p.titulo} ({p.clienteNombre})
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-[11px] text-indigo-400/80">
+                    Los datos del cliente se completan de forma automática a partir del proyecto seleccionado.
+                  </p>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-neutral-400 mb-1">Nombre Completo *</label>
@@ -948,6 +1248,151 @@ export default function CitasPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      {/* ========================================================================= */}
+      {/* MODAL 4: INFORME DE REUNIÓN Y ACCIONES COMERCIALES */}
+      {/* ========================================================================= */}
+      {citaParaInforme && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="relative w-full max-w-xl max-h-[90vh] flex flex-col rounded-3xl bg-[#0D121F] border border-white/10 shadow-2xl p-6 overflow-hidden">
+            <div className="flex items-center justify-between pb-4 border-b border-white/10 shrink-0">
+              <div className="flex items-center gap-2">
+                <FileText className="w-5 h-5 text-emerald-400" />
+                <h3 className="text-base font-bold text-white">
+                  Informe de Cita con {citaParaInforme.clienteNombre}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setCitaParaInforme(null)}
+                className="p-1 rounded-lg text-neutral-400 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto py-4 space-y-4 text-xs">
+              {/* Resumen del Vínculo */}
+              <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-neutral-300">
+                <div>
+                  <div className="font-semibold text-white">{citaParaInforme.clienteNombre}</div>
+                  {citaParaInforme.clienteEmpresa && (
+                    <div className="text-[11px] text-neutral-400">{citaParaInforme.clienteEmpresa}</div>
+                  )}
+                  <div className="text-[11px] text-neutral-500 font-mono">{citaParaInforme.clienteEmail}</div>
+                </div>
+                <div>
+                  {citaParaInforme.presupuestoCodigo ? (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-mono bg-sky-500/10 text-sky-300 border border-sky-500/30">
+                      <FileSpreadsheet className="w-3 h-3" />
+                      <span>Presupuesto #{citaParaInforme.presupuestoCodigo}</span>
+                    </span>
+                  ) : citaParaInforme.proyectoId ? (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-mono bg-indigo-500/10 text-indigo-300 border border-indigo-500/30">
+                      <FolderGit2 className="w-3 h-3" />
+                      <span>Proyecto Activo</span>
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-mono bg-amber-500/10 text-amber-300 border border-amber-500/30">
+                      <span>Contacto / Lead Inicial</span>
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-neutral-300 font-semibold mb-1">
+                  Notas de la Conversación / Requerimientos Técnicos *
+                </label>
+                <textarea
+                  rows={4}
+                  required
+                  placeholder="Detalles hablados en la reunión, necesidades de software, módulos solicitados..."
+                  value={formInforme.informeReunion}
+                  onChange={(e) => setFormInforme({ ...formInforme, informeReunion: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-neutral-600 focus:outline-none focus:border-sky-500 leading-relaxed"
+                />
+              </div>
+
+              <div>
+                <label className="block text-neutral-300 font-semibold mb-1">
+                  Acuerdos y Compromisos Pactados
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="Próximos pasos a seguir, material o credenciales que enviará el cliente..."
+                  value={formInforme.acuerdosCompromisos || ""}
+                  onChange={(e) => setFormInforme({ ...formInforme, acuerdosCompromisos: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-neutral-600 focus:outline-none focus:border-sky-500 leading-relaxed"
+                />
+              </div>
+
+              <div>
+                <label className="block text-neutral-300 font-semibold mb-1">
+                  Resultado Comercial
+                </label>
+                <select
+                  value={formInforme.resultadoComercial || "Presupuesto Aprobado"}
+                  onChange={(e) => setFormInforme({ ...formInforme, resultadoComercial: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-neutral-900 border border-white/10 text-white focus:outline-none focus:border-sky-500"
+                >
+                  <option value="Presupuesto Aprobado">Presupuesto Aprobado (Listo para Crear Proyecto)</option>
+                  <option value="Reajuste de Presupuesto Solicitado">Reajuste de Presupuesto Solicitado por el Cliente</option>
+                  <option value="Presupuesto Nuevo Necesario">Generar Nuevo Presupuesto tras la reunión</option>
+                  <option value="Reunión de Avance Proyecto">Reunión de Avance / Seguimiento de Proyecto</option>
+                  <option value="Sin Acuerdo">Sin Acuerdo / En Evaluación</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Acciones 1-Click del Informe */}
+            <div className="pt-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-2.5 shrink-0">
+              <button
+                type="button"
+                onClick={guardarSoloInforme}
+                disabled={guardandoInforme}
+                className="w-full sm:w-auto px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-neutral-200 border border-white/10 font-semibold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+              >
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span>{guardandoInforme ? "Guardando..." : "Guardar Informe"}</span>
+              </button>
+
+              <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
+                {citaParaInforme.presupuestoId ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={reajustarPresupuestoDesdeCita}
+                      disabled={guardandoInforme}
+                      className="flex-1 sm:flex-none px-3.5 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 font-semibold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                    >
+                      <span>Reajustar Presupuesto</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={aprobarYCrearProyecto}
+                      disabled={guardandoInforme}
+                      className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition-all shadow-lg shadow-emerald-900/30 cursor-pointer"
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      <span>Aprobar y Crear Proyecto</span>
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={generarPresupuestoDesdeCita}
+                    disabled={guardandoInforme}
+                    className="w-full sm:w-auto px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-neutral-950 font-semibold text-xs flex items-center justify-center gap-1.5 transition-all shadow-md shadow-sky-500/20 cursor-pointer"
+                  >
+                    <FileSpreadsheet className="w-4 h-4" />
+                    <span>Generar Presupuesto</span>
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       )}

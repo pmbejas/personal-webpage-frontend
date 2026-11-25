@@ -21,6 +21,10 @@ export interface CitaAdminDto {
   fechaEnvioRecordatorio?: string | null;
   presupuestoId?: string | null;
   presupuestoCodigo?: string | null;
+  proyectoId?: string | null;
+  informeReunion?: string | null;
+  acuerdosCompromisos?: string | null;
+  resultadoComercial?: string | null;
   enlaceWhatsAppRecordatorio?: string | null;
 }
 
@@ -35,6 +39,7 @@ export interface CrearCitaManualDto {
   fechaHoraCoordinada?: string | null;
   linkMeet?: string | null;
   presupuestoId?: string | null;
+  proyectoId?: string | null;
   notas?: string | null;
 }
 
@@ -42,6 +47,18 @@ export interface CoordinarCitaDto {
   fechaHoraCoordinada: string;
   linkMeet?: string | null;
   notasAdicionales?: string | null;
+}
+
+export interface RegistrarInformeCitaDto {
+  informeReunion: string;
+  acuerdosCompromisos?: string | null;
+  resultadoComercial?: string | null;
+}
+
+export interface ConvertirCitaAProyectoDto {
+  tituloProyecto?: string | null;
+  montoTotalContratado?: number | null;
+  fechaEstimadaFin?: string | null;
 }
 
 export interface CancelarCitaDto {
@@ -76,6 +93,16 @@ export const servicioCitas = {
 
   marcarRealizada: async (id: string): Promise<CitaAdminDto> => {
     const respuesta = await api.put<never, CitaAdminDto>(`/admin/citas/${id}/realizada`);
+    return respuesta;
+  },
+
+  registrarInforme: async (id: string, peticion: RegistrarInformeCitaDto): Promise<CitaAdminDto> => {
+    const respuesta = await api.post<never, CitaAdminDto>(`/admin/citas/${id}/informe`, peticion);
+    return respuesta;
+  },
+
+  convertirAProyecto: async (id: string, peticion: ConvertirCitaAProyectoDto): Promise<string> => {
+    const respuesta = await api.post<never, string>(`/admin/citas/${id}/convertir-a-proyecto`, peticion);
     return respuesta;
   },
 

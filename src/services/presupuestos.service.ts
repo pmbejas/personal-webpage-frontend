@@ -91,6 +91,39 @@ export interface FiltrosPresupuestosDto {
   tamanioPagina?: number;
 }
 
+export interface PresupuestoItemManualDto {
+  tipoItem: number; // 1: ServicioBase, 2: SeccionExtra, 3: Adicional
+  concepto: string;
+  precioUnitario: number;
+  cantidad: number;
+  detalle?: string | null;
+  diasAdicionales: number;
+}
+
+export interface CrearPresupuestoManualDto {
+  clienteId?: string | null;
+  clienteNombre: string;
+  clienteEmail: string;
+  clienteTelefonoWhatsApp: string;
+  clienteEmpresa?: string | null;
+  clienteRubro?: string | null;
+  servicioPrincipal: string;
+  tiempoEntregaDias: number;
+  descripcionNecesidad?: string | null;
+  porcentajeDescuento: number;
+  montoDescuentoFijo?: number;
+  items: PresupuestoItemManualDto[];
+}
+
+export interface ReajustarPresupuestoDto {
+  tiempoEntregaDias: number;
+  descripcionNecesidad?: string | null;
+  porcentajeDescuento: number;
+  montoDescuentoFijo?: number;
+  items: PresupuestoItemManualDto[];
+  citaId?: string | null;
+}
+
 export const servicioPresupuestos = {
   listar: async (
     filtros: FiltrosPresupuestosDto = {}
@@ -142,6 +175,16 @@ export const servicioPresupuestos = {
     link.click();
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
+  },
+
+  crearManual: async (datos: CrearPresupuestoManualDto): Promise<PresupuestoDetalleAdminDto> => {
+    const respuesta = await api.post<never, PresupuestoDetalleAdminDto>("/admin/presupuestos", datos);
+    return respuesta;
+  },
+
+  reajustar: async (id: string, datos: ReajustarPresupuestoDto): Promise<PresupuestoDetalleAdminDto> => {
+    const respuesta = await api.post<never, PresupuestoDetalleAdminDto>(`/admin/presupuestos/${id}/reajustar`, datos);
+    return respuesta;
   },
 
   obtenerEnlaceWhatsApp: async (id: string): Promise<string> => {

@@ -401,6 +401,22 @@ export default function ProyectosPage() {
     }
   };
 
+  // Cargar Etapas Estándar de Software
+  const cargarEtapasEstandar = async (proyectoId: string) => {
+    try {
+      setGuardando(true);
+      await servicioProyectos.cargarEtapasEstandar(proyectoId);
+      setMensajeFeedback("Las 5 etapas estándar de desarrollo fueron cargadas.");
+      setTimeout(() => setMensajeFeedback(null), 4000);
+      refrescarDetalleActual();
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : "Error al cargar etapas estándar.";
+      alert(errorMsg);
+    } finally {
+      setGuardando(false);
+    }
+  };
+
   // Formato de moneda
   const formatearMoneda = (monto: number, moneda: string = "ARS") => {
     return new Intl.NumberFormat("es-AR", {
@@ -1310,20 +1326,33 @@ export default function ProyectosPage() {
               ) : (
                 /* PESTAÑA 4: HITOS Y ENTREGABLES */
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div>
-                      <h4 className="font-bold text-white text-sm">Hitos y Entregables del Proyecto</h4>
-                      <p className="text-neutral-500 text-[11px]">
-                        Checkpoints de entrega, validación con el cliente y accesos a entregables.
+                      <h4 className="font-bold text-white text-sm">Hitos y Etapas de Desarrollo</h4>
+                      <p className="text-neutral-400 text-[11px]">
+                        El progreso del proyecto se calcula automáticamente: <span className="text-sky-300 font-mono font-semibold">{proyectoDetalle.progresoPorcentaje}%</span> según los hitos completados.
                       </p>
                     </div>
-                    <button
-                      onClick={() => setModalHitoAbierto(true)}
-                      className="px-3.5 py-1.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-neutral-950 font-semibold text-xs flex items-center gap-1.5 transition-all shadow-md shadow-sky-500/20"
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                      <span>Agregar Hito</span>
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => cargarEtapasEstandar(proyectoDetalle.id)}
+                        disabled={guardando}
+                        className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-neutral-200 border border-white/10 font-medium text-xs flex items-center gap-1.5 transition-all cursor-pointer"
+                        title="Cargar las 5 etapas estándar: Relevamiento, UI/UX, Backend, Frontend, Staging/Producción"
+                      >
+                        <Layers className="w-3.5 h-3.5 text-sky-400" />
+                        <span>Cargar Etapas Estándar</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setModalHitoAbierto(true)}
+                        className="px-3.5 py-1.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-neutral-950 font-semibold text-xs flex items-center gap-1.5 transition-all shadow-md shadow-sky-500/20 cursor-pointer"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>Agregar Hito</span>
+                      </button>
+                    </div>
                   </div>
 
                   {proyectoDetalle.hitos.length === 0 ? (
