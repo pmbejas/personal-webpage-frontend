@@ -1,0 +1,320 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { X, Save, UserPlus, Edit3 } from "lucide-react";
+import {
+  ActualizarClienteRequest,
+  ClienteDetalleResponse,
+  CrearClienteRequest,
+} from "@/types";
+
+interface ModalFormularioClienteProps {
+  abierto: boolean;
+  clienteEditando: ClienteDetalleResponse | null;
+  guardando: boolean;
+  onCerrar: () => void;
+  onGuardar: (datos: CrearClienteRequest | ActualizarClienteRequest) => Promise<void>;
+}
+
+interface EstadoFormularioCliente {
+  nombreCompleto: string;
+  email: string;
+  telefonoWhatsApp: string;
+  empresa: string;
+  rubro: string;
+  cuitCuil: string;
+  ubicacion: string;
+  notasInternas: string;
+}
+
+const ESTADO_INICIAL: EstadoFormularioCliente = {
+  nombreCompleto: "",
+  email: "",
+  telefonoWhatsApp: "",
+  empresa: "",
+  rubro: "",
+  cuitCuil: "",
+  ubicacion: "",
+  notasInternas: "",
+};
+
+const CLASE_INPUT =
+  "w-full bg-[#07090E] border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-colors";
+
+export function ModalFormularioCliente({
+  abierto,
+  clienteEditando,
+  guardando,
+  onCerrar,
+  onGuardar,
+}: ModalFormularioClienteProps) {
+  const [formulario, setFormulario] = useState<EstadoFormularioCliente>(ESTADO_INICIAL);
+  const [errorLocal, setErrorLocal] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!abierto) {
+      return;
+    }
+
+    setErrorLocal(null);
+    if (clienteEditando) {
+      setFormulario({
+        nombreCompleto: clienteEditando.nombreCompleto,
+        email: clienteEditando.email,
+        telefonoWhatsApp: clienteEditando.telefonoWhatsApp,
+        empresa: clienteEditando.empresa ?? "",
+        rubro: clienteEditando.rubro ?? "",
+        cuitCuil: clienteEditando.cuitCuil ?? "",
+        ubicacion: clienteEditando.ubicacion ?? "",
+        notasInternas: clienteEditando.notasInternas ?? "",
+      });
+    } else {
+      setFormulario(ESTADO_INICIAL);
+    }
+  }, [abierto, clienteEditando]);
+
+  useEffect(() => {
+    if (!abierto) {
+      return;
+    }
+
+    const manejarTecla = (evento: KeyboardEvent) => {
+      if (evento.key === "Escape" && !guardando) {
+        onCerrar();
+      }
+    };
+
+    window.addEventListener("keydown", manejarTecla);
+    return () => window.removeEventListener("keydown", manejarTecla);
+  }, [abierto, guardando, onCerrar]);
+
+  if (!abierto) {
+    return null;
+  }
+
+  const actualizarCampo = (campo: keyof EstadoFormularioCliente, valor: string) => {
+    setFormulario((previo) => ({ ...previo, [campo]: valor }));
+  };
+
+  const manejarEnvio = async (evento: React.FormEvent<HTMLFormElement>) => {
+    evento.preventDefault();
+    setErrorLocal(null);
+
+    if (!formulario.nombreCompleto.trim()) {
+      setErrorLocal("El nombre completo es obligatorio.");
+      return;
+    }
+    if (!formulario.email.trim() || !formulario.email.includes("@")) {
+      setErrorLocal("Ingresá un correo electrónico válido.");
+      return;
+    }
+    if (!formulario.telefonoWhatsApp.trim()) {
+      setErrorLocal("El teléfono de WhatsApp es obligatorio.");
+      return;
+    }
+
+    const cargaUtil: CrearClienteRequest = {
+      nombreCompleto: formulario.nombreCompleto.trim(),
+      email: formulario.email.trim(),
+      telefonoWhatsApp: formulario.telefonoWhatsApp.trim(),
+      empresa: formulario.empresa.trim() || null,
+      rubro: formulario.rubro.trim() || null,
+      cuitCuil: formulario.cuitCuil.trim() || null,
+      ubicacion: formulario.ubicacion.trim() || null,
+      notasInternas: formulario.notasInternas.trim() || null,
+    };
+
+    await onGuardar(cargaUtil);
+  };
+
+  const esEdicion = Boolean(clienteEditando);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="titulo-modal-cliente"
+    >
+      <div className="bg-[#0B0F17] border border-white/10 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden my-auto">
+        <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-sky-500/15 border border-sky-500/30 text-sky-400">
+              {esEdicion ? <Edit3 className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
+            </div>
+            <div>
+              <h2 id="titulo-modal-cliente" className="text-base font-semibold text-white">
+                {esEdicion ? "Editar ficha de cliente" : "Registrar nuevo cliente"}
+              </h2>
+              <p className="text-xs text-neutral-400">
+                Completá los datos de contacto, información fiscal y notas internas.
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={onCerrar}
+            disabled={guardando}
+            aria-label="Cerrar formulario de cliente"
+            className="p-2 rounded-xl text-neutral-400 hover:text-white hover:bg-white/5 transition-colors disabled:opacity-50"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <form onSubmit={manejarEnvio} className="p-6 space-y-4">
+          {errorLocal && (
+            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-300">
+              {errorLocal}
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-medium text-neutral-300 mb-1.5">
+                Nombre completo *
+              </label>
+              <input
+                type="text"
+                value={formulario.nombreCompleto}
+                onChange={(e) => actualizarCampo("nombreCompleto", e.target.value)}
+                placeholder="Ej: Martín González"
+                maxLength={150}
+                required
+                aria-label="Nombre completo del cliente"
+                className={CLASE_INPUT}
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-neutral-300 mb-1.5">
+                Correo electrónico *
+              </label>
+              <input
+                type="email"
+                value={formulario.email}
+                onChange={(e) => actualizarCampo("email", e.target.value)}
+                placeholder="martin@empresa.com"
+                maxLength={150}
+                required
+                aria-label="Correo electrónico del cliente"
+                className={CLASE_INPUT}
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-neutral-300 mb-1.5">
+                Teléfono WhatsApp *
+              </label>
+              <input
+                type="tel"
+                value={formulario.telefonoWhatsApp}
+                onChange={(e) => actualizarCampo("telefonoWhatsApp", e.target.value)}
+                placeholder="+54 9 381 400 0000"
+                maxLength={50}
+                required
+                aria-label="Teléfono de WhatsApp del cliente"
+                className={CLASE_INPUT}
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-neutral-300 mb-1.5">
+                Empresa / Marca
+              </label>
+              <input
+                type="text"
+                value={formulario.empresa}
+                onChange={(e) => actualizarCampo("empresa", e.target.value)}
+                placeholder="Ej: Estudio Norte S.A."
+                maxLength={150}
+                aria-label="Empresa o marca del cliente"
+                className={CLASE_INPUT}
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-neutral-300 mb-1.5">
+                Rubro
+              </label>
+              <input
+                type="text"
+                value={formulario.rubro}
+                onChange={(e) => actualizarCampo("rubro", e.target.value)}
+                placeholder="Ej: Gastronomía, Salud, Logística"
+                maxLength={100}
+                aria-label="Rubro comercial del cliente"
+                className={CLASE_INPUT}
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-neutral-300 mb-1.5">
+                CUIT / CUIL o ID Fiscal
+              </label>
+              <input
+                type="text"
+                value={formulario.cuitCuil}
+                onChange={(e) => actualizarCampo("cuitCuil", e.target.value)}
+                placeholder="Ej: 20-34567890-1"
+                maxLength={20}
+                aria-label="CUIT, CUIL o documento fiscal del cliente"
+                className={CLASE_INPUT}
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-neutral-300 mb-1.5">
+                Ubicación
+              </label>
+              <input
+                type="text"
+                value={formulario.ubicacion}
+                onChange={(e) => actualizarCampo("ubicacion", e.target.value)}
+                placeholder="Ej: San Miguel de Tucumán, Argentina"
+                maxLength={150}
+                aria-label="Ubicación geográfica del cliente"
+                className={CLASE_INPUT}
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-medium text-neutral-300 mb-1.5">
+                Notas internas CRM
+              </label>
+              <textarea
+                rows={3}
+                value={formulario.notasInternas}
+                onChange={(e) => actualizarCampo("notasInternas", e.target.value)}
+                placeholder="Preferencias, contexto comercial, referido por..."
+                maxLength={4000}
+                aria-label="Notas internas del cliente"
+                className={`${CLASE_INPUT} resize-none`}
+              />
+            </div>
+          </div>
+
+          <div className="pt-3 border-t border-white/10 flex items-center justify-end gap-3">
+            <button
+              type="button"
+              onClick={onCerrar}
+              disabled={guardando}
+              className="px-4 py-2 rounded-xl text-xs font-medium text-neutral-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-colors disabled:opacity-50"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={guardando}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-sky-600 hover:bg-sky-500 transition-colors disabled:opacity-60"
+            >
+              <Save className="w-3.5 h-3.5" />
+              <span>{guardando ? "Guardando..." : esEdicion ? "Guardar cambios" : "Crear cliente"}</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}

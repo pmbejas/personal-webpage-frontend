@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import {
   LayoutDashboard,
+  Users,
   FileSpreadsheet,
   Tag,
   CalendarDays,
@@ -30,6 +31,7 @@ interface ElementoNavegacion {
 
 const ELEMENTOS_MENU: ElementoNavegacion[] = [
   { nombre: "Dashboard", ruta: "/dashboard", icono: LayoutDashboard },
+  { nombre: "Clientes", ruta: "/clientes", icono: Users },
   { nombre: "Presupuestos", ruta: "/presupuestos", icono: FileSpreadsheet },
   { nombre: "Proyectos & Seguimiento", ruta: "/proyectos", icono: FolderGit2 },
   { nombre: "Agenda & Citas", ruta: "/citas", icono: CalendarDays },
