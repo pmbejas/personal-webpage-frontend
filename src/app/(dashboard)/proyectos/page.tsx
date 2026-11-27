@@ -32,11 +32,14 @@ import {
   Edit3,
   Bookmark,
   Check,
+  Download,
+  ListChecks,
 } from "lucide-react";
 import {
   servicioProyectos,
   ProyectoListadoAdminDto,
   ProyectoDetalleAdminDto,
+  ProyectoItemAlcanceDto,
   EstadisticasProyectosDto,
   CrearProyectoRequest,
   ActualizarProyectoRequest,
@@ -51,6 +54,7 @@ import {
 import { servicioClientes } from "@/services/clientes.service";
 import { SelectorCliente } from "@/components/clientes/SelectorCliente";
 import { CabeceraPaginaAdmin } from "@/components/layout/CabeceraPaginaAdmin";
+import { TabAlcanceProyecto } from "@/components/proyectos/TabAlcanceProyecto";
 import { ClienteSelectorResponse } from "@/types";
 
 // Configuración de Estados predefinidos
@@ -114,7 +118,9 @@ function ProyectosContenido() {
   const [proyectoSeleccionadoId, setProyectoSeleccionadoId] = useState<string | null>(null);
   const [proyectoDetalle, setProyectoDetalle] = useState<ProyectoDetalleAdminDto | null>(null);
   const [cargandoDetalle, setCargandoDetalle] = useState<boolean>(false);
-  const [pestanaActiva, setPestanaActiva] = useState<"general" | "minutas" | "pagos" | "hitos">("general");
+  const [pestanaActiva, setPestanaActiva] = useState<"general" | "alcance" | "minutas" | "pagos" | "hitos">("general");
+  const [cambiandoEstadoRapido, setCambiandoEstadoRapido] = useState<boolean>(false);
+  const [exportandoPdf, setExportandoPdf] = useState<boolean>(false);
 
   // Submodales
   const [modalCrearAbierto, setModalCrearAbierto] = useState<boolean>(false);
@@ -298,7 +304,10 @@ function ProyectosContenido() {
   }, [searchParams, cargarPresupuestos, reiniciarFormularioCrear, router]);
 
   // Abrir detalle del proyecto
-  const abrirDetalle = async (id: string, pestana: "general" | "minutas" | "pagos" | "hitos" = "general") => {
+  const abrirDetalle = async (
+    id: string,
+    pestana: "general" | "alcance" | "minutas" | "pagos" | "hitos" = "general"
+  ) => {
     setProyectoSeleccionadoId(id);
     setPestanaActiva(pestana);
     setCargandoDetalle(true);
@@ -338,6 +347,57 @@ function ProyectosContenido() {
     } catch {
       // Silencioso
     }
+  };
+
+  // Cambio rápido de estado desde la cabecera del detalle
+  const manejarCambioEstadoRapido = async (nuevoEstado: string) => {
+    if (!proyectoDetalle || cambiandoEstadoRapido || nuevoEstado === proyectoDetalle.estado) return;
+
+    const configuracionEstado = ESTADOS_PREDEFINIDOS.find((e) => e.nombre === nuevoEstado);
+    const colorEstado = configuracionEstado?.color || proyectoDetalle.colorEstado;
+
+    setCambiandoEstadoRapido(true);
+    try {
+      const actualizado = await servicioProyectos.cambiarEstado(proyectoDetalle.id, {
+        estado: nuevoEstado,
+        colorEstado,
+      });
+      setProyectoDetalle(actualizado);
+      setFormEditar((prev) => ({
+        ...prev,
+        estado: actualizado.estado,
+        colorEstado: actualizado.colorEstado,
+      }));
+      cargarDatos();
+      setMensajeFeedback(`Estado actualizado a "${actualizado.estado}".`);
+      setTimeout(() => setMensajeFeedback(null), 3500);
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : "No se pudo cambiar el estado del proyecto.";
+      alert(errorMsg);
+    } finally {
+      setCambiandoEstadoRapido(false);
+    }
+  };
+
+  // Exportar ficha del proyecto a PDF (QuestPDF backend)
+  const manejarExportarPdf = async () => {
+    if (!proyectoDetalle || exportandoPdf) return;
+    setExportandoPdf(true);
+    try {
+      await servicioProyectos.descargarFichaPdf(proyectoDetalle.id, proyectoDetalle.codigo);
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : "No se pudo generar el PDF de la ficha del proyecto.";
+      alert(errorMsg);
+    } finally {
+      setExportandoPdf(false);
+    }
+  };
+
+  // Actualizar ítems de alcance en memoria manteniendo sincronizado el contador de la pestaña
+  const manejarCambioItemsAlcance = (itemsActualizados: ProyectoItemAlcanceDto[]) => {
+    setProyectoDetalle((prev) =>
+      prev ? { ...prev, itemsAlcance: itemsActualizados } : prev
+    );
   };
 
   // Crear Proyecto
@@ -882,7 +942,7 @@ function ProyectosContenido() {
                     </td>
                     <td className="py-3.5 px-4">
                       <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 font-mono text-[11px] text-neutral-300">
-                        {p.cantidadHitosCompletados} / {p.cantidadHitosTotal}
+                        {p.cantidadHitosCompletados} / {p.cantidadHitos ?? 0}
                       </span>
                     </td>
                     <td className="py-3.5 px-4 text-right">
@@ -978,7 +1038,7 @@ function ProyectosContenido() {
                   <FileText className="w-3 h-3 text-neutral-500" />
                   <span>{p.cantidadMinutas} minutas</span>
                   <span className="mx-1">•</span>
-                  <span>{p.cantidadHitosCompletados}/{p.cantidadHitosTotal} hitos</span>
+                  <span>{p.cantidadHitosCompletados}/{p.cantidadHitos ?? 0} hitos</span>
                 </div>
                 <button
                   onClick={() => abrirDetalle(p.id)}
@@ -994,60 +1054,100 @@ function ProyectosContenido() {
       )}
 
       {/* ========================================================================= */}
-      {/* MODAL DETALLE / HISTORIA CLÍNICA INTEGRAL (4 PESTAÑAS)                     */}
+      {/* MODAL DETALLE / HISTORIA CLÍNICA INTEGRAL (5 PESTAÑAS)                     */}
       {/* ========================================================================= */}
       {proyectoSeleccionadoId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-          <div className="w-full max-w-4xl max-h-[92vh] flex flex-col rounded-3xl bg-neutral-900 border border-white/10 shadow-2xl overflow-hidden">
+          <div className="w-full max-w-6xl max-h-[92vh] flex flex-col rounded-3xl bg-neutral-900 border border-white/10 shadow-2xl overflow-hidden">
             {/* Header del Modal */}
-            <div className="p-5 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400">
+            <div className="px-5 py-4 border-b border-white/10 flex flex-wrap items-center justify-between gap-3 bg-white/[0.02]">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-2xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400 flex-shrink-0">
                   <FolderGit2 className="w-5 h-5" />
                 </div>
-                <div>
-                  <div className="flex items-center gap-2">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-mono text-xs px-2 py-0.5 rounded bg-sky-500/10 border border-sky-500/20 text-sky-300 font-semibold">
                       {proyectoDetalle?.codigo || "Cargando..."}
                     </span>
                     {proyectoDetalle && (
-                      <span
-                        className="px-2.5 py-0.5 rounded-full text-xs font-medium border"
-                        style={{
-                          backgroundColor: `${proyectoDetalle.colorEstado}15`,
-                          borderColor: `${proyectoDetalle.colorEstado}40`,
-                          color: proyectoDetalle.colorEstado,
-                        }}
-                      >
-                        {proyectoDetalle.estado}
+                      <span className="text-xs text-neutral-400 flex items-center gap-1 truncate">
+                        <Building className="w-3 h-3 text-neutral-500 flex-shrink-0" />
+                        <span className="truncate">
+                          {proyectoDetalle.clienteNombre}
+                          {proyectoDetalle.clienteEmpresa ? ` · ${proyectoDetalle.clienteEmpresa}` : ""}
+                        </span>
                       </span>
                     )}
                   </div>
-                  <h2 className="text-lg font-bold text-white mt-0.5">
+                  <h2 className="text-base sm:text-lg font-bold text-white mt-0.5 truncate">
                     {proyectoDetalle?.titulo || "Historia Clínica del Proyecto"}
                   </h2>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 {proyectoDetalle && (
-                  <button
-                    onClick={() => setModalEditarAbierto(true)}
-                    className="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-neutral-300 hover:text-white transition-all text-xs flex items-center gap-1.5"
-                    title="Editar estado y enlaces"
-                  >
-                    <Edit3 className="w-4 h-4" />
-                    <span className="hidden sm:inline">Editar</span>
-                  </button>
+                  <>
+                    <select
+                      value={proyectoDetalle.estado}
+                      onChange={(e) => manejarCambioEstadoRapido(e.target.value)}
+                      disabled={cambiandoEstadoRapido}
+                      aria-label="Estado del proyecto"
+                      title="Cambiar estado del proyecto"
+                      className="h-8 px-2.5 rounded-lg bg-neutral-950 border border-white/15 text-xs font-medium text-white focus:outline-none focus:border-sky-500/50 disabled:opacity-50"
+                      style={{
+                        borderColor: `${proyectoDetalle.colorEstado}55`,
+                        color: proyectoDetalle.colorEstado,
+                      }}
+                    >
+                      {ESTADOS_PREDEFINIDOS.map((estadoItem) => (
+                        <option
+                          key={estadoItem.nombre}
+                          value={estadoItem.nombre}
+                          className="bg-neutral-900 text-white"
+                        >
+                          {estadoItem.nombre}
+                        </option>
+                      ))}
+                    </select>
+
+                    <button
+                      type="button"
+                      onClick={manejarExportarPdf}
+                      disabled={exportandoPdf}
+                      className="h-8 px-3 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 border border-sky-500/35 text-sky-300 hover:text-sky-200 disabled:opacity-50 transition-all text-xs font-medium inline-flex items-center gap-1.5"
+                      title="Exportar ficha del proyecto en formato PDF A4"
+                    >
+                      {exportandoPdf ? (
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <Download className="w-3.5 h-3.5" />
+                      )}
+                      <span>{exportandoPdf ? "Generando..." : "Exportar PDF"}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setModalEditarAbierto(true)}
+                      className="h-8 px-2.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-neutral-300 hover:text-white transition-all text-xs inline-flex items-center gap-1.5"
+                      title="Editar datos y enlaces"
+                    >
+                      <Edit3 className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">Editar</span>
+                    </button>
+                  </>
                 )}
                 <button
+                  type="button"
                   onClick={() => {
                     setProyectoSeleccionadoId(null);
                     setProyectoDetalle(null);
                   }}
-                  className="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-neutral-400 hover:text-white transition-all"
+                  aria-label="Cerrar detalle del proyecto"
+                  className="h-8 w-8 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-neutral-400 hover:text-white transition-all inline-flex items-center justify-center"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -1056,6 +1156,7 @@ function ProyectosContenido() {
             <div className="flex border-b border-white/10 bg-neutral-950/40 px-5 gap-2 overflow-x-auto">
               {[
                 { id: "general", label: "General & Enlaces", icon: Bookmark },
+                { id: "alcance", label: "Alcance y Límites", icon: ListChecks, count: proyectoDetalle?.itemsAlcance?.length ?? 0 },
                 { id: "minutas", label: "Minutas de Reunión", icon: FileText, count: proyectoDetalle?.minutas.length },
                 { id: "pagos", label: "Cobranzas & Pagos", icon: DollarSign, count: proyectoDetalle?.pagos.length },
                 { id: "hitos", label: "Hitos & Entregables", icon: CheckSquare, count: proyectoDetalle?.hitos.length },
@@ -1075,7 +1176,7 @@ function ProyectosContenido() {
                     <Icon className="w-4 h-4" />
                     <span>{tab.label}</span>
                     {tab.count !== undefined && (
-                      <span className="px-1.5 py-0.2 rounded-full bg-white/10 text-[10px] font-mono text-neutral-300">
+                      <span className="px-1.5 py-0.2 rounded-full bg-white/10 text-[10px] font-mono tabular-nums text-neutral-300">
                         {tab.count}
                       </span>
                     )}
@@ -1236,13 +1337,20 @@ function ProyectosContenido() {
                   {/* Notas Internas y Bitácora */}
                   <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 space-y-2">
                     <span className="text-neutral-400 font-mono uppercase text-[11px] block">
-                      Notas Internas & Alcance del Proyecto
+                      Notas Internas & Descripción del Proyecto
                     </span>
                     <p className="text-neutral-300 leading-relaxed whitespace-pre-line bg-black/30 p-3 rounded-xl border border-white/5">
                       {proyectoDetalle.notasInternas || proyectoDetalle.descripcion || "Sin notas internas registradas."}
                     </p>
                   </div>
                 </div>
+              ) : pestanaActiva === "alcance" ? (
+                /* PESTAÑA 2: ALCANCE Y LÍMITES (OPCIONAL) */
+                <TabAlcanceProyecto
+                  proyectoId={proyectoDetalle.id}
+                  items={proyectoDetalle.itemsAlcance || []}
+                  onItemsChange={manejarCambioItemsAlcance}
+                />
               ) : pestanaActiva === "minutas" ? (
                 /* PESTAÑA 2: MINUTAS DE REUNIÓN */
                 <div className="space-y-4">

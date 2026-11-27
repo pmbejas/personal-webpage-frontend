@@ -18,9 +18,37 @@ export interface ProyectoListadoAdminDto {
   fechaInicio?: string | null;
   fechaEstimadaFin?: string | null;
   cantidadMinutas: number;
-  cantidadHitosTotal: number;
+  cantidadHitos: number;
   cantidadHitosCompletados: number;
   fechaCreacion: string;
+}
+
+export type TipoItemAlcance = "ALCANCE" | "LIMITE" | "FUERA_ALCANCE";
+
+export interface ProyectoItemAlcanceDto {
+  id: string;
+  proyectoId: string;
+  tipo: TipoItemAlcance;
+  descripcion: string;
+  orden: number;
+  fechaCreacion: string;
+}
+
+export interface CrearItemAlcanceRequest {
+  tipo: TipoItemAlcance;
+  descripcion: string;
+  orden?: number | null;
+}
+
+export interface ActualizarItemAlcanceRequest {
+  tipo?: TipoItemAlcance;
+  descripcion?: string;
+  orden?: number | null;
+}
+
+export interface CambiarEstadoProyectoRequest {
+  estado: string;
+  colorEstado?: string | null;
 }
 
 export interface MinutaReunionDto {
@@ -92,6 +120,7 @@ export interface ProyectoDetalleAdminDto {
   minutas: MinutaReunionDto[];
   pagos: PagoProyectoDto[];
   hitos: HitoEntregableDto[];
+  itemsAlcance: ProyectoItemAlcanceDto[];
 }
 
 export interface EstadisticasProyectosDto {
@@ -218,5 +247,66 @@ export const servicioProyectos = {
   cargarEtapasEstandar: async (proyectoId: string): Promise<boolean> => {
     const respuesta = await api.post<never, boolean>(`/admin/proyectos/${proyectoId}/etapas-estandar`);
     return respuesta;
-  }
+  },
+
+  cambiarEstado: async (
+    proyectoId: string,
+    datos: CambiarEstadoProyectoRequest
+  ): Promise<ProyectoDetalleAdminDto> => {
+    const respuesta = await api.patch<never, ProyectoDetalleAdminDto>(
+      `/admin/proyectos/${proyectoId}/estado`,
+      datos
+    );
+    return respuesta;
+  },
+
+  obtenerAlcance: async (proyectoId: string): Promise<ProyectoItemAlcanceDto[]> => {
+    const respuesta = await api.get<never, ProyectoItemAlcanceDto[]>(`/admin/proyectos/${proyectoId}/alcance`);
+    return respuesta;
+  },
+
+  agregarItemAlcance: async (
+    proyectoId: string,
+    datos: CrearItemAlcanceRequest
+  ): Promise<ProyectoItemAlcanceDto> => {
+    const respuesta = await api.post<never, ProyectoItemAlcanceDto>(
+      `/admin/proyectos/${proyectoId}/alcance`,
+      datos
+    );
+    return respuesta;
+  },
+
+  actualizarItemAlcance: async (
+    proyectoId: string,
+    itemId: string,
+    datos: ActualizarItemAlcanceRequest
+  ): Promise<ProyectoItemAlcanceDto> => {
+    const respuesta = await api.patch<never, ProyectoItemAlcanceDto>(
+      `/admin/proyectos/${proyectoId}/alcance/${itemId}`,
+      datos
+    );
+    return respuesta;
+  },
+
+  eliminarItemAlcance: async (proyectoId: string, itemId: string): Promise<boolean> => {
+    const respuesta = await api.delete<never, boolean>(
+      `/admin/proyectos/${proyectoId}/alcance/${itemId}`
+    );
+    return respuesta;
+  },
+
+  descargarFichaPdf: async (proyectoId: string, codigoProyecto: string): Promise<void> => {
+    const blob = await api.get<never, Blob>(`/admin/proyectos/${proyectoId}/pdf`, {
+      responseType: "blob",
+    });
+
+    const urlTemporal = window.URL.createObjectURL(blob);
+    const enlace = document.createElement("a");
+    enlace.href = urlTemporal;
+    enlace.download = `Ficha_Proyecto_${codigoProyecto || "Detalle"}.pdf`;
+    document.body.appendChild(enlace);
+    enlace.click();
+    enlace.remove();
+    window.URL.revokeObjectURL(urlTemporal);
+  },
 };
