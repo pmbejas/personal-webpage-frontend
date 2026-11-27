@@ -203,12 +203,12 @@ export function PanelDetalleCliente({
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm px-[5vw] py-[5vh] flex items-center justify-center"
+      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm p-2.5 sm:px-[5vw] sm:py-[5vh] flex items-center justify-center"
       role="dialog"
       aria-modal="true"
       aria-label="Ficha completa del cliente"
     >
-      <div className="bg-[#0B0F17] border border-white/10 rounded-2xl w-full h-full flex flex-col shadow-2xl overflow-hidden">
+      <div className="bg-[#0B0F17] border border-white/10 rounded-2xl w-full h-full flex flex-col shadow-2xl overflow-hidden min-w-0">
         {cargando || !cliente ? (
           <div className="flex-1 flex flex-col items-center justify-center gap-3 text-neutral-400">
             <div className="w-7 h-7 border-2 border-sky-500 border-t-transparent rounded-full animate-spin" />
@@ -217,30 +217,41 @@ export function PanelDetalleCliente({
         ) : (
           <>
             {/* Cabecera del Modal */}
-            <div className="px-6 py-4 border-b border-white/10 bg-white/[0.02] flex flex-wrap items-center justify-between gap-4 shrink-0">
-              <div className="flex items-center gap-3.5 min-w-0">
-                <div className="w-11 h-11 rounded-2xl bg-sky-500/15 border border-sky-500/30 text-sky-300 flex items-center justify-center font-bold text-sm shrink-0">
-                  {obtenerIniciales(cliente.nombreCompleto)}
-                </div>
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="text-lg font-semibold text-white truncate">
-                      {formatearNombreCliente(cliente)}
-                    </h2>
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-[11px] font-medium border ${
-                        cliente.activo
-                          ? "bg-emerald-500/10 text-emerald-300 border-emerald-500/30"
-                          : "bg-neutral-800 text-neutral-400 border-neutral-700"
-                      }`}
-                    >
-                      {cliente.activo ? "Activo" : "Archivado"}
-                    </span>
+            <div className="px-4 py-3.5 sm:px-6 sm:py-4 border-b border-white/10 bg-white/[0.02] flex flex-col sm:flex-row sm:flex-wrap sm:items-center justify-between gap-3 sm:gap-4 shrink-0 min-w-0">
+              <div className="flex items-start sm:items-center justify-between gap-3 min-w-0">
+                <div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
+                  <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-sky-500/15 border border-sky-500/30 text-sky-300 flex items-center justify-center font-bold text-sm shrink-0">
+                    {obtenerIniciales(cliente.nombreCompleto)}
                   </div>
-                  <p className="text-xs text-neutral-400 mt-0.5 truncate">
-                    {[cliente.empresa, cliente.rubro].filter(Boolean).join(" · ") || "Sin empresa asignada"}
-                  </p>
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2 className="text-base sm:text-lg font-semibold text-white truncate">
+                        {formatearNombreCliente(cliente)}
+                      </h2>
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-[11px] font-medium border shrink-0 ${
+                          cliente.activo
+                            ? "bg-emerald-500/10 text-emerald-300 border-emerald-500/30"
+                            : "bg-neutral-800 text-neutral-400 border-neutral-700"
+                        }`}
+                      >
+                        {cliente.activo ? "Activo" : "Archivado"}
+                      </span>
+                    </div>
+                    <p className="text-xs text-neutral-400 mt-0.5 truncate">
+                      {[cliente.empresa, cliente.rubro].filter(Boolean).join(" · ") || "Sin empresa asignada"}
+                    </p>
+                  </div>
                 </div>
+
+                <button
+                  type="button"
+                  onClick={onCerrar}
+                  aria-label="Cerrar ficha del cliente"
+                  className="sm:hidden p-2 rounded-xl text-neutral-400 hover:text-white hover:bg-white/10 border border-white/10 transition-colors shrink-0 cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
               </div>
 
               {/* Barra de acciones rápidas */}
@@ -307,7 +318,7 @@ export function PanelDetalleCliente({
                   type="button"
                   onClick={onCerrar}
                   aria-label="Cerrar ficha del cliente"
-                  className="p-2 rounded-xl text-neutral-400 hover:text-white hover:bg-white/10 border border-white/10 transition-colors shrink-0 cursor-pointer"
+                  className="hidden sm:inline-flex p-2 rounded-xl text-neutral-400 hover:text-white hover:bg-white/10 border border-white/10 transition-colors shrink-0 cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -315,7 +326,7 @@ export function PanelDetalleCliente({
             </div>
 
             {/* Navegación por pestañas */}
-            <div className="px-6 border-b border-white/10 bg-[#07090E]/60 flex items-center gap-2 overflow-x-auto shrink-0">
+            <div className="px-4 sm:px-6 border-b border-white/10 bg-[#07090E]/60 flex items-center gap-2 overflow-x-auto shrink-0">
               {[
                 { id: "datos" as const, etiqueta: "Datos Básicos", icono: Building2 },
                 {
@@ -346,13 +357,13 @@ export function PanelDetalleCliente({
                     key={tab.id}
                     type="button"
                     onClick={() => setPestana(tab.id)}
-                    className={`px-3.5 py-3 text-xs font-semibold border-b-2 transition-colors whitespace-nowrap inline-flex items-center gap-2 cursor-pointer ${
+                    className={`px-3 sm:px-3.5 py-3 text-xs font-semibold border-b-2 transition-colors whitespace-nowrap shrink-0 inline-flex items-center gap-2 cursor-pointer ${
                       activa
                         ? "border-sky-400 text-sky-300"
                         : "border-transparent text-neutral-400 hover:text-neutral-200"
                     }`}
                   >
-                    <Icono className="w-3.5 h-3.5" />
+                    <Icono className="w-3.5 h-3.5 shrink-0" />
                     <span>{tab.etiqueta}</span>
                   </button>
                 );
@@ -360,7 +371,7 @@ export function PanelDetalleCliente({
             </div>
 
             {/* Contenido de la pestaña activa */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 sm:space-y-6 min-w-0">
               {/* PESTAÑA 1: DATOS BÁSICOS */}
               {pestana === "datos" && (
                 <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
@@ -505,9 +516,9 @@ export function PanelDetalleCliente({
 
               {/* PESTAÑA 2: CUENTA CORRIENTE */}
               {pestana === "cuenta_corriente" && (
-                <div className="space-y-5">
+                <div className="space-y-4 sm:space-y-5 min-w-0">
                   <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div>
+                    <div className="min-w-0">
                       <h3 className="text-sm font-semibold text-white">Estado de Cuenta Corriente</h3>
                       <p className="text-[11px] text-neutral-400">
                         Cargos por proyectos contratados y pagos imputados ordenados cronológicamente.
@@ -516,36 +527,37 @@ export function PanelDetalleCliente({
                     <button
                       type="button"
                       onClick={onRegistrarPago}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-neutral-950 transition-colors cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-neutral-950 transition-colors cursor-pointer shrink-0"
                     >
                       <DollarSign className="w-3.5 h-3.5" />
                       <span>Registrar pago</span>
                     </button>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-                    <div className="bg-[#07090E] border border-white/10 rounded-xl p-4">
-                      <p className="text-[11px] font-mono uppercase text-neutral-400">
-                        Total Contratado (Debe)
+                  {/* Resumen financiero (2 + 1 destacado en móvil, 3 columnas en escritorio) */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3.5 min-w-0">
+                    <div className="bg-[#07090E] border border-white/10 rounded-xl p-3.5 sm:p-4 min-w-0">
+                      <p className="text-[10px] sm:text-[11px] font-mono uppercase text-neutral-400 truncate">
+                        Contratado (Debe)
                       </p>
-                      <p className="text-xl font-bold text-white tabular-nums mt-1">
+                      <p className="text-base sm:text-xl font-bold text-white tabular-nums mt-1 break-words">
                         {formatearMontoArs(cliente.montoTotalContratado)}
                       </p>
                     </div>
-                    <div className="bg-[#07090E] border border-white/10 rounded-xl p-4">
-                      <p className="text-[11px] font-mono uppercase text-neutral-400">
-                        Total Cobrado (Haber)
+                    <div className="bg-[#07090E] border border-white/10 rounded-xl p-3.5 sm:p-4 min-w-0">
+                      <p className="text-[10px] sm:text-[11px] font-mono uppercase text-neutral-400 truncate">
+                        Cobrado (Haber)
                       </p>
-                      <p className="text-xl font-bold text-emerald-400 tabular-nums mt-1">
+                      <p className="text-base sm:text-xl font-bold text-emerald-400 tabular-nums mt-1 break-words">
                         {formatearMontoArs(cliente.montoTotalCobrado)}
                       </p>
                     </div>
-                    <div className="bg-[#07090E] border border-white/10 rounded-xl p-4">
-                      <p className="text-[11px] font-mono uppercase text-neutral-400">
+                    <div className="col-span-2 sm:col-span-1 bg-[#07090E] border border-white/10 rounded-xl p-3.5 sm:p-4 min-w-0">
+                      <p className="text-[10px] sm:text-[11px] font-mono uppercase text-neutral-400 truncate">
                         Saldo Pendiente
                       </p>
                       <p
-                        className={`text-xl font-bold tabular-nums mt-1 ${
+                        className={`text-lg sm:text-xl font-bold tabular-nums mt-1 break-words ${
                           cliente.saldoPendiente > 0 ? "text-amber-300" : "text-emerald-300"
                         }`}
                       >
@@ -555,86 +567,171 @@ export function PanelDetalleCliente({
                   </div>
 
                   {movimientosCuentaCorriente.length === 0 ? (
-                    <div className="bg-[#07090E] border border-white/10 rounded-2xl p-12 text-center text-xs text-neutral-400">
+                    <div className="bg-[#07090E] border border-white/10 rounded-2xl p-10 sm:p-12 text-center text-xs text-neutral-400">
                       Este cliente todavía no registra movimientos de cuenta corriente (proyectos contratados o pagos).
                     </div>
                   ) : (
-                    <div className="bg-[#07090E] border border-white/10 rounded-2xl overflow-hidden">
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-left text-xs">
-                          <thead className="bg-white/[0.03] border-b border-white/10 text-[11px] font-mono uppercase text-neutral-400">
-                            <tr>
-                              <th className="py-3 px-4">Fecha</th>
-                              <th className="py-3 px-4">Tipo</th>
-                              <th className="py-3 px-4">Proyecto / Concepto</th>
-                              <th className="py-3 px-4 text-right">Debe</th>
-                              <th className="py-3 px-4 text-right">Haber</th>
-                              <th className="py-3 px-4 text-right">Saldo</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-white/5">
-                            {movimientosCuentaCorriente.map((mov) => (
-                              <tr
-                                key={mov.id}
-                                onClick={() => mov.proyectoId && onAbrirProyecto(mov.proyectoId)}
-                                className="hover:bg-white/[0.03] transition-colors cursor-pointer"
-                                title="Clic para abrir el proyecto asociado"
-                              >
-                                <td className="py-3 px-4 font-mono text-neutral-300 whitespace-nowrap">
-                                  {formatearFechaCorta(mov.fecha)}
-                                </td>
-                                <td className="py-3 px-4 whitespace-nowrap">
-                                  {mov.tipo === "CARGO" ? (
-                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-500/10 text-indigo-300 border border-indigo-500/30">
+                    <>
+                      {/* Vista Cards Móvil (< md) */}
+                      <div className="md:hidden space-y-3 min-w-0">
+                        {movimientosCuentaCorriente.map((mov) => {
+                          const esCargo = mov.tipo === "CARGO";
+                          return (
+                            <button
+                              key={mov.id}
+                              type="button"
+                              onClick={() => mov.proyectoId && onAbrirProyecto(mov.proyectoId)}
+                              className="w-full text-left bg-[#07090E] hover:bg-white/[0.03] border border-white/10 hover:border-sky-500/30 rounded-2xl p-4 space-y-3 transition-all cursor-pointer min-w-0"
+                            >
+                              {/* Fila 1: Tipo + Referencia y Fecha */}
+                              <div className="flex items-center justify-between gap-2">
+                                <div className="flex items-center gap-1.5 min-w-0">
+                                  {esCargo ? (
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 shrink-0">
                                       <ArrowUpRight className="w-3 h-3" />
                                       Cargo
                                     </span>
                                   ) : (
-                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 shrink-0">
                                       <ArrowDownLeft className="w-3 h-3" />
                                       Pago
                                     </span>
                                   )}
-                                </td>
-                                <td className="py-3 px-4">
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-mono text-[11px] text-sky-400">
+                                  {mov.referencia && (
+                                    <span className="px-2 py-0.5 rounded-md bg-sky-500/10 border border-sky-500/20 font-mono text-[10px] font-semibold text-sky-400 truncate">
                                       {mov.referencia}
                                     </span>
-                                    <span className="text-white font-medium">{mov.concepto}</span>
-                                  </div>
-                                  {mov.detalle && (
-                                    <p className="text-[11px] text-neutral-500 mt-0.5">{mov.detalle}</p>
                                   )}
-                                </td>
-                                <td className="py-3 px-4 text-right font-mono tabular-nums text-neutral-200 whitespace-nowrap">
-                                  {mov.debe > 0 ? formatearMontoArs(mov.debe) : "—"}
-                                </td>
-                                <td className="py-3 px-4 text-right font-mono tabular-nums text-emerald-400 whitespace-nowrap">
-                                  {mov.haber > 0 ? formatearMontoArs(mov.haber) : "—"}
-                                </td>
-                                <td
-                                  className={`py-3 px-4 text-right font-mono font-semibold tabular-nums whitespace-nowrap ${
-                                    mov.saldoAcumulado > 0 ? "text-amber-300" : "text-emerald-300"
-                                  }`}
-                                >
-                                  {formatearMontoArs(mov.saldoAcumulado)}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                                </div>
+                                <span className="text-[11px] font-mono text-neutral-400 shrink-0">
+                                  {formatearFechaCorta(mov.fecha)}
+                                </span>
+                              </div>
+
+                              {/* Fila 2: Concepto y Detalle */}
+                              <div className="min-w-0">
+                                <p className="text-xs font-semibold text-white leading-snug break-words">
+                                  {mov.concepto}
+                                </p>
+                                {mov.detalle && (
+                                  <p className="text-[11px] text-neutral-400 mt-1 break-words">
+                                    {mov.detalle}
+                                  </p>
+                                )}
+                              </div>
+
+                              {/* Fila 3: Importe del movimiento y Saldo acumulado */}
+                              <div className="grid grid-cols-2 gap-2 rounded-xl bg-white/[0.02] border border-white/5 p-2.5 tabular-nums">
+                                <div className="min-w-0">
+                                  <p className="text-[10px] font-mono uppercase text-neutral-500">
+                                    {esCargo ? "Debe (Cargo)" : "Haber (Pago)"}
+                                  </p>
+                                  <p
+                                    className={`text-sm font-bold font-mono mt-0.5 break-words ${
+                                      esCargo ? "text-neutral-100" : "text-emerald-400"
+                                    }`}
+                                  >
+                                    {esCargo
+                                      ? formatearMontoArs(mov.debe)
+                                      : `+ ${formatearMontoArs(mov.haber)}`}
+                                  </p>
+                                </div>
+                                <div className="min-w-0 text-right">
+                                  <p className="text-[10px] font-mono uppercase text-neutral-500">
+                                    Saldo acumulado
+                                  </p>
+                                  <p
+                                    className={`text-sm font-bold font-mono mt-0.5 break-words ${
+                                      mov.saldoAcumulado > 0 ? "text-amber-300" : "text-emerald-300"
+                                    }`}
+                                  >
+                                    {formatearMontoArs(mov.saldoAcumulado)}
+                                  </p>
+                                </div>
+                              </div>
+                            </button>
+                          );
+                        })}
                       </div>
-                    </div>
+
+                      {/* Vista Tabla Escritorio (>= md) */}
+                      <div className="hidden md:block bg-[#07090E] border border-white/10 rounded-2xl overflow-hidden">
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-left text-xs">
+                            <thead className="bg-white/[0.03] border-b border-white/10 text-[11px] font-mono uppercase text-neutral-400">
+                              <tr>
+                                <th className="py-3 px-4">Fecha</th>
+                                <th className="py-3 px-4">Tipo</th>
+                                <th className="py-3 px-4">Proyecto / Concepto</th>
+                                <th className="py-3 px-4 text-right">Debe</th>
+                                <th className="py-3 px-4 text-right">Haber</th>
+                                <th className="py-3 px-4 text-right">Saldo</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-white/5">
+                              {movimientosCuentaCorriente.map((mov) => (
+                                <tr
+                                  key={mov.id}
+                                  onClick={() => mov.proyectoId && onAbrirProyecto(mov.proyectoId)}
+                                  className="hover:bg-white/[0.03] transition-colors cursor-pointer"
+                                  title="Clic para abrir el proyecto asociado"
+                                >
+                                  <td className="py-3 px-4 font-mono text-neutral-300 whitespace-nowrap">
+                                    {formatearFechaCorta(mov.fecha)}
+                                  </td>
+                                  <td className="py-3 px-4 whitespace-nowrap">
+                                    {mov.tipo === "CARGO" ? (
+                                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-500/10 text-indigo-300 border border-indigo-500/30">
+                                        <ArrowUpRight className="w-3 h-3" />
+                                        Cargo
+                                      </span>
+                                    ) : (
+                                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">
+                                        <ArrowDownLeft className="w-3 h-3" />
+                                        Pago
+                                      </span>
+                                    )}
+                                  </td>
+                                  <td className="py-3 px-4">
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-mono text-[11px] text-sky-400">
+                                        {mov.referencia}
+                                      </span>
+                                      <span className="text-white font-medium">{mov.concepto}</span>
+                                    </div>
+                                    {mov.detalle && (
+                                      <p className="text-[11px] text-neutral-500 mt-0.5">{mov.detalle}</p>
+                                    )}
+                                  </td>
+                                  <td className="py-3 px-4 text-right font-mono tabular-nums text-neutral-200 whitespace-nowrap">
+                                    {mov.debe > 0 ? formatearMontoArs(mov.debe) : "—"}
+                                  </td>
+                                  <td className="py-3 px-4 text-right font-mono tabular-nums text-emerald-400 whitespace-nowrap">
+                                    {mov.haber > 0 ? formatearMontoArs(mov.haber) : "—"}
+                                  </td>
+                                  <td
+                                    className={`py-3 px-4 text-right font-mono font-semibold tabular-nums whitespace-nowrap ${
+                                      mov.saldoAcumulado > 0 ? "text-amber-300" : "text-emerald-300"
+                                    }`}
+                                  >
+                                    {formatearMontoArs(mov.saldoAcumulado)}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </>
                   )}
                 </div>
               )}
 
               {/* PESTAÑA 3: PROYECTOS (CLICABLES PARA ABRIR Y EDITAR) */}
               {pestana === "proyectos" && (
-                <div className="space-y-3">
+                <div className="space-y-3 min-w-0">
                   {cliente.proyectos.length === 0 ? (
-                    <div className="bg-[#07090E] border border-white/10 rounded-2xl p-12 text-center space-y-3">
+                    <div className="bg-[#07090E] border border-white/10 rounded-2xl p-10 sm:p-12 text-center space-y-3">
                       <p className="text-xs text-neutral-400">
                         Este cliente todavía no tiene proyectos contratados.
                       </p>
@@ -648,31 +745,23 @@ export function PanelDetalleCliente({
                       </button>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5 min-w-0">
                       {cliente.proyectos.map((proyecto) => (
                         <button
                           key={proyecto.id}
                           type="button"
                           onClick={() => onAbrirProyecto(proyecto.id)}
-                          className="text-left bg-[#07090E] hover:bg-white/[0.04] border border-white/10 hover:border-sky-500/40 rounded-2xl p-4 space-y-3 transition-all group cursor-pointer"
+                          className="w-full text-left bg-[#07090E] hover:bg-white/[0.04] border border-white/10 hover:border-sky-500/40 rounded-2xl p-4 space-y-3.5 transition-all group cursor-pointer min-w-0"
                         >
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="flex items-center gap-2.5 min-w-0">
-                              <FolderGit2 className="w-4 h-4 text-sky-400 shrink-0" />
-                              <div className="min-w-0">
-                                <p className="text-xs font-semibold text-white group-hover:text-sky-300 transition-colors truncate">
-                                  <span className="font-mono text-sky-400 mr-1.5">{proyecto.codigo}</span>
-                                  {proyecto.titulo}
-                                </p>
-                                <p className="text-[11px] text-neutral-400 mt-0.5">
-                                  Inicio: {formatearFechaCorta(proyecto.fechaInicio)} · Estimado:{" "}
-                                  {formatearFechaCorta(proyecto.fechaEstimadaFin)}
-                                </p>
-                              </div>
-                            </div>
+                          {/* Fila 1: Código en badge + Estado y flecha */}
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-sky-500/10 border border-sky-500/20 text-[11px] font-mono font-semibold text-sky-400 shrink-0">
+                              <FolderGit2 className="w-3.5 h-3.5 shrink-0" />
+                              <span>{proyecto.codigo}</span>
+                            </span>
                             <div className="flex items-center gap-1.5 shrink-0">
                               <span
-                                className="px-2 py-0.5 rounded-full text-[10px] font-medium border"
+                                className="px-2 py-0.5 rounded-full text-[10px] font-medium border whitespace-nowrap"
                                 style={{
                                   backgroundColor: `${proyecto.colorEstado || "#38bdf8"}15`,
                                   borderColor: `${proyecto.colorEstado || "#38bdf8"}40`,
@@ -681,14 +770,29 @@ export function PanelDetalleCliente({
                               >
                                 {proyecto.estado}
                               </span>
-                              <ChevronRight className="w-4 h-4 text-neutral-500 group-hover:text-sky-300 transition-colors" />
+                              <ChevronRight className="w-4 h-4 text-neutral-500 group-hover:text-sky-300 transition-colors shrink-0" />
                             </div>
                           </div>
 
+                          {/* Fila 2: Título completo y fechas */}
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-white group-hover:text-sky-300 transition-colors line-clamp-2 leading-snug">
+                              {proyecto.titulo}
+                            </p>
+                            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-neutral-400 mt-1">
+                              <span>Inicio: {formatearFechaCorta(proyecto.fechaInicio)}</span>
+                              <span className="text-neutral-600">·</span>
+                              <span>Estimado: {formatearFechaCorta(proyecto.fechaEstimadaFin)}</span>
+                            </div>
+                          </div>
+
+                          {/* Fila 3: Barra de progreso */}
                           <div className="space-y-1">
                             <div className="flex justify-between text-[11px] text-neutral-400">
                               <span>Progreso</span>
-                              <span className="font-mono text-sky-300">{proyecto.progresoPorcentaje}%</span>
+                              <span className="font-mono text-sky-300 font-semibold">
+                                {proyecto.progresoPorcentaje}%
+                              </span>
                             </div>
                             <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
                               <div
@@ -700,29 +804,36 @@ export function PanelDetalleCliente({
                             </div>
                           </div>
 
-                          <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-white/5 text-[11px] tabular-nums">
-                            <span className="text-neutral-400">
-                              Contratado:{" "}
-                              <strong className="text-white">
+                          {/* Fila 4: Resumen financiero en 3 columnas simétricas */}
+                          <div className="grid grid-cols-3 gap-2 rounded-xl bg-white/[0.02] border border-white/5 p-2.5 tabular-nums">
+                            <div className="min-w-0">
+                              <p className="text-[10px] font-mono uppercase text-neutral-500 truncate">
+                                Contratado
+                              </p>
+                              <p className="text-[11px] sm:text-xs font-semibold font-mono text-white mt-0.5 break-words">
                                 {formatearMontoArs(proyecto.montoTotalContratado)}
-                              </strong>
-                            </span>
-                            <span className="text-neutral-400">
-                              Cobrado:{" "}
-                              <strong className="text-emerald-300">
+                              </p>
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-[10px] font-mono uppercase text-neutral-500 truncate">
+                                Cobrado
+                              </p>
+                              <p className="text-[11px] sm:text-xs font-semibold font-mono text-emerald-300 mt-0.5 break-words">
                                 {formatearMontoArs(proyecto.montoCobradoAcumulado)}
-                              </strong>
-                            </span>
-                            <span className="text-neutral-400">
-                              Saldo:{" "}
-                              <strong
-                                className={
+                              </p>
+                            </div>
+                            <div className="min-w-0 text-right">
+                              <p className="text-[10px] font-mono uppercase text-neutral-500 truncate">
+                                Saldo
+                              </p>
+                              <p
+                                className={`text-[11px] sm:text-xs font-semibold font-mono mt-0.5 break-words ${
                                   proyecto.saldoPendiente > 0 ? "text-amber-300" : "text-neutral-300"
-                                }
+                                }`}
                               >
                                 {formatearMontoArs(proyecto.saldoPendiente)}
-                              </strong>
-                            </span>
+                              </p>
+                            </div>
                           </div>
                         </button>
                       ))}
@@ -733,7 +844,7 @@ export function PanelDetalleCliente({
 
               {/* PESTAÑA 4: PRESUPUESTOS */}
               {pestana === "presupuestos" && (
-                <div className="space-y-3">
+                <div className="space-y-3 min-w-0">
                   {cliente.presupuestos.length === 0 ? (
                     <p className="text-xs text-neutral-400 text-center py-8">
                       Este cliente todavía no tiene presupuestos emitidos.
@@ -742,12 +853,12 @@ export function PanelDetalleCliente({
                     cliente.presupuestos.map((presupuesto) => (
                       <div
                         key={presupuesto.id}
-                        className="bg-[#07090E] border border-white/10 rounded-xl p-4 flex items-center justify-between gap-4"
+                        className="bg-[#07090E] border border-white/10 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 min-w-0"
                       >
-                        <div className="flex items-center gap-3 min-w-0">
-                          <FileSpreadsheet className="w-4 h-4 text-sky-400 shrink-0" />
+                        <div className="flex items-start sm:items-center gap-3 min-w-0">
+                          <FileSpreadsheet className="w-4 h-4 text-sky-400 shrink-0 mt-0.5 sm:mt-0" />
                           <div className="min-w-0">
-                            <div className="flex items-center gap-2">
+                            <div className="flex flex-wrap items-center gap-2">
                               <span className="text-xs font-mono font-semibold text-white">
                                 {presupuesto.codigo}
                               </span>
@@ -765,9 +876,14 @@ export function PanelDetalleCliente({
                             </p>
                           </div>
                         </div>
-                        <p className="text-sm font-semibold text-white tabular-nums shrink-0">
-                          {formatearMontoArs(presupuesto.totalPresupuestado)}
-                        </p>
+                        <div className="flex items-center justify-between sm:block pt-2.5 sm:pt-0 border-t sm:border-t-0 border-white/5 shrink-0">
+                          <span className="sm:hidden text-[10px] font-mono uppercase text-neutral-500">
+                            Total cotizado
+                          </span>
+                          <p className="text-sm font-semibold font-mono text-white tabular-nums">
+                            {formatearMontoArs(presupuesto.totalPresupuestado)}
+                          </p>
+                        </div>
                       </div>
                     ))
                   )}
@@ -776,7 +892,7 @@ export function PanelDetalleCliente({
 
               {/* PESTAÑA 5: CITAS */}
               {pestana === "citas" && (
-                <div className="space-y-3">
+                <div className="space-y-3 min-w-0">
                   {cliente.citas.length === 0 ? (
                     <p className="text-xs text-neutral-400 text-center py-8">
                       No se registran reuniones ni solicitudes de contacto para este cliente.
@@ -785,17 +901,17 @@ export function PanelDetalleCliente({
                     cliente.citas.map((cita) => (
                       <div
                         key={cita.id}
-                        className="bg-[#07090E] border border-white/10 rounded-xl p-4 space-y-1.5"
+                        className="bg-[#07090E] border border-white/10 rounded-2xl p-4 space-y-1.5 min-w-0"
                       >
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 min-w-0">
                             <CalendarDays className="w-4 h-4 text-sky-400 shrink-0" />
-                            <span className="text-xs font-medium text-white">
+                            <span className="text-xs font-medium text-white truncate">
                               {cita.modalidadDescripcion}
                             </span>
                           </div>
                           <span
-                            className={`px-2 py-0.5 rounded-full text-[10px] border ${obtenerClaseBadgeCita(
+                            className={`px-2 py-0.5 rounded-full text-[10px] border shrink-0 ${obtenerClaseBadgeCita(
                               cita.estado
                             )}`}
                           >
