@@ -1078,10 +1078,10 @@ function ProyectosContenido() {
       {/* MODAL DETALLE / HISTORIA CLÍNICA INTEGRAL (5 PESTAÑAS)                     */}
       {/* ========================================================================= */}
       {proyectoSeleccionadoId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-          <div className="w-full max-w-6xl max-h-[92vh] flex flex-col rounded-3xl bg-neutral-900 border border-white/10 shadow-2xl overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:px-[5vw] sm:py-[5vh] bg-black/80 backdrop-blur-md animate-fadeIn">
+          <div className="w-full h-full flex flex-col rounded-2xl sm:rounded-3xl bg-neutral-900 border border-white/10 shadow-2xl overflow-hidden min-w-0">
             {/* Header del Modal */}
-            <div className="px-5 py-4 border-b border-white/10 flex flex-wrap items-center justify-between gap-3 bg-white/[0.02]">
+            <div className="px-4 py-3.5 sm:px-5 sm:py-4 border-b border-white/10 flex flex-wrap items-center justify-between gap-3 bg-white/[0.02] shrink-0">
               <div className="flex items-center gap-3 min-w-0">
                 <div className="w-10 h-10 rounded-2xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400 flex-shrink-0">
                   <FolderGit2 className="w-5 h-5" />
@@ -1174,7 +1174,7 @@ function ProyectosContenido() {
             </div>
 
             {/* Selector de Pestañas */}
-            <div className="flex border-b border-white/10 bg-neutral-950/40 px-5 gap-2 overflow-x-auto">
+            <div className="flex border-b border-white/10 bg-neutral-950/40 px-4 sm:px-5 gap-2 overflow-x-auto shrink-0">
               {[
                 { id: "general", label: "General & Enlaces", icon: Bookmark },
                 { id: "alcance", label: "Alcance y Límites", icon: ListChecks, count: proyectoDetalle?.itemsAlcance?.length ?? 0 },
@@ -1207,7 +1207,7 @@ function ProyectosContenido() {
             </div>
 
             {/* Contenido de la Historia Clínica */}
-            <div className="flex-1 overflow-y-auto p-5 text-neutral-300 text-xs">
+            <div className="flex-1 min-h-0 overflow-y-auto [scrollbar-gutter:stable] p-4 sm:p-5 text-neutral-300 text-xs">
               {cargandoDetalle ? (
                 <div className="py-20 flex flex-col items-center justify-center gap-3 text-neutral-500">
                   <RefreshCw className="w-8 h-8 animate-spin text-sky-400" />

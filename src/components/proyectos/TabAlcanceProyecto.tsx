@@ -211,15 +211,18 @@ export function TabAlcanceProyecto({
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 min-w-0">
         {COLUMNAS_ALCANCE.map((columna) => {
           const itemsColumna = itemsPorTipo[columna.tipo];
           const estaCreando = creandoPorTipo[columna.tipo];
+          const esFueraDeAlcance = columna.tipo === "FUERA_ALCANCE";
 
           return (
             <section
               key={columna.tipo}
-              className={`rounded-xl bg-neutral-950/60 border border-white/10 ${columna.bordeSuperior} flex flex-col overflow-hidden`}
+              className={`rounded-xl bg-neutral-950/60 border border-white/10 ${columna.bordeSuperior} flex flex-col overflow-hidden min-w-0 ${
+                esFueraDeAlcance ? "md:col-span-2" : ""
+              }`}
             >
               {/* Encabezado de columna */}
               <div className="px-3 py-2.5 border-b border-white/10 bg-white/[0.02] flex items-center justify-between gap-2">
