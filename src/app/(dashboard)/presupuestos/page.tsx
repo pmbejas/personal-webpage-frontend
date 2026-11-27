@@ -475,7 +475,7 @@ function PresupuestosContenido() {
       cargarCatalogo();
 
       setFormConstructor({
-        clienteId: detalle.cliente.id,
+        clienteId: detalle.cliente.id || null,
         clienteNombre: detalle.cliente.nombreCompleto,
         clienteEmail: detalle.cliente.email,
         clienteTelefonoWhatsApp: detalle.cliente.telefonoWhatsApp,

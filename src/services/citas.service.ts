@@ -2,7 +2,7 @@ import api from "./api";
 
 export interface CitaAdminDto {
   id: string;
-  clienteId: string;
+  clienteId?: string | null;
   clienteNombre: string;
   clienteEmail: string;
   clienteTelefonoWhatsApp: string;

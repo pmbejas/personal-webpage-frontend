@@ -1494,7 +1494,7 @@ export default function ProyectosPage() {
                         setFormCrear((prev) => ({
                           ...prev,
                           presupuestoId: detalle.id,
-                          clienteId: detalle.cliente.id,
+                          clienteId: detalle.cliente.id || "",
                           titulo: `Proyecto ${pres.servicioPrincipal} - ${detalle.cliente.nombreCompleto}`,
                           montoTotalContratado: detalle.totalPresupuestado,
                           moneda: detalle.moneda,

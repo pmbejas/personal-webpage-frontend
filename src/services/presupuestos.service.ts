@@ -22,7 +22,7 @@ export interface PresupuestoListadoAdminDto {
 }
 
 export interface ClienteDetalleDto {
-  id: string;
+  id?: string | null;
   nombreCompleto: string;
   email: string;
   telefonoWhatsApp: string;
