@@ -25,6 +25,7 @@ import {
   formatearFechaCorta,
   formatearFechaHora,
   formatearMontoArs,
+  formatearNombreCliente,
   obtenerIniciales,
 } from "@/utils/formatosClientes";
 
@@ -135,7 +136,7 @@ export function PanelDetalleCliente({
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <h2 className="text-lg font-semibold text-white truncate">
-                        {cliente.nombreCompleto}
+                        {formatearNombreCliente(cliente)}
                       </h2>
                       <span
                         className={`px-2 py-0.5 rounded-full text-[11px] font-medium border ${

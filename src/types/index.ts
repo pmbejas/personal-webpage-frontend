@@ -48,6 +48,8 @@ export interface FiltrosClientesRequest {
 
 export interface ClienteListadoResponse {
   id: string;
+  nombre: string;
+  apellido: string;
   nombreCompleto: string;
   email: string;
   telefonoWhatsApp: string;
@@ -110,6 +112,8 @@ export interface ClienteCitaResumenResponse {
 
 export interface ClienteDetalleResponse {
   id: string;
+  nombre: string;
+  apellido: string;
   nombreCompleto: string;
   email: string;
   telefonoWhatsApp: string;
@@ -139,6 +143,8 @@ export interface ClienteDetalleResponse {
 
 export interface ClienteSelectorResponse {
   id: string;
+  nombre: string;
+  apellido: string;
   nombreCompleto: string;
   email: string;
   telefonoWhatsApp: string;
@@ -164,7 +170,8 @@ export interface EstadisticasClientesResponse {
 }
 
 export interface CrearClienteRequest {
-  nombreCompleto: string;
+  nombre: string;
+  apellido: string;
   email: string;
   telefonoWhatsApp: string;
   empresa?: string | null;
@@ -175,7 +182,8 @@ export interface CrearClienteRequest {
 }
 
 export interface ActualizarClienteRequest {
-  nombreCompleto: string;
+  nombre: string;
+  apellido: string;
   email: string;
   telefonoWhatsApp: string;
   empresa?: string | null;

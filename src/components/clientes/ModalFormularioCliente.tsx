@@ -17,7 +17,8 @@ interface ModalFormularioClienteProps {
 }
 
 interface EstadoFormularioCliente {
-  nombreCompleto: string;
+  apellido: string;
+  nombre: string;
   email: string;
   telefonoWhatsApp: string;
   empresa: string;
@@ -28,7 +29,8 @@ interface EstadoFormularioCliente {
 }
 
 const ESTADO_INICIAL: EstadoFormularioCliente = {
-  nombreCompleto: "",
+  apellido: "",
+  nombre: "",
   email: "",
   telefonoWhatsApp: "",
   empresa: "",
@@ -59,7 +61,8 @@ export function ModalFormularioCliente({
     setErrorLocal(null);
     if (clienteEditando) {
       setFormulario({
-        nombreCompleto: clienteEditando.nombreCompleto,
+        apellido: clienteEditando.apellido ?? "",
+        nombre: clienteEditando.nombre || clienteEditando.nombreCompleto || "",
         email: clienteEditando.email,
         telefonoWhatsApp: clienteEditando.telefonoWhatsApp,
         empresa: clienteEditando.empresa ?? "",
@@ -100,8 +103,12 @@ export function ModalFormularioCliente({
     evento.preventDefault();
     setErrorLocal(null);
 
-    if (!formulario.nombreCompleto.trim()) {
-      setErrorLocal("El nombre completo es obligatorio.");
+    if (!formulario.apellido.trim()) {
+      setErrorLocal("El apellido es obligatorio.");
+      return;
+    }
+    if (!formulario.nombre.trim()) {
+      setErrorLocal("El nombre es obligatorio.");
       return;
     }
     if (!formulario.email.trim() || !formulario.email.includes("@")) {
@@ -114,7 +121,8 @@ export function ModalFormularioCliente({
     }
 
     const cargaUtil: CrearClienteRequest = {
-      nombreCompleto: formulario.nombreCompleto.trim(),
+      apellido: formulario.apellido.trim(),
+      nombre: formulario.nombre.trim(),
       email: formulario.email.trim(),
       telefonoWhatsApp: formulario.telefonoWhatsApp.trim(),
       empresa: formulario.empresa.trim() || null,
@@ -171,18 +179,34 @@ export function ModalFormularioCliente({
           )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="sm:col-span-2">
+            <div>
               <label className="block text-xs font-medium text-neutral-300 mb-1.5">
-                Nombre completo *
+                Apellido *
               </label>
               <input
                 type="text"
-                value={formulario.nombreCompleto}
-                onChange={(e) => actualizarCampo("nombreCompleto", e.target.value)}
-                placeholder="Ej: Martín González"
-                maxLength={150}
+                value={formulario.apellido}
+                onChange={(e) => actualizarCampo("apellido", e.target.value)}
+                placeholder="Ej: González"
+                maxLength={100}
                 required
-                aria-label="Nombre completo del cliente"
+                aria-label="Apellido del cliente"
+                className={CLASE_INPUT}
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-neutral-300 mb-1.5">
+                Nombre *
+              </label>
+              <input
+                type="text"
+                value={formulario.nombre}
+                onChange={(e) => actualizarCampo("nombre", e.target.value)}
+                placeholder="Ej: Martín"
+                maxLength={100}
+                required
+                aria-label="Nombre del cliente"
                 className={CLASE_INPUT}
               />
             </div>

@@ -54,13 +54,24 @@ import { ClienteSelectorResponse } from "@/types";
 
 // Configuración de Estados predefinidos
 const ESTADOS_PREDEFINIDOS = [
-  { nombre: "Planificación", color: "#38bdf8", badge: "bg-sky-500/10 text-sky-300 border-sky-500/30" },
   { nombre: "Desarrollo", color: "#6366f1", badge: "bg-indigo-500/10 text-indigo-300 border-indigo-500/30" },
-  { nombre: "Revisión / Staging", color: "#f59e0b", badge: "bg-amber-500/10 text-amber-300 border-amber-500/30" },
+  { nombre: "Revisión", color: "#f59e0b", badge: "bg-amber-500/10 text-amber-300 border-amber-500/30" },
   { nombre: "Entregado", color: "#10b981", badge: "bg-emerald-500/10 text-emerald-300 border-emerald-500/30" },
   { nombre: "Pausado", color: "#64748b", badge: "bg-slate-500/10 text-slate-300 border-slate-500/30" },
   { nombre: "Cancelado", color: "#f43f5e", badge: "bg-rose-500/10 text-rose-300 border-rose-500/30" },
 ];
+
+function normalizarFechaIsoUtc(fecha?: string | null): string | null {
+  if (!fecha || !fecha.trim()) return null;
+  const limpia = fecha.trim();
+  const fechaObj = limpia.length === 10 ? new Date(`${limpia}T00:00:00.000Z`) : new Date(limpia);
+  return Number.isNaN(fechaObj.getTime()) ? null : fechaObj.toISOString();
+}
+
+function normalizarTextoOpcional(valor?: string | null): string | null {
+  if (!valor || !valor.trim()) return null;
+  return valor.trim();
+}
 
 interface TareaMinutaItem {
   id: string;
@@ -135,8 +146,8 @@ function ProyectosContenido() {
   const [formEditar, setFormEditar] = useState<ActualizarProyectoRequest>({
     titulo: "",
     descripcion: "",
-    estado: "Planificación",
-    colorEstado: "#38bdf8",
+    estado: "Desarrollo",
+    colorEstado: "#6366f1",
     progresoPorcentaje: 0,
     montoTotalContratado: 0,
     fechaInicio: "",
@@ -260,6 +271,8 @@ function ProyectosContenido() {
         if (!activo) return;
         reiniciarFormularioCrear({
           id: detalle.id,
+          nombre: detalle.nombre,
+          apellido: detalle.apellido,
           nombreCompleto: detalle.nombreCompleto,
           email: detalle.email,
           telefonoWhatsApp: detalle.telefonoWhatsApp,
@@ -329,13 +342,32 @@ function ProyectosContenido() {
   // Crear Proyecto
   const guardarNuevoProyecto = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formCrear.titulo.trim() || (!formCrear.clienteId && !formCrear.presupuestoId)) {
+    const clienteIdLimpio = normalizarTextoOpcional(formCrear.clienteId);
+    const presupuestoIdLimpio = normalizarTextoOpcional(formCrear.presupuestoId);
+
+    if (!formCrear.titulo.trim() || (!clienteIdLimpio && !presupuestoIdLimpio)) {
       alert("Por favor complete el título y seleccione un cliente o presupuesto.");
       return;
     }
+
+    const payload: CrearProyectoRequest = {
+      titulo: formCrear.titulo.trim(),
+      descripcion: normalizarTextoOpcional(formCrear.descripcion),
+      clienteId: clienteIdLimpio,
+      presupuestoId: presupuestoIdLimpio,
+      montoTotalContratado: Number.isFinite(formCrear.montoTotalContratado) ? formCrear.montoTotalContratado : 0,
+      moneda: formCrear.moneda || "ARS",
+      fechaInicio: normalizarFechaIsoUtc(formCrear.fechaInicio),
+      fechaEstimadaFin: normalizarFechaIsoUtc(formCrear.fechaEstimadaFin),
+      repositorioGitUrl: normalizarTextoOpcional(formCrear.repositorioGitUrl),
+      urlStaging: normalizarTextoOpcional(formCrear.urlStaging),
+      urlProduccion: normalizarTextoOpcional(formCrear.urlProduccion),
+      notasInternas: normalizarTextoOpcional(formCrear.notasInternas),
+    };
+
     setGuardando(true);
     try {
-      await servicioProyectos.crear(formCrear);
+      await servicioProyectos.crear(payload);
       setModalCrearAbierto(false);
       setClienteSeleccionadoCrear(null);
       setMensajeFeedback("¡Proyecto creado y dado de alta exitosamente!");
@@ -353,9 +385,25 @@ function ProyectosContenido() {
   const guardarEdicionProyecto = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!proyectoSeleccionadoId) return;
+
+    const payload: ActualizarProyectoRequest = {
+      titulo: formEditar.titulo.trim(),
+      descripcion: normalizarTextoOpcional(formEditar.descripcion),
+      estado: formEditar.estado,
+      colorEstado: formEditar.colorEstado,
+      progresoPorcentaje: formEditar.progresoPorcentaje,
+      montoTotalContratado: Number.isFinite(formEditar.montoTotalContratado) ? formEditar.montoTotalContratado : 0,
+      fechaInicio: normalizarFechaIsoUtc(formEditar.fechaInicio),
+      fechaEstimadaFin: normalizarFechaIsoUtc(formEditar.fechaEstimadaFin),
+      repositorioGitUrl: normalizarTextoOpcional(formEditar.repositorioGitUrl),
+      urlStaging: normalizarTextoOpcional(formEditar.urlStaging),
+      urlProduccion: normalizarTextoOpcional(formEditar.urlProduccion),
+      notasInternas: normalizarTextoOpcional(formEditar.notasInternas),
+    };
+
     setGuardando(true);
     try {
-      await servicioProyectos.actualizar(proyectoSeleccionadoId, formEditar);
+      await servicioProyectos.actualizar(proyectoSeleccionadoId, payload);
       setModalEditarAbierto(false);
       setMensajeFeedback("Proyecto actualizado correctamente.");
       setTimeout(() => setMensajeFeedback(null), 4000);
@@ -679,20 +727,24 @@ function ProyectosContenido() {
           />
         </div>
 
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0">
-          {["Todos", "Planificación", "Desarrollo", "Revisión / Staging", "Entregado", "Pausado"].map((est) => (
-            <button
-              key={est}
-              onClick={() => setFiltroEstado(est)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${
-                filtroEstado === est
-                  ? "bg-sky-500/20 text-sky-300 border border-sky-500/40"
-                  : "bg-white/5 text-neutral-400 hover:text-white border border-transparent"
-              }`}
-            >
-              {est}
-            </button>
-          ))}
+        <div className="flex items-center gap-2">
+          <label htmlFor="filtro-estado-proyecto" className="sr-only">
+            Filtrar por estado
+          </label>
+          <select
+            id="filtro-estado-proyecto"
+            value={filtroEstado}
+            onChange={(e) => setFiltroEstado(e.target.value)}
+            aria-label="Filtrar proyectos por estado"
+            className="px-3.5 py-2 rounded-xl bg-[#0B0F17] border border-white/10 text-neutral-200 text-xs font-medium focus:outline-none focus:border-sky-500 transition-colors min-w-[175px]"
+          >
+            <option value="Todos">Todos los estados</option>
+            {ESTADOS_PREDEFINIDOS.map((est) => (
+              <option key={est.nombre} value={est.nombre}>
+                {est.nombre}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="flex items-center gap-1 border-l border-white/10 pl-2">
@@ -1590,6 +1642,8 @@ function ProyectosContenido() {
                         if (detalle.cliente.id) {
                           setClienteSeleccionadoCrear({
                             id: detalle.cliente.id,
+                            nombre: "",
+                            apellido: "",
                             nombreCompleto: detalle.cliente.nombreCompleto,
                             email: detalle.cliente.email,
                             telefonoWhatsApp: detalle.cliente.telefonoWhatsApp,

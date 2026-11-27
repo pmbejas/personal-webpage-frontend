@@ -21,6 +21,7 @@ import { ClienteListadoResponse } from "@/types";
 import {
   formatearFechaCorta,
   formatearMontoArs,
+  formatearNombreCliente,
   obtenerIniciales,
 } from "@/utils/formatosClientes";
 
@@ -142,7 +143,7 @@ export function TablaClientes({
                         </div>
                         <div className="min-w-0">
                           <p className="font-semibold text-white group-hover:text-sky-300 transition-colors truncate max-w-[220px]">
-                            {cliente.nombreCompleto}
+                            {formatearNombreCliente(cliente)}
                           </p>
                           <div className="flex flex-wrap items-center gap-2 text-[11px] text-neutral-400 mt-0.5">
                             {cliente.empresa && (
@@ -318,7 +319,7 @@ export function TablaClientes({
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-white truncate">
-                      {cliente.nombreCompleto}
+                      {formatearNombreCliente(cliente)}
                     </p>
                     <p className="text-xs text-neutral-400 truncate">{cliente.email}</p>
                   </div>

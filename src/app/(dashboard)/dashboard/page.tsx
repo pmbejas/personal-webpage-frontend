@@ -176,8 +176,8 @@ export default function DashboardPage() {
           <div className="mt-3 space-y-1">
             <div className="flex justify-between text-[11px] font-mono text-neutral-400">
               <span>{metricas?.porcentajeCobradoGlobal ?? 0}% de cartera</span>
-              <span className="text-amber-400/90">
-                Resta: {formatearMoneda(metricas?.saldoTotalPendiente ?? 0)}
+              <span className="text-emerald-400/90">
+                Cartera: {formatearMoneda(metricas?.montoTotalCartera ?? 0)}
               </span>
             </div>
             <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
@@ -189,28 +189,27 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* KPI 2: Pipeline y Conversión */}
-        <div className="p-5 rounded-2xl bg-gradient-to-br from-neutral-900/90 to-neutral-900/40 border border-white/10 relative overflow-hidden group hover:border-sky-500/30 transition-all shadow-xl">
+        {/* KPI 2: Cobro Pendiente Total en Proyectos */}
+        <div className="p-5 rounded-2xl bg-gradient-to-br from-neutral-900/90 to-neutral-900/40 border border-white/10 relative overflow-hidden group hover:border-amber-500/30 transition-all shadow-xl">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-mono text-neutral-400 uppercase tracking-wider">
-              Conversión Comercial
+              Cobro Pendiente Total
             </span>
-            <div className="w-8 h-8 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center">
-              <TrendingUp className="w-4 h-4" />
+            <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center">
+              <CreditCard className="w-4 h-4" />
             </div>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-              {metricas?.tasaConversionPorcentaje ?? 0}%
-            </span>
-            <span className="text-xs font-mono text-emerald-400">
-              {metricas?.presupuestosAprobados ?? 0} aprobados
+            <span className="text-2xl sm:text-3xl font-bold text-amber-300 tracking-tight">
+              {formatearMoneda(metricas?.saldoTotalPendiente ?? 0)}
             </span>
           </div>
           <p className="text-[11px] text-neutral-400 mt-3 flex items-center justify-between font-mono">
-            <span>{metricas?.totalPresupuestosEmitidos ?? 0} emitidos</span>
+            <span>
+              {Math.max(0, 100 - (metricas?.porcentajeCobradoGlobal ?? 0)).toFixed(1)}% por cobrar
+            </span>
             <span className="text-sky-300">
-              Cotizado: {formatearMoneda(metricas?.montoTotalCotizado ?? 0)}
+              Total: {formatearMoneda(metricas?.montoTotalCartera ?? 0)}
             </span>
           </p>
         </div>

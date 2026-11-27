@@ -48,6 +48,26 @@ export function formatearFechaHora(fechaIso?: string | null): string {
   return FORMATEADOR_FECHA_HORA.format(fecha);
 }
 
+export function formatearNombreCliente(cliente: {
+  nombre?: string | null;
+  apellido?: string | null;
+  nombreCompleto?: string | null;
+}): string {
+  const apellido = cliente.apellido?.trim() ?? "";
+  const nombre = cliente.nombre?.trim() ?? "";
+
+  if (apellido && nombre) {
+    return `${apellido}, ${nombre}`;
+  }
+  if (nombre) {
+    return nombre;
+  }
+  if (apellido) {
+    return apellido;
+  }
+  return cliente.nombreCompleto?.trim() || "Sin nombre";
+}
+
 export function obtenerIniciales(nombreCompleto: string): string {
   const partes = nombreCompleto
     .trim()

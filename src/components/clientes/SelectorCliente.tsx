@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Search, X, Building2, Mail, Phone, FileBadge2, Loader2, UserCheck } from "lucide-react";
 import { servicioClientes } from "@/services/clientes.service";
 import { ClienteSelectorResponse } from "@/types";
-import { obtenerIniciales } from "@/utils/formatosClientes";
+import { formatearNombreCliente, obtenerIniciales } from "@/utils/formatosClientes";
 
 interface SelectorClienteProps {
   clienteSeleccionado: ClienteSelectorResponse | null;
@@ -25,7 +25,7 @@ export function SelectorCliente({
   onSeleccionar,
   etiqueta = "Buscar cliente registrado",
   descripcion,
-  placeholder = "Buscar por nombre, email, empresa, WhatsApp o CUIT/CUIL...",
+  placeholder = "Buscar por apellido, nombre, email, empresa, WhatsApp o CUIT/CUIL...",
   obligatorio = false,
 }: SelectorClienteProps) {
   const [busqueda, setBusqueda] = useState<string>("");
@@ -107,7 +107,7 @@ export function SelectorCliente({
               <div className="flex items-center gap-1.5">
                 <UserCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                 <p className="text-xs font-semibold text-white truncate">
-                  {clienteSeleccionado.nombreCompleto}
+                  {formatearNombreCliente(clienteSeleccionado)}
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-x-2.5 gap-y-0.5 text-[11px] text-neutral-300 mt-0.5">
@@ -183,7 +183,7 @@ export function SelectorCliente({
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center justify-between gap-2">
                             <p className="text-xs font-semibold text-white truncate">
-                              {cliente.nombreCompleto}
+                              {formatearNombreCliente(cliente)}
                             </p>
                             {cliente.empresa && (
                               <span className="inline-flex items-center gap-1 text-[10px] text-sky-300 shrink-0">

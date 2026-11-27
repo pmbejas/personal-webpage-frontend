@@ -106,7 +106,7 @@ export interface EstadisticasProyectosDto {
 export interface CrearProyectoRequest {
   titulo: string;
   descripcion?: string | null;
-  clienteId: string;
+  clienteId?: string | null;
   presupuestoId?: string | null;
   montoTotalContratado: number;
   moneda?: string;
