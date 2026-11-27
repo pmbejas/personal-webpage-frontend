@@ -15,6 +15,7 @@ import {
   RotateCcw,
   Save,
   FileSpreadsheet,
+  FileDown,
   FolderGit2,
   FolderPlus,
   CalendarDays,
@@ -63,10 +64,12 @@ interface PanelDetalleClienteProps {
   cargando: boolean;
   guardandoNotas: boolean;
   procesandoEstado: boolean;
+  descargandoPdfCuentaCorriente?: boolean;
   onCerrar: () => void;
   onCrearProyecto: (id: string) => void;
   onAbrirProyecto: (proyectoId: string) => void;
   onRegistrarPago: () => void;
+  onDescargarPdfCuentaCorriente?: () => Promise<void>;
   onEditar: (cliente: ClienteDetalleResponse) => void;
   onAlternarEstado: (id: string) => Promise<void>;
   onGuardarNotas: (id: string, notas: string) => Promise<void>;
@@ -105,10 +108,12 @@ export function PanelDetalleCliente({
   cargando,
   guardandoNotas,
   procesandoEstado,
+  descargandoPdfCuentaCorriente = false,
   onCerrar,
   onCrearProyecto,
   onAbrirProyecto,
   onRegistrarPago,
+  onDescargarPdfCuentaCorriente,
   onEditar,
   onAlternarEstado,
   onGuardarNotas,
@@ -524,18 +529,45 @@ export function PanelDetalleCliente({
                         Cargos por proyectos contratados y pagos imputados ordenados cronológicamente.
                       </p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={onRegistrarPago}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-neutral-950 transition-colors cursor-pointer shrink-0"
-                    >
-                      <DollarSign className="w-3.5 h-3.5" />
-                      <span>Registrar pago</span>
-                    </button>
+                    <div className="flex flex-wrap items-center gap-2 shrink-0">
+                      {onDescargarPdfCuentaCorriente && (
+                        <button
+                          type="button"
+                          onClick={onDescargarPdfCuentaCorriente}
+                          disabled={descargandoPdfCuentaCorriente}
+                          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-medium bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 transition-colors disabled:opacity-50 cursor-pointer shrink-0"
+                        >
+                          <FileDown className="w-3.5 h-3.5" />
+                          <span>
+                            {descargandoPdfCuentaCorriente ? "Generando PDF..." : "Exportar PDF"}
+                          </span>
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={onRegistrarPago}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-neutral-950 transition-colors cursor-pointer shrink-0"
+                      >
+                        <DollarSign className="w-3.5 h-3.5" />
+                        <span>Registrar pago</span>
+                      </button>
+                    </div>
                   </div>
 
-                  {/* Resumen financiero (2 + 1 destacado en móvil, 3 columnas en escritorio) */}
+                  {/* Resumen financiero (Saldo Pendiente primero: ancho completo arriba en móvil, 1ª columna en escritorio) */}
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3.5 min-w-0">
+                    <div className="col-span-2 sm:col-span-1 bg-[#07090E] border border-white/10 rounded-xl p-3.5 sm:p-4 min-w-0">
+                      <p className="text-[10px] sm:text-[11px] font-mono uppercase text-neutral-400 truncate">
+                        Saldo Pendiente
+                      </p>
+                      <p
+                        className={`text-lg sm:text-xl font-bold tabular-nums mt-1 break-words ${
+                          cliente.saldoPendiente > 0 ? "text-amber-300" : "text-emerald-300"
+                        }`}
+                      >
+                        {formatearMontoArs(cliente.saldoPendiente)}
+                      </p>
+                    </div>
                     <div className="bg-[#07090E] border border-white/10 rounded-xl p-3.5 sm:p-4 min-w-0">
                       <p className="text-[10px] sm:text-[11px] font-mono uppercase text-neutral-400 truncate">
                         Contratado (Debe)
@@ -550,18 +582,6 @@ export function PanelDetalleCliente({
                       </p>
                       <p className="text-base sm:text-xl font-bold text-emerald-400 tabular-nums mt-1 break-words">
                         {formatearMontoArs(cliente.montoTotalCobrado)}
-                      </p>
-                    </div>
-                    <div className="col-span-2 sm:col-span-1 bg-[#07090E] border border-white/10 rounded-xl p-3.5 sm:p-4 min-w-0">
-                      <p className="text-[10px] sm:text-[11px] font-mono uppercase text-neutral-400 truncate">
-                        Saldo Pendiente
-                      </p>
-                      <p
-                        className={`text-lg sm:text-xl font-bold tabular-nums mt-1 break-words ${
-                          cliente.saldoPendiente > 0 ? "text-amber-300" : "text-emerald-300"
-                        }`}
-                      >
-                        {formatearMontoArs(cliente.saldoPendiente)}
                       </p>
                     </div>
                   </div>

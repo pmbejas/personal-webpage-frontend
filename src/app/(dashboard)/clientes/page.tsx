@@ -60,6 +60,8 @@ export default function ClientesPage() {
     abrirModalRegistrarPago,
     cerrarModalRegistrarPago,
     registrarPagoCliente,
+    descargandoPdfCuentaCorriente,
+    descargarCuentaCorrientePdf,
     alternarEstadoActivo,
     clienteParaCambiarEstado,
     solicitarCambioEstado,
@@ -226,10 +228,12 @@ export default function ClientesPage() {
         cargando={cargandoDetalle}
         guardandoNotas={guardandoNotas}
         procesandoEstado={Boolean(clienteDetalle && procesandoAccionId === clienteDetalle.id)}
+        descargandoPdfCuentaCorriente={descargandoPdfCuentaCorriente}
         onCerrar={cerrarDetalle}
         onCrearProyecto={abrirNuevoProyectoParaCliente}
         onAbrirProyecto={abrirProyectoExistente}
         onRegistrarPago={abrirModalRegistrarPago}
+        onDescargarPdfCuentaCorriente={descargarCuentaCorrientePdf}
         onEditar={abrirModalEditarDesdeDetalle}
         onAlternarEstado={async () => {
           if (clienteDetalle) {

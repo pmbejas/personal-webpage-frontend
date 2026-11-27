@@ -119,6 +119,29 @@ export const servicioClientes = {
   },
 
   /**
+   * Descarga el Estado de Cuenta Corriente del cliente en formato PDF A4.
+   */
+  descargarCuentaCorrientePdf: async (clienteId: string, nombreCliente: string): Promise<void> => {
+    const blob = await api.get<never, Blob>(`/admin/clientes/${clienteId}/cuenta-corriente/pdf`, {
+      responseType: "blob",
+    });
+
+    const nombreLimpio = (nombreCliente || "Cliente")
+      .trim()
+      .replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ]+/g, "_")
+      .replace(/^_+|_+$/g, "");
+
+    const urlTemporal = window.URL.createObjectURL(blob);
+    const enlace = document.createElement("a");
+    enlace.href = urlTemporal;
+    enlace.download = `Cuenta_Corriente_${nombreLimpio || "Cliente"}.pdf`;
+    document.body.appendChild(enlace);
+    enlace.click();
+    enlace.remove();
+    window.URL.revokeObjectURL(urlTemporal);
+  },
+
+  /**
    * Elimina físicamente un cliente si no posee registros vinculados.
    */
   eliminar: async (id: string): Promise<boolean> => {

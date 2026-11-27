@@ -61,6 +61,7 @@ export function useClientes() {
   const [guardandoNotas, setGuardandoNotas] = useState<boolean>(false);
   const [modalPagoAbierto, setModalPagoAbierto] = useState<boolean>(false);
   const [guardandoPago, setGuardandoPago] = useState<boolean>(false);
+  const [descargandoPdfCuentaCorriente, setDescargandoPdfCuentaCorriente] = useState<boolean>(false);
   const [procesandoAccionId, setProcesandoAccionId] = useState<string | null>(null);
 
   // Debounce de búsqueda textual
@@ -166,6 +167,25 @@ export function useClientes() {
       toast.error(extraerMensajeError(error, "No se pudo registrar el pago."));
     } finally {
       setGuardandoPago(false);
+    }
+  };
+
+  const descargarCuentaCorrientePdf = async () => {
+    if (!clienteDetalle || descargandoPdfCuentaCorriente) return;
+
+    const nombreBase =
+      clienteDetalle.apellido && clienteDetalle.nombre
+        ? `${clienteDetalle.apellido}_${clienteDetalle.nombre}`
+        : clienteDetalle.nombreCompleto;
+
+    try {
+      setDescargandoPdfCuentaCorriente(true);
+      await servicioClientes.descargarCuentaCorrientePdf(clienteDetalle.id, nombreBase);
+      toast.success("PDF de cuenta corriente descargado correctamente.");
+    } catch (error: unknown) {
+      toast.error(extraerMensajeError(error, "No se pudo generar el PDF de la cuenta corriente."));
+    } finally {
+      setDescargandoPdfCuentaCorriente(false);
     }
   };
 
@@ -347,6 +367,8 @@ export function useClientes() {
     abrirModalRegistrarPago,
     cerrarModalRegistrarPago,
     registrarPagoCliente,
+    descargandoPdfCuentaCorriente,
+    descargarCuentaCorrientePdf,
     alternarEstadoActivo,
     clienteParaCambiarEstado,
     solicitarCambioEstado,
