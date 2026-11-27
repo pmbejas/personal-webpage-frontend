@@ -9,10 +9,8 @@ import {
   ClienteListadoResponse,
   CrearClienteRequest,
   EstadoRegistroClienteFiltro,
-  EstadisticasClientesResponse,
   FiltrosClientesRequest,
   OrdenClientesFiltro,
-  TipoRelacionClienteFiltro,
 } from "@/types";
 import { extraerMensajeError } from "@/utils/formatosClientes";
 
@@ -34,14 +32,12 @@ function resolverFiltroActivo(estado: EstadoRegistroClienteFiltro): boolean | un
  */
 export function useClientes() {
   const [clientes, setClientes] = useState<ClienteListadoResponse[]>([]);
-  const [estadisticas, setEstadisticas] = useState<EstadisticasClientesResponse | null>(null);
   const [cargando, setCargando] = useState<boolean>(true);
   const [errorCarga, setErrorCarga] = useState<string | null>(null);
 
-  // Filtros y paginación
+  // Filtros y paginación (por defecto solo activos)
   const [busqueda, setBusqueda] = useState<string>("");
   const [busquedaAplicada, setBusquedaAplicada] = useState<string>("");
-  const [tipoRelacion, setTipoRelacion] = useState<TipoRelacionClienteFiltro>("Todos");
   const [estadoRegistro, setEstadoRegistro] = useState<EstadoRegistroClienteFiltro>("activos");
   const [ordenarPor, setOrdenarPor] = useState<OrdenClientesFiltro>("recientes");
   const [paginaActual, setPaginaActual] = useState<number>(1);
@@ -77,22 +73,17 @@ export function useClientes() {
 
       const filtros: FiltrosClientesRequest = {
         terminoBusqueda: busquedaAplicada || undefined,
-        tipoRelacion: tipoRelacion === "Todos" ? undefined : tipoRelacion,
         activo: resolverFiltroActivo(estadoRegistro),
         ordenarPor,
         pagina: paginaActual,
         tamanioPagina: TAMANIO_PAGINA_CLIENTES,
       };
 
-      const [resultadoPaginado, resumenEstadisticas] = await Promise.all([
-        servicioClientes.listar(filtros),
-        servicioClientes.obtenerEstadisticas(),
-      ]);
+      const resultadoPaginado = await servicioClientes.listar(filtros);
 
       setClientes(resultadoPaginado.elementos);
       setTotalRegistros(resultadoPaginado.totalRegistros);
       setTotalPaginas(Math.max(1, resultadoPaginado.totalPaginas));
-      setEstadisticas(resumenEstadisticas);
     } catch (error: unknown) {
       const mensaje = extraerMensajeError(
         error,
@@ -103,16 +94,11 @@ export function useClientes() {
     } finally {
       setCargando(false);
     }
-  }, [busquedaAplicada, tipoRelacion, estadoRegistro, ordenarPor, paginaActual]);
+  }, [busquedaAplicada, estadoRegistro, ordenarPor, paginaActual]);
 
   useEffect(() => {
     cargarDatos();
   }, [cargarDatos]);
-
-  const cambiarTipoRelacion = (nuevoTipo: TipoRelacionClienteFiltro) => {
-    setTipoRelacion(nuevoTipo);
-    setPaginaActual(1);
-  };
 
   const cambiarEstadoRegistro = (nuevoEstado: EstadoRegistroClienteFiltro) => {
     setEstadoRegistro(nuevoEstado);
@@ -266,13 +252,10 @@ export function useClientes() {
 
   return {
     clientes,
-    estadisticas,
     cargando,
     errorCarga,
     busqueda,
     setBusqueda,
-    tipoRelacion,
-    cambiarTipoRelacion,
     estadoRegistro,
     cambiarEstadoRegistro,
     ordenarPor,

@@ -88,7 +88,7 @@ export function TablaClientes({
     return (
       <div className="bg-[#0B0F17] border border-white/10 rounded-2xl p-12 text-center space-y-3">
         <p className="text-sm text-neutral-300 font-medium">
-          No se encontraron clientes o prospectos con los filtros aplicados.
+          No se encontraron clientes con los filtros aplicados.
         </p>
         <p className="text-xs text-neutral-500">
           Probá ajustando la búsqueda o registrá un cliente nuevo manualmente.
@@ -180,18 +180,13 @@ export function TablaClientes({
                       <div className="flex flex-wrap items-center gap-1.5">
                         <span
                           className={`px-2 py-0.5 rounded-full text-[11px] font-medium border ${
-                            cliente.esClienteConvertido
+                            cliente.activo
                               ? "bg-emerald-500/10 text-emerald-300 border-emerald-500/30"
-                              : "bg-amber-500/10 text-amber-300 border-amber-500/30"
+                              : "bg-neutral-800 text-neutral-400 border-neutral-700"
                           }`}
                         >
-                          {cliente.tipoRelacion}
+                          {cliente.activo ? "Activo" : "Archivado"}
                         </span>
-                        {!cliente.activo && (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] bg-neutral-800 text-neutral-400 border border-neutral-700">
-                            Archivado
-                          </span>
-                        )}
                       </div>
                       <p className="text-[10px] text-neutral-500 mt-1">
                         Act.: {formatearFechaCorta(cliente.ultimaInteraccion)}
@@ -226,13 +221,13 @@ export function TablaClientes({
                     </td>
 
                     <td className="py-3.5 px-4">
-                      <div className="flex items-center justify-end gap-1">
+                      <div className="grid grid-cols-3 gap-1 w-fit ml-auto">
                         <button
                           type="button"
                           onClick={() => onVerDetalle(cliente.id)}
                           aria-label={`Ver ficha de ${cliente.nombreCompleto}`}
                           title="Ver ficha 360°"
-                          className="p-2 rounded-lg text-neutral-400 hover:text-sky-300 hover:bg-sky-500/10 transition-colors"
+                          className="p-2 rounded-lg text-neutral-400 hover:text-sky-300 hover:bg-sky-500/10 transition-colors flex items-center justify-center"
                         >
                           <Eye className="w-4 h-4" />
                         </button>
@@ -241,7 +236,7 @@ export function TablaClientes({
                           onClick={() => onCrearProyecto(cliente.id)}
                           aria-label={`Crear nuevo proyecto para ${cliente.nombreCompleto}`}
                           title="Crear proyecto nuevo"
-                          className="p-2 rounded-lg text-neutral-400 hover:text-indigo-300 hover:bg-indigo-500/10 transition-colors"
+                          className="p-2 rounded-lg text-neutral-400 hover:text-indigo-300 hover:bg-indigo-500/10 transition-colors flex items-center justify-center"
                         >
                           <FolderPlus className="w-4 h-4" />
                         </button>
@@ -251,7 +246,7 @@ export function TablaClientes({
                           disabled={ocupado}
                           aria-label={`Contactar por WhatsApp a ${cliente.nombreCompleto}`}
                           title="WhatsApp directo"
-                          className="p-2 rounded-lg text-neutral-400 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors disabled:opacity-50"
+                          className="p-2 rounded-lg text-neutral-400 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors disabled:opacity-50 flex items-center justify-center"
                         >
                           <MessageSquare className="w-4 h-4" />
                         </button>
@@ -261,7 +256,7 @@ export function TablaClientes({
                           disabled={ocupado}
                           aria-label={`Editar ficha de ${cliente.nombreCompleto}`}
                           title="Editar cliente"
-                          className="p-2 rounded-lg text-neutral-400 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50"
+                          className="p-2 rounded-lg text-neutral-400 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50 flex items-center justify-center"
                         >
                           <Edit3 className="w-4 h-4" />
                         </button>
@@ -275,7 +270,7 @@ export function TablaClientes({
                               : `Reactivar a ${cliente.nombreCompleto}`
                           }
                           title={cliente.activo ? "Archivar cliente" : "Reactivar cliente"}
-                          className="p-2 rounded-lg text-neutral-400 hover:text-amber-300 hover:bg-amber-500/10 transition-colors disabled:opacity-50"
+                          className="p-2 rounded-lg text-neutral-400 hover:text-amber-300 hover:bg-amber-500/10 transition-colors disabled:opacity-50 flex items-center justify-center"
                         >
                           {cliente.activo ? (
                             <Archive className="w-4 h-4" />
@@ -289,7 +284,7 @@ export function TablaClientes({
                           disabled={ocupado}
                           aria-label={`Eliminar a ${cliente.nombreCompleto}`}
                           title="Eliminar cliente"
-                          className="p-2 rounded-lg text-neutral-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors disabled:opacity-50"
+                          className="p-2 rounded-lg text-neutral-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors disabled:opacity-50 flex items-center justify-center"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -326,12 +321,12 @@ export function TablaClientes({
                 </div>
                 <span
                   className={`px-2 py-0.5 rounded-full text-[11px] font-medium border shrink-0 ${
-                    cliente.esClienteConvertido
+                    cliente.activo
                       ? "bg-emerald-500/10 text-emerald-300 border-emerald-500/30"
-                      : "bg-amber-500/10 text-amber-300 border-amber-500/30"
+                      : "bg-neutral-800 text-neutral-400 border-neutral-700"
                   }`}
                 >
-                  {cliente.tipoRelacion}
+                  {cliente.activo ? "Activo" : "Archivado"}
                 </span>
               </div>
 
@@ -352,22 +347,23 @@ export function TablaClientes({
                 </span>
               </div>
 
-              <div className="flex items-center justify-between pt-2 border-t border-white/5">
-                <button
-                  type="button"
-                  onClick={() => onVerDetalle(cliente.id)}
-                  className="inline-flex items-center gap-1.5 text-xs font-medium text-sky-400 hover:text-sky-300"
-                >
-                  <Eye className="w-3.5 h-3.5" />
-                  <span>Ver ficha 360°</span>
-                </button>
-                <div className="flex items-center gap-1">
+              <div className="pt-2 border-t border-white/5">
+                <div className="grid grid-cols-3 gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => onVerDetalle(cliente.id)}
+                    aria-label={`Ver ficha de ${cliente.nombreCompleto}`}
+                    title="Ver ficha 360°"
+                    className="py-2 rounded-lg text-sky-300 bg-sky-500/10 hover:bg-sky-500/20 flex items-center justify-center transition-colors"
+                  >
+                    <Eye className="w-4 h-4" />
+                  </button>
                   <button
                     type="button"
                     onClick={() => onCrearProyecto(cliente.id)}
                     aria-label={`Crear nuevo proyecto para ${cliente.nombreCompleto}`}
                     title="Crear proyecto nuevo"
-                    className="p-2 rounded-lg text-neutral-400 hover:text-indigo-300 hover:bg-indigo-500/10"
+                    className="py-2 rounded-lg text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 flex items-center justify-center transition-colors"
                   >
                     <FolderPlus className="w-4 h-4" />
                   </button>
@@ -376,7 +372,8 @@ export function TablaClientes({
                     onClick={() => onWhatsApp(cliente.id)}
                     disabled={ocupado}
                     aria-label={`WhatsApp a ${cliente.nombreCompleto}`}
-                    className="p-2 rounded-lg text-neutral-400 hover:text-emerald-400 hover:bg-emerald-500/10"
+                    title="WhatsApp directo"
+                    className="py-2 rounded-lg text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 flex items-center justify-center transition-colors disabled:opacity-50"
                   >
                     <MessageSquare className="w-4 h-4" />
                   </button>
@@ -385,16 +382,36 @@ export function TablaClientes({
                     onClick={() => onEditar(cliente.id)}
                     disabled={ocupado}
                     aria-label={`Editar ${cliente.nombreCompleto}`}
-                    className="p-2 rounded-lg text-neutral-400 hover:text-white hover:bg-white/10"
+                    title="Editar cliente"
+                    className="py-2 rounded-lg text-neutral-300 bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors disabled:opacity-50"
                   >
                     <Edit3 className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onAlternarEstado(cliente.id)}
+                    disabled={ocupado}
+                    aria-label={
+                      cliente.activo
+                        ? `Archivar a ${cliente.nombreCompleto}`
+                        : `Reactivar a ${cliente.nombreCompleto}`
+                    }
+                    title={cliente.activo ? "Archivar cliente" : "Reactivar cliente"}
+                    className="py-2 rounded-lg text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 flex items-center justify-center transition-colors disabled:opacity-50"
+                  >
+                    {cliente.activo ? (
+                      <Archive className="w-4 h-4" />
+                    ) : (
+                      <RotateCcw className="w-4 h-4" />
+                    )}
                   </button>
                   <button
                     type="button"
                     onClick={() => onSolicitarEliminar(cliente)}
                     disabled={ocupado}
                     aria-label={`Eliminar ${cliente.nombreCompleto}`}
-                    className="p-2 rounded-lg text-neutral-400 hover:text-rose-400 hover:bg-rose-500/10"
+                    title="Eliminar cliente"
+                    className="py-2 rounded-lg text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 flex items-center justify-center transition-colors disabled:opacity-50"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>

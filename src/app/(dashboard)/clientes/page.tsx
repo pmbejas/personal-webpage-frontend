@@ -2,7 +2,6 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import {
   Users,
   Search,
@@ -12,7 +11,6 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useClientes } from "@/hooks/useClientes";
-import { TarjetaKpiClientes } from "@/components/clientes/TarjetaKpiClientes";
 import { TablaClientes } from "@/components/clientes/TablaClientes";
 import { ModalFormularioCliente } from "@/components/clientes/ModalFormularioCliente";
 import { PanelDetalleCliente } from "@/components/clientes/PanelDetalleCliente";
@@ -21,20 +19,16 @@ import { CabeceraPaginaAdmin } from "@/components/layout/CabeceraPaginaAdmin";
 import {
   EstadoRegistroClienteFiltro,
   OrdenClientesFiltro,
-  TipoRelacionClienteFiltro,
 } from "@/types";
 
 export default function ClientesPage() {
   const router = useRouter();
   const {
     clientes,
-    estadisticas,
     cargando,
     errorCarga,
     busqueda,
     setBusqueda,
-    tipoRelacion,
-    cambiarTipoRelacion,
     estadoRegistro,
     cambiarEstadoRegistro,
     ordenarPor,
@@ -102,9 +96,6 @@ export default function ClientesPage() {
         }
       />
 
-      {/* Tarjetas KPI ejecutivas */}
-      <TarjetaKpiClientes estadisticas={estadisticas} cargando={cargando} />
-
       {/* Barra de búsqueda y filtros */}
       <div className="bg-[#0B0F17] border border-white/10 rounded-2xl p-4 flex flex-col lg:flex-row gap-3">
         <div className="relative flex-1">
@@ -119,27 +110,16 @@ export default function ClientesPage() {
           />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 lg:w-auto">
-          <select
-            value={tipoRelacion}
-            onChange={(e) => cambiarTipoRelacion(e.target.value as TipoRelacionClienteFiltro)}
-            aria-label="Filtrar por tipo de relación"
-            className="bg-[#07090E] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-sky-500"
-          >
-            <option value="Todos">Todos los tipos</option>
-            <option value="Cliente">Solo Clientes</option>
-            <option value="Prospecto">Solo Prospectos</option>
-          </select>
-
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 lg:w-auto">
           <select
             value={estadoRegistro}
             onChange={(e) => cambiarEstadoRegistro(e.target.value as EstadoRegistroClienteFiltro)}
-            aria-label="Filtrar por estado activo o archivado"
+            aria-label="Filtrar por estado"
             className="bg-[#07090E] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-neutral-200 focus:outline-none focus:border-sky-500"
           >
-            <option value="activos">Cartera activa</option>
+            <option value="activos">Activos</option>
             <option value="archivados">Archivados</option>
-            <option value="todos">Activos y archivados</option>
+            <option value="todos">Todos</option>
           </select>
 
           <select

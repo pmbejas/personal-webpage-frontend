@@ -140,18 +140,13 @@ export function PanelDetalleCliente({
                       </h2>
                       <span
                         className={`px-2 py-0.5 rounded-full text-[11px] font-medium border ${
-                          cliente.esClienteConvertido
+                          cliente.activo
                             ? "bg-emerald-500/10 text-emerald-300 border-emerald-500/30"
-                            : "bg-amber-500/10 text-amber-300 border-amber-500/30"
+                            : "bg-neutral-800 text-neutral-400 border-neutral-700"
                         }`}
                       >
-                        {cliente.tipoRelacion}
+                        {cliente.activo ? "Activo" : "Archivado"}
                       </span>
-                      {!cliente.activo && (
-                        <span className="px-2 py-0.5 rounded-full text-[11px] font-medium bg-neutral-800 text-neutral-400 border border-neutral-700">
-                          Archivado
-                        </span>
-                      )}
                     </div>
                     <p className="text-xs text-neutral-400 mt-0.5 truncate">
                       {[cliente.empresa, cliente.rubro].filter(Boolean).join(" · ") || "Sin empresa asignada"}

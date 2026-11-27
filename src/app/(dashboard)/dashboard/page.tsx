@@ -4,12 +4,8 @@ import React, { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import {
-  FileSpreadsheet,
   FolderGit2,
   CalendarDays,
-  Tag,
-  ArrowUpRight,
-  TrendingUp,
   Clock,
   Sparkles,
   CheckCircle2,
@@ -17,22 +13,18 @@ import {
   CreditCard,
   Video,
   Phone,
-  Building,
   RefreshCw,
   Plus,
-  Activity,
-  Layers,
   ChevronRight,
-  ExternalLink,
-  ShieldCheck,
   AlertCircle,
-  Package,
+  PieChart,
 } from "lucide-react";
 import {
   servicioDashboard,
   DashboardMetricasDto,
 } from "@/services/dashboard.service";
 import { CabeceraPaginaAdmin } from "@/components/layout/CabeceraPaginaAdmin";
+import { GraficoCircularDemanda } from "@/components/dashboard/GraficoCircularDemanda";
 
 export default function DashboardPage() {
   const { usuario } = useAuth();
@@ -85,21 +77,6 @@ export default function DashboardPage() {
       hour: "2-digit",
       minute: "2-digit",
     });
-  };
-
-  const formatearFechaRelativa = (fechaStr: string) => {
-    const ahora = new Date();
-    const d = new Date(fechaStr);
-    const diffMs = ahora.getTime() - d.getTime();
-    const diffMin = Math.floor(diffMs / (1000 * 60));
-    const diffHoras = Math.floor(diffMin / 60);
-    const diffDias = Math.floor(diffHoras / 24);
-
-    if (diffMin < 2) return "Hace un momento";
-    if (diffMin < 60) return `Hace ${diffMin} min`;
-    if (diffHoras < 24) return `Hace ${diffHoras} h`;
-    if (diffDias === 1) return "Ayer";
-    return `Hace ${diffDias} días`;
   };
 
   return (
@@ -255,80 +232,15 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* 3. Distribución de Demanda por Servicio del Catálogo */}
-      <div className="p-6 rounded-3xl bg-neutral-900/50 border border-white/10 shadow-2xl">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
-          <div>
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
-              <Package className="w-4 h-4 text-sky-400" />
-              <span>Distribución de Demanda por Solución</span>
-            </h2>
-            <p className="text-xs text-neutral-400 mt-0.5">
-              Participación de cada servicio en las propuestas y contratos emitidos.
-            </p>
-          </div>
-          <Link
-            href="/catalogo"
-            className="text-xs font-mono text-sky-400 hover:text-sky-300 flex items-center gap-1 transition-colors self-start sm:self-auto"
-          >
-            <span>Ver Catálogo</span>
-            <ChevronRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-
-        {metricas?.distribucionServicios && metricas.distribucionServicios.length > 0 ? (
-          <div className="space-y-4">
-            {metricas.distribucionServicios.map((s, idx) => {
-              const colores = [
-                "bg-sky-400",
-                "bg-indigo-400",
-                "bg-emerald-400",
-                "bg-amber-400",
-                "bg-purple-400",
-              ];
-              const colorClase = colores[idx % colores.length];
-
-              return (
-                <div key={s.servicioNombre} className="space-y-1.5">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-semibold text-white">{s.servicioNombre}</span>
-                    <div className="flex items-center gap-3 font-mono text-neutral-400 text-[11px]">
-                      <span>{s.cantidadPresupuestos} solicitudes</span>
-                      <span className="text-neutral-500">•</span>
-                      <span className="text-white font-medium">
-                        {formatearMoneda(s.montoTotalCotizado)}
-                      </span>
-                      <span className="px-1.5 py-0.5 rounded bg-white/5 text-sky-300 text-[10px]">
-                        {s.porcentajeParticipacion}%
-                      </span>
-                    </div>
-                  </div>
-                  <div className="w-full h-2 rounded-full bg-white/5 overflow-hidden">
-                    <div
-                      className={`h-full rounded-full ${colorClase} transition-all duration-700`}
-                      style={{ width: `${Math.max(s.porcentajeParticipacion, 4)}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="py-8 text-center text-xs text-neutral-500">
-            Aún no hay suficientes cotizaciones registradas para generar el desglose.
-          </div>
-        )}
-      </div>
-
-      {/* 4. Centro Operativo (2 Columnas: Agenda Inmediata vs Actividad Reciente) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Columna Izquierda: Próximas Citas */}
+      {/* 3. Fila Principal: Próximas Reuniones (Izquierda) + Distribución de Demanda Circular (Derecha, Card Cuadrado) */}
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_390px] xl:grid-cols-[minmax(0,1fr)_420px] gap-6 items-stretch">
+        {/* Columna Izquierda: Listado de Próximas Reuniones */}
         <div className="p-6 rounded-3xl bg-neutral-900/50 border border-white/10 flex flex-col justify-between shadow-2xl">
           <div>
             <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/5">
               <div className="flex items-center gap-2">
                 <CalendarDays className="w-4 h-4 text-sky-400" />
-                <h3 className="font-bold text-white text-sm">Próximas Reuniones</h3>
+                <h2 className="font-bold text-white text-sm">Próximas Reuniones</h2>
               </div>
               <Link
                 href="/citas"
@@ -393,7 +305,7 @@ export default function DashboardPage() {
                 ))}
               </div>
             ) : (
-              <div className="py-12 text-center text-xs text-neutral-500 space-y-2">
+              <div className="py-16 text-center text-xs text-neutral-500 space-y-2">
                 <CalendarDays className="w-8 h-8 mx-auto text-neutral-600" />
                 <p>No hay reuniones programadas para los próximos días.</p>
                 <Link
@@ -412,84 +324,32 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Columna Derecha: Actividad Reciente & Accesos Rápidos */}
-        <div className="p-6 rounded-3xl bg-neutral-900/50 border border-white/10 flex flex-col justify-between shadow-2xl">
-          <div>
-            <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/5">
-              <div className="flex items-center gap-2">
-                <Activity className="w-4 h-4 text-emerald-400" />
-                <h3 className="font-bold text-white text-sm">Actividad Reciente del Sistema</h3>
-              </div>
-              <span className="text-[10px] font-mono text-neutral-500 uppercase tracking-wider">
-                Eventos en vivo
-              </span>
+        {/* Columna Derecha: Card Cuadrado de Distribución de Demanda por Solución (Servicios Base) */}
+        <div className="p-6 rounded-3xl bg-neutral-900/50 border border-white/10 shadow-2xl flex flex-col lg:aspect-square">
+          <div className="flex items-start justify-between gap-2 mb-4 pb-3 border-b border-white/5">
+            <div>
+              <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                <PieChart className="w-4 h-4 text-sky-400" />
+                <span>Distribución de Demanda por Solución</span>
+              </h2>
+              <p className="text-[11px] text-neutral-400 mt-0.5">
+                Productos principales (servicios base).
+              </p>
             </div>
-
-            {metricas?.actividadReciente && metricas.actividadReciente.length > 0 ? (
-              <div className="space-y-2.5">
-                {metricas.actividadReciente.map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="p-3 rounded-xl bg-white/[0.02] border border-white/5 flex items-center justify-between gap-3 text-xs"
-                  >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <span
-                        className="w-2 h-2 rounded-full flex-shrink-0"
-                        style={{ backgroundColor: item.badgeColor }}
-                      />
-                      <div className="min-w-0">
-                        <div className="font-medium text-white truncate">{item.titulo}</div>
-                        <div className="text-[11px] text-neutral-500 truncate">{item.subtitulo}</div>
-                      </div>
-                    </div>
-
-                    <div className="text-right flex-shrink-0 font-mono">
-                      {item.monto !== null && item.monto !== undefined && (
-                        <div className="text-white font-semibold text-xs">
-                          {formatearMoneda(item.monto, item.moneda || "ARS")}
-                        </div>
-                      )}
-                      <div className="text-[10px] text-neutral-500">
-                        {formatearFechaRelativa(item.fecha)}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="py-12 text-center text-xs text-neutral-500 space-y-1">
-                <Activity className="w-8 h-8 mx-auto text-neutral-600" />
-                <p>No se registran eventos recientes en el sistema.</p>
-              </div>
-            )}
-          </div>
-
-          {/* Accesos Rápidos de Navegación */}
-          <div className="mt-5 pt-4 border-t border-white/5 grid grid-cols-3 gap-2">
             <Link
-              href="/proyectos"
-              className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 text-center text-[11px] text-neutral-300 hover:text-white transition-all flex flex-col items-center gap-1"
+              href="/catalogo"
+              className="text-xs font-mono text-sky-400 hover:text-sky-300 flex items-center gap-0.5 transition-colors flex-shrink-0"
+              title="Ver Catálogo de Servicios"
             >
-              <FolderGit2 className="w-4 h-4 text-indigo-400" />
-              <span>Proyectos</span>
-            </Link>
-
-            <Link
-              href="/presupuestos"
-              className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 text-center text-[11px] text-neutral-300 hover:text-white transition-all flex flex-col items-center gap-1"
-            >
-              <FileSpreadsheet className="w-4 h-4 text-sky-400" />
-              <span>Cotizador</span>
-            </Link>
-
-            <Link
-              href="/promociones"
-              className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 text-center text-[11px] text-neutral-300 hover:text-white transition-all flex flex-col items-center gap-1"
-            >
-              <Tag className="w-4 h-4 text-emerald-400" />
-              <span>Cupones</span>
+              <span>Catálogo</span>
+              <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>
+
+          <GraficoCircularDemanda
+            datos={metricas?.distribucionServicios ?? []}
+            formatearMoneda={formatearMoneda}
+          />
         </div>
       </div>
     </div>
