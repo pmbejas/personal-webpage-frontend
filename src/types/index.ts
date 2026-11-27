@@ -41,6 +41,7 @@ export interface FiltrosClientesRequest {
   tipoRelacion?: string;
   rubro?: string;
   activo?: boolean;
+  soloConSaldoPendiente?: boolean;
   ordenarPor?: OrdenClientesFiltro;
   pagina?: number;
   tamanioPagina?: number;

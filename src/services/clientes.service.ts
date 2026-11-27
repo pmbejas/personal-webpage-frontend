@@ -32,6 +32,9 @@ export const servicioClientes = {
     if (typeof filtros.activo === "boolean") {
       parametros.append("activo", String(filtros.activo));
     }
+    if (filtros.soloConSaldoPendiente === true) {
+      parametros.append("soloConSaldoPendiente", "true");
+    }
     if (filtros.ordenarPor) {
       parametros.append("ordenarPor", filtros.ordenarPor);
     }

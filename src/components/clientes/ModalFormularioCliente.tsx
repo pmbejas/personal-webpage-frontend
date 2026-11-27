@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { X, Save, UserPlus, Edit3, ExternalLink } from "lucide-react";
+import { X, Save, UserPlus, Edit3, ExternalLink, LocateFixed, Loader2 } from "lucide-react";
 import {
   ActualizarClienteRequest,
   ClienteDetalleResponse,
@@ -64,6 +64,7 @@ export function ModalFormularioCliente({
   const [formulario, setFormulario] = useState<EstadoFormularioCliente>(ESTADO_INICIAL);
   const [rubrosDisponibles, setRubrosDisponibles] = useState<RubroClienteResponse[]>([]);
   const [errorLocal, setErrorLocal] = useState<string | null>(null);
+  const [obteniendoUbicacion, setObteniendoUbicacion] = useState<boolean>(false);
 
   useEffect(() => {
     if (!abierto) {
@@ -140,6 +141,42 @@ export function ModalFormularioCliente({
 
   const actualizarCampo = (campo: keyof EstadoFormularioCliente, valor: string) => {
     setFormulario((previo) => ({ ...previo, [campo]: valor }));
+  };
+
+  const capturarUbicacionActual = () => {
+    setErrorLocal(null);
+
+    if (typeof window === "undefined" || !("geolocation" in navigator)) {
+      setErrorLocal("Tu navegador no soporta la obtención automática de ubicación.");
+      return;
+    }
+
+    setObteniendoUbicacion(true);
+    navigator.geolocation.getCurrentPosition(
+      (posicion) => {
+        const latitud = posicion.coords.latitude.toFixed(6);
+        const longitud = posicion.coords.longitude.toFixed(6);
+        actualizarCampo("ubicacion", `${latitud}, ${longitud}`);
+        setObteniendoUbicacion(false);
+      },
+      (errorGeo) => {
+        setObteniendoUbicacion(false);
+        if (errorGeo.code === errorGeo.PERMISSION_DENIED) {
+          setErrorLocal("Permiso de ubicación denegado. Habilitalo en tu navegador para capturar las coordenadas.");
+        } else if (errorGeo.code === errorGeo.POSITION_UNAVAILABLE) {
+          setErrorLocal("No se pudo determinar la ubicación actual del dispositivo.");
+        } else if (errorGeo.code === errorGeo.TIMEOUT) {
+          setErrorLocal("Se agotó el tiempo de espera al obtener la ubicación. Intentá nuevamente.");
+        } else {
+          setErrorLocal("No se pudo obtener la ubicación actual del dispositivo.");
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 12000,
+        maximumAge: 0,
+      }
+    );
   };
 
   const manejarEnvio = async (evento: React.FormEvent<HTMLFormElement>) => {
@@ -416,7 +453,7 @@ export function ModalFormularioCliente({
             </div>
 
             <div>
-              <div className="flex items-center justify-between mb-1.5">
+              <div className="flex items-center justify-between gap-2 mb-1.5">
                 <label className="block text-xs font-medium text-neutral-300">
                   Ubicación Geodésica (Google Maps)
                 </label>
@@ -432,15 +469,33 @@ export function ModalFormularioCliente({
                   </a>
                 )}
               </div>
-              <input
-                type="text"
-                value={formulario.ubicacion}
-                onChange={(e) => actualizarCampo("ubicacion", e.target.value)}
-                placeholder="Ej: -26.82414, -65.22260 o link de Google Maps"
-                maxLength={250}
-                aria-label="Ubicación geodésica o enlace de Google Maps"
-                className={`${CLASE_INPUT} font-mono`}
-              />
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={formulario.ubicacion}
+                  onChange={(e) => actualizarCampo("ubicacion", e.target.value)}
+                  placeholder="Ej: -26.824140, -65.222600"
+                  maxLength={250}
+                  aria-label="Ubicación geodésica o enlace de Google Maps"
+                  className={`${CLASE_INPUT} font-mono flex-1`}
+                />
+                <button
+                  type="button"
+                  onClick={capturarUbicacionActual}
+                  disabled={obteniendoUbicacion || guardando}
+                  title="Tomar coordenadas GPS actuales del dispositivo"
+                  className="shrink-0 inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-medium bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 transition-colors disabled:opacity-50 cursor-pointer"
+                >
+                  {obteniendoUbicacion ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <LocateFixed className="w-3.5 h-3.5" />
+                  )}
+                  <span className="hidden sm:inline">
+                    {obteniendoUbicacion ? "Obteniendo..." : "Usar ubicación actual"}
+                  </span>
+                </button>
+              </div>
             </div>
 
             <div className="sm:col-span-2">

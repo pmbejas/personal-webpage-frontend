@@ -31,6 +31,8 @@ export default function ClientesPage() {
     setBusqueda,
     estadoRegistro,
     cambiarEstadoRegistro,
+    soloConSaldoPendiente,
+    cambiarSoloConSaldoPendiente,
     ordenarPor,
     cambiarOrden,
     paginaActual,
@@ -114,7 +116,17 @@ export default function ClientesPage() {
           />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 lg:w-auto">
+        <div className="flex flex-wrap items-center gap-2.5 lg:w-auto">
+          <label className="inline-flex items-center gap-2 bg-[#07090E] border border-white/10 hover:border-amber-500/40 rounded-xl px-3 py-2.5 text-xs text-neutral-200 cursor-pointer select-none transition-colors">
+            <input
+              type="checkbox"
+              checked={soloConSaldoPendiente}
+              onChange={(e) => cambiarSoloConSaldoPendiente(e.target.checked)}
+              className="w-3.5 h-3.5 rounded accent-amber-500 cursor-pointer"
+            />
+            <span className="whitespace-nowrap">Solo con saldo pendiente</span>
+          </label>
+
           <select
             value={estadoRegistro}
             onChange={(e) => cambiarEstadoRegistro(e.target.value as EstadoRegistroClienteFiltro)}

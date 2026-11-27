@@ -39,6 +39,7 @@ export function useClientes() {
   const [busqueda, setBusqueda] = useState<string>("");
   const [busquedaAplicada, setBusquedaAplicada] = useState<string>("");
   const [estadoRegistro, setEstadoRegistro] = useState<EstadoRegistroClienteFiltro>("activos");
+  const [soloConSaldoPendiente, setSoloConSaldoPendiente] = useState<boolean>(false);
   const [ordenarPor, setOrdenarPor] = useState<OrdenClientesFiltro>("recientes");
   const [paginaActual, setPaginaActual] = useState<number>(1);
   const [totalRegistros, setTotalRegistros] = useState<number>(0);
@@ -74,6 +75,7 @@ export function useClientes() {
       const filtros: FiltrosClientesRequest = {
         terminoBusqueda: busquedaAplicada || undefined,
         activo: resolverFiltroActivo(estadoRegistro),
+        soloConSaldoPendiente: soloConSaldoPendiente || undefined,
         ordenarPor,
         pagina: paginaActual,
         tamanioPagina: TAMANIO_PAGINA_CLIENTES,
@@ -94,7 +96,7 @@ export function useClientes() {
     } finally {
       setCargando(false);
     }
-  }, [busquedaAplicada, estadoRegistro, ordenarPor, paginaActual]);
+  }, [busquedaAplicada, estadoRegistro, soloConSaldoPendiente, ordenarPor, paginaActual]);
 
   useEffect(() => {
     cargarDatos();
@@ -102,6 +104,11 @@ export function useClientes() {
 
   const cambiarEstadoRegistro = (nuevoEstado: EstadoRegistroClienteFiltro) => {
     setEstadoRegistro(nuevoEstado);
+    setPaginaActual(1);
+  };
+
+  const cambiarSoloConSaldoPendiente = (activoFiltro: boolean) => {
+    setSoloConSaldoPendiente(activoFiltro);
     setPaginaActual(1);
   };
 
@@ -258,6 +265,8 @@ export function useClientes() {
     setBusqueda,
     estadoRegistro,
     cambiarEstadoRegistro,
+    soloConSaldoPendiente,
+    cambiarSoloConSaldoPendiente,
     ordenarPor,
     cambiarOrden,
     paginaActual,
