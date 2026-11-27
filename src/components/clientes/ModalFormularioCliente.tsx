@@ -6,7 +6,9 @@ import {
   ActualizarClienteRequest,
   ClienteDetalleResponse,
   CrearClienteRequest,
+  RubroClienteResponse,
 } from "@/types";
+import { servicioMantenimiento } from "@/services/mantenimiento.service";
 
 interface ModalFormularioClienteProps {
   abierto: boolean;
@@ -22,6 +24,7 @@ interface EstadoFormularioCliente {
   email: string;
   telefonoWhatsApp: string;
   empresa: string;
+  rubroId: string;
   rubro: string;
   cuitCuil: string;
   ubicacion: string;
@@ -34,6 +37,7 @@ const ESTADO_INICIAL: EstadoFormularioCliente = {
   email: "",
   telefonoWhatsApp: "",
   empresa: "",
+  rubroId: "",
   rubro: "",
   cuitCuil: "",
   ubicacion: "",
@@ -51,7 +55,32 @@ export function ModalFormularioCliente({
   onGuardar,
 }: ModalFormularioClienteProps) {
   const [formulario, setFormulario] = useState<EstadoFormularioCliente>(ESTADO_INICIAL);
+  const [rubrosDisponibles, setRubrosDisponibles] = useState<RubroClienteResponse[]>([]);
   const [errorLocal, setErrorLocal] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!abierto) {
+      return;
+    }
+
+    let activo = true;
+    servicioMantenimiento
+      .obtenerRubros(true)
+      .then((lista) => {
+        if (activo) {
+          setRubrosDisponibles(lista || []);
+        }
+      })
+      .catch(() => {
+        if (activo) {
+          setRubrosDisponibles([]);
+        }
+      });
+
+    return () => {
+      activo = false;
+    };
+  }, [abierto]);
 
   useEffect(() => {
     if (!abierto) {
@@ -66,6 +95,7 @@ export function ModalFormularioCliente({
         email: clienteEditando.email,
         telefonoWhatsApp: clienteEditando.telefonoWhatsApp,
         empresa: clienteEditando.empresa ?? "",
+        rubroId: clienteEditando.rubroId ?? "",
         rubro: clienteEditando.rubro ?? "",
         cuitCuil: clienteEditando.cuitCuil ?? "",
         ubicacion: clienteEditando.ubicacion ?? "",
@@ -130,6 +160,7 @@ export function ModalFormularioCliente({
       email: formulario.email.trim(),
       telefonoWhatsApp: formulario.telefonoWhatsApp.trim(),
       empresa: formulario.empresa.trim() || null,
+      rubroId: formulario.rubroId || null,
       rubro: formulario.rubro.trim() || null,
       cuitCuil: formulario.cuitCuil.trim() || null,
       ubicacion: formulario.ubicacion.trim() || null,
@@ -266,15 +297,46 @@ export function ModalFormularioCliente({
               <label className="block text-xs font-medium text-neutral-300 mb-1.5">
                 Rubro
               </label>
-              <input
-                type="text"
-                value={formulario.rubro}
-                onChange={(e) => actualizarCampo("rubro", e.target.value)}
-                placeholder="Ej: Gastronomía, Salud, Logística"
-                maxLength={100}
+              <select
+                value={
+                  formulario.rubroId ||
+                  rubrosDisponibles.find(
+                    (r) => r.nombre.toLowerCase() === formulario.rubro.trim().toLowerCase()
+                  )?.id ||
+                  (formulario.rubro ? "__actual__" : "")
+                }
+                onChange={(e) => {
+                  const idSeleccionado = e.target.value;
+                  if (!idSeleccionado) {
+                    setFormulario((previo) => ({ ...previo, rubroId: "", rubro: "" }));
+                    return;
+                  }
+                  if (idSeleccionado === "__actual__") {
+                    return;
+                  }
+                  const rubroEncontrado = rubrosDisponibles.find((r) => r.id === idSeleccionado);
+                  setFormulario((previo) => ({
+                    ...previo,
+                    rubroId: idSeleccionado,
+                    rubro: rubroEncontrado?.nombre ?? previo.rubro,
+                  }));
+                }}
                 aria-label="Rubro comercial del cliente"
                 className={CLASE_INPUT}
-              />
+              >
+                <option value="">-- Sin rubro asignado --</option>
+                {formulario.rubro &&
+                  !rubrosDisponibles.some(
+                    (r) => r.nombre.toLowerCase() === formulario.rubro.trim().toLowerCase()
+                  ) && (
+                    <option value="__actual__">{formulario.rubro} (actual)</option>
+                  )}
+                {rubrosDisponibles.map((rubro) => (
+                  <option key={rubro.id} value={rubro.id}>
+                    {rubro.nombre}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div>

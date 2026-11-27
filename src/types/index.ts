@@ -54,6 +54,7 @@ export interface ClienteListadoResponse {
   email: string;
   telefonoWhatsApp: string;
   empresa?: string | null;
+  rubroId?: string | null;
   rubro?: string | null;
   cuitCuil?: string | null;
   ubicacion?: string | null;
@@ -118,6 +119,7 @@ export interface ClienteDetalleResponse {
   email: string;
   telefonoWhatsApp: string;
   empresa?: string | null;
+  rubroId?: string | null;
   rubro?: string | null;
   cuitCuil?: string | null;
   ubicacion?: string | null;
@@ -176,6 +178,7 @@ export interface CrearClienteRequest {
   email: string;
   telefonoWhatsApp: string;
   empresa?: string | null;
+  rubroId?: string | null;
   rubro?: string | null;
   cuitCuil?: string | null;
   ubicacion?: string | null;
@@ -189,6 +192,7 @@ export interface ActualizarClienteRequest {
   email: string;
   telefonoWhatsApp: string;
   empresa?: string | null;
+  rubroId?: string | null;
   rubro?: string | null;
   cuitCuil?: string | null;
   ubicacion?: string | null;
@@ -197,4 +201,52 @@ export interface ActualizarClienteRequest {
 
 export interface ActualizarNotasClienteRequest {
   notasInternas?: string | null;
+}
+
+export interface RubroClienteResponse {
+  id: string;
+  nombre: string;
+  descripcion?: string | null;
+  ordenVisualizacion: number;
+  activo: boolean;
+  cantidadClientes: number;
+  fechaCreacion: string;
+  fechaActualizacion: string;
+}
+
+export interface CrearRubroClienteRequest {
+  nombre: string;
+  descripcion?: string | null;
+  ordenVisualizacion: number;
+}
+
+export interface ActualizarRubroClienteRequest {
+  nombre: string;
+  descripcion?: string | null;
+  ordenVisualizacion: number;
+}
+
+export interface CategoriaAdicionalResponse {
+  id: string;
+  clave: string;
+  nombre: string;
+  descripcion?: string | null;
+  ordenVisualizacion: number;
+  activo: boolean;
+  cantidadAdicionales: number;
+  fechaCreacion: string;
+  fechaActualizacion: string;
+}
+
+export interface CrearCategoriaAdicionalRequest {
+  clave?: string | null;
+  nombre: string;
+  descripcion?: string | null;
+  ordenVisualizacion: number;
+}
+
+export interface ActualizarCategoriaAdicionalRequest {
+  nombre: string;
+  descripcion?: string | null;
+  ordenVisualizacion: number;
 }

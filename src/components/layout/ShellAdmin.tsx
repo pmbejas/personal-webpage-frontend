@@ -12,6 +12,7 @@ import {
   CalendarDays,
   FolderGit2,
   Package,
+  Wrench,
   Settings,
   LogOut,
   Menu,
@@ -37,6 +38,7 @@ const ELEMENTOS_MENU: ElementoNavegacion[] = [
   { nombre: "Agenda & Citas", ruta: "/citas", icono: CalendarDays },
   { nombre: "Cupones & Campañas", ruta: "/promociones", icono: Tag },
   { nombre: "Catálogo de Servicios", ruta: "/catalogo", icono: Package },
+  { nombre: "Mantenimiento", ruta: "/mantenimiento", icono: Wrench },
   { nombre: "Configuración", ruta: "/configuracion", icono: Settings },
 ];
 
