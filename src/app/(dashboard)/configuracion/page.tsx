@@ -132,7 +132,7 @@ export default function ConfiguracionPage() {
   };
 
   return (
-    <div className="space-y-6 pb-16">
+    <div className="space-y-6 pb-16 w-full max-w-full min-w-0">
       <CabeceraPaginaAdmin
         titulo="Configuración"
         subtitulo="Parámetros comerciales de presupuestos, contacto oficial y sincronización con la web pública."
@@ -150,13 +150,13 @@ export default function ConfiguracionPage() {
         }
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 min-w-0">
         {/* Columna principal: Parámetros editables */}
         <form
           onSubmit={manejarGuardar}
-          className="lg:col-span-2 rounded-2xl bg-[#0D121F] border border-white/10 p-5 sm:p-6 space-y-5"
+          className="lg:col-span-2 rounded-2xl bg-[#0D121F] border border-white/10 p-5 sm:p-6 space-y-5 min-w-0"
         >
-          <div className="flex items-start justify-between gap-3 pb-4 border-b border-white/10">
+          <div className="flex flex-wrap items-start justify-between gap-3 pb-4 border-b border-white/10">
             <div>
               <h2 className="text-sm font-semibold text-white">Parámetros Comerciales & Presupuestos</h2>
               <p className="text-xs text-neutral-400 mt-0.5">
@@ -288,7 +288,7 @@ export default function ConfiguracionPage() {
         </form>
 
         {/* Columna lateral: Estado del Backend y Sincronización Web */}
-        <div className="space-y-5">
+        <div className="space-y-5 min-w-0">
           <div className="rounded-2xl bg-[#0D121F] border border-white/10 p-5 space-y-4">
             <div className="flex items-center gap-2 text-sm font-semibold text-white">
               <Zap className="w-4 h-4 text-amber-400" />

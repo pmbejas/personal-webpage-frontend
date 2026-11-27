@@ -327,7 +327,7 @@ export default function PaginaPromocionesAdmin() {
   const tasaUsoGeneral = usosMaximosTotales > 0 ? Math.round((canjesTotales / usosMaximosTotales) * 100) : 0;
 
   return (
-    <div className="space-y-6 pb-16">
+    <div className="space-y-6 pb-16 w-full max-w-full min-w-0">
       {/* 1. Cabecera compacta en barra superior */}
       <CabeceraPaginaAdmin
         titulo="Promociones & Descuentos"
@@ -355,16 +355,16 @@ export default function PaginaPromocionesAdmin() {
       />
 
       {/* 2. Selector de Pestañas */}
-      <div className="flex border-b border-white/10 gap-2">
+      <div className="flex border-b border-white/10 gap-2 w-full max-w-full overflow-x-auto min-w-0">
         <button
           onClick={() => setPestanaActiva("cupones")}
-          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             pestanaActiva === "cupones"
               ? "border-sky-400 text-sky-400 bg-sky-500/5"
               : "border-transparent text-neutral-400 hover:text-white"
           }`}
         >
-          <Tag className="w-4 h-4" />
+          <Tag className="w-4 h-4 shrink-0" />
           <span>Códigos de Descuento (Cupones)</span>
           <span className="ml-1.5 px-2 py-0.5 rounded-full text-[11px] font-mono bg-white/10 text-neutral-200">
             {cupones.length}
@@ -373,13 +373,13 @@ export default function PaginaPromocionesAdmin() {
 
         <button
           onClick={() => setPestanaActiva("campanas")}
-          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             pestanaActiva === "campanas"
               ? "border-amber-400 text-amber-400 bg-amber-500/5"
               : "border-transparent text-neutral-400 hover:text-white"
           }`}
         >
-          <Sparkles className="w-4 h-4" />
+          <Sparkles className="w-4 h-4 shrink-0" />
           <span>Campañas Comerciales (Banners)</span>
           <span className="ml-1.5 px-2 py-0.5 rounded-full text-[11px] font-mono bg-white/10 text-neutral-200">
             {campanas.length}
@@ -430,7 +430,7 @@ export default function PaginaPromocionesAdmin() {
           </div>
 
           {/* Listado de Cupones */}
-          <div className="rounded-2xl bg-[#0D121F] border border-white/10 overflow-hidden">
+          <div className="rounded-2xl bg-[#0D121F] border border-white/10 overflow-hidden w-full max-w-full min-w-0">
             <div className="p-4 sm:p-5 border-b border-white/10 flex items-center justify-between">
               <div>
                 <h3 className="text-base font-semibold text-white">Listado de Códigos Promocionales</h3>
@@ -447,17 +447,17 @@ export default function PaginaPromocionesAdmin() {
                 No hay cupones comerciales creados aún. Hacé clic en "Nuevo Cupón" para comenzar.
               </div>
             ) : (
-              <div className="overflow-x-auto">
+              <div className="w-full overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead className="bg-white/[0.02] border-b border-white/10 text-neutral-400 font-mono">
                     <tr>
-                      <th className="py-3 px-4">Código</th>
-                      <th className="py-3 px-4">Descripción</th>
-                      <th className="py-3 px-4">Descuento</th>
-                      <th className="py-3 px-4">Usos (Progreso)</th>
-                      <th className="py-3 px-4">Vigencia</th>
-                      <th className="py-3 px-4 text-center">Estado</th>
-                      <th className="py-3 px-4 text-right">Acciones</th>
+                      <th className="py-3 px-3 xl:px-4">Código</th>
+                      <th className="py-3 px-3 xl:px-4">Descripción</th>
+                      <th className="py-3 px-3 xl:px-4">Descuento</th>
+                      <th className="py-3 px-3 xl:px-4">Usos (Progreso)</th>
+                      <th className="py-3 px-3 xl:px-4">Vigencia</th>
+                      <th className="py-3 px-3 xl:px-4 text-center">Estado</th>
+                      <th className="py-3 px-3 xl:px-4 text-right">Acciones</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
@@ -588,8 +588,8 @@ export default function PaginaPromocionesAdmin() {
 
       {/* 4. PESTAÑA 2: CAMPAÑAS COMERCIALES (BANNERS) */}
       {pestanaActiva === "campanas" && (
-        <div className="space-y-6">
-          <div className="rounded-2xl bg-[#0D121F] border border-white/10 overflow-hidden">
+        <div className="space-y-6 min-w-0">
+          <div className="rounded-2xl bg-[#0D121F] border border-white/10 overflow-hidden w-full max-w-full min-w-0">
             <div className="p-4 sm:p-5 border-b border-white/10 flex items-center justify-between">
               <div>
                 <h3 className="text-base font-semibold text-white">Banners y Campañas Estacionales</h3>
@@ -606,17 +606,17 @@ export default function PaginaPromocionesAdmin() {
                 No hay campañas comerciales registradas.
               </div>
             ) : (
-              <div className="overflow-x-auto">
+              <div className="w-full overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead className="bg-white/[0.02] border-b border-white/10 text-neutral-400 font-mono">
                     <tr>
-                      <th className="py-3 px-4">Clave</th>
-                      <th className="py-3 px-4">Nombre Comercial</th>
-                      <th className="py-3 px-4">Texto del Banner</th>
-                      <th className="py-3 px-4">Descuento</th>
-                      <th className="py-3 px-4">Vigencia</th>
-                      <th className="py-3 px-4 text-center">Estado</th>
-                      <th className="py-3 px-4 text-right">Acciones</th>
+                      <th className="py-3 px-3 xl:px-4">Clave</th>
+                      <th className="py-3 px-3 xl:px-4">Nombre Comercial</th>
+                      <th className="py-3 px-3 xl:px-4">Texto del Banner</th>
+                      <th className="py-3 px-3 xl:px-4">Descuento</th>
+                      <th className="py-3 px-3 xl:px-4">Vigencia</th>
+                      <th className="py-3 px-3 xl:px-4 text-center">Estado</th>
+                      <th className="py-3 px-3 xl:px-4 text-right">Acciones</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">

@@ -77,7 +77,7 @@ export default function ClientesPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full max-w-full min-w-0">
       {/* Encabezado compacto en barra superior */}
       <CabeceraPaginaAdmin
         titulo="Clientes & CRM"
@@ -109,8 +109,8 @@ export default function ClientesPage() {
       />
 
       {/* Barra de búsqueda y filtros */}
-      <div className="bg-[#0B0F17] border border-white/10 rounded-2xl p-4 flex flex-col lg:flex-row gap-3">
-        <div className="relative flex-1">
+      <div className="bg-[#0B0F17] border border-white/10 rounded-2xl p-4 flex flex-col lg:flex-row gap-3 min-w-0">
+        <div className="relative flex-1 min-w-0">
           <Search className="w-4 h-4 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
@@ -122,7 +122,7 @@ export default function ClientesPage() {
           />
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5 lg:w-auto">
+        <div className="flex flex-wrap items-center gap-2.5 lg:w-auto min-w-0">
           <label className="inline-flex items-center gap-2 bg-[#07090E] border border-white/10 hover:border-amber-500/40 rounded-xl px-3 py-2.5 text-xs text-neutral-200 cursor-pointer select-none transition-colors">
             <input
               type="checkbox"

@@ -672,7 +672,7 @@ function ProyectosContenido() {
   }, [proyectos, busqueda, filtroEstado]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full max-w-full min-w-0">
       {/* Banner de Feedback */}
       {mensajeFeedback && (
         <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-sm flex items-center justify-between animate-fadeIn">
@@ -775,8 +775,8 @@ function ProyectosContenido() {
       </div>
 
       {/* Barra de Filtros, Búsqueda y Selector de Vista */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 p-2 rounded-2xl bg-neutral-900/60 border border-white/5">
-        <div className="flex-1 relative">
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 p-2 rounded-2xl bg-neutral-900/60 border border-white/5 min-w-0">
+        <div className="flex-1 relative min-w-0">
           <Search className="w-4 h-4 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
@@ -787,7 +787,7 @@ function ProyectosContenido() {
           />
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 min-w-0">
           <label htmlFor="filtro-estado-proyecto" className="sr-only">
             Filtrar por estado
           </label>
@@ -796,7 +796,7 @@ function ProyectosContenido() {
             value={filtroEstado}
             onChange={(e) => setFiltroEstado(e.target.value)}
             aria-label="Filtrar proyectos por estado"
-            className="px-3.5 py-2 rounded-xl bg-[#0B0F17] border border-white/10 text-neutral-200 text-xs font-medium focus:outline-none focus:border-sky-500 transition-colors min-w-[175px]"
+            className="w-full md:w-auto md:min-w-[175px] px-3.5 py-2 rounded-xl bg-[#0B0F17] border border-white/10 text-neutral-200 text-xs font-medium focus:outline-none focus:border-sky-500 transition-colors"
           >
             <option value="Todos">Todos los estados</option>
             {ESTADOS_PREDEFINIDOS.map((est) => (
@@ -807,7 +807,7 @@ function ProyectosContenido() {
           </select>
         </div>
 
-        <div className="flex items-center gap-1 border-l border-white/10 pl-2">
+        <div className="hidden md:flex items-center gap-1 border-l border-white/10 pl-2 shrink-0">
           <button
             onClick={() => setVistaModo("tabla")}
             className={`p-2 rounded-xl transition-all ${
@@ -864,204 +864,214 @@ function ProyectosContenido() {
             <span>Crear Primer Proyecto</span>
           </button>
         </div>
-      ) : vistaModo === "tabla" ? (
-        /* Vista Tabla Zebra */
-        <div className="rounded-2xl border border-white/5 bg-neutral-900/50 overflow-hidden shadow-2xl">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr className="border-b border-white/10 bg-white/[0.02] text-neutral-400 uppercase tracking-wider font-mono text-[11px]">
-                  <th className="py-3.5 px-4 font-semibold">Código</th>
-                  <th className="py-3.5 px-4 font-semibold">Proyecto</th>
-                  <th className="py-3.5 px-4 font-semibold">Cliente</th>
-                  <th className="py-3.5 px-4 font-semibold">Estado</th>
-                  <th className="py-3.5 px-4 font-semibold">Progreso</th>
-                  <th className="py-3.5 px-4 font-semibold">Cobranzas</th>
-                  <th className="py-3.5 px-4 font-semibold">Hitos</th>
-                  <th className="py-3.5 px-4 font-semibold text-right">Acción</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {proyectosFiltrados.map((p, idx) => (
-                  <tr
-                    key={p.id}
-                    className={`transition-colors hover:bg-white/[0.03] ${
-                      idx % 2 === 1 ? "bg-white/[0.01]" : ""
-                    }`}
-                  >
-                    <td className="py-3.5 px-4 font-mono font-medium text-sky-400">
-                      {p.codigo}
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <div className="font-semibold text-white">{p.titulo}</div>
-                      <div className="text-[11px] text-neutral-500 flex items-center gap-2 mt-0.5">
-                        <Calendar className="w-3 h-3" />
-                        <span>Inicio: {formatearFecha(p.fechaInicio)}</span>
-                        {p.fechaEstimadaFin && (
-                          <span>• Entrega: {formatearFecha(p.fechaEstimadaFin)}</span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <div className="text-neutral-200 font-medium">{p.clienteNombre}</div>
-                      <div className="text-[11px] text-neutral-400">
-                        {p.clienteEmpresa || p.clienteEmail}
-                      </div>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <span
-                        className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium border"
-                        style={{
-                          backgroundColor: `${p.colorEstado}15`,
-                          borderColor: `${p.colorEstado}40`,
-                          color: p.colorEstado,
-                        }}
-                      >
-                        <span
-                          className="w-1.5 h-1.5 rounded-full"
-                          style={{ backgroundColor: p.colorEstado }}
-                        />
-                        {p.estado}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 min-w-[130px]">
-                      <div className="flex items-center justify-between text-[11px] mb-1 font-mono">
-                        <span className="text-neutral-400">{p.progresoPorcentaje}%</span>
-                      </div>
-                      <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
-                        <div
-                          className="h-full rounded-full transition-all duration-500"
-                          style={{
-                            width: `${p.progresoPorcentaje}%`,
-                            backgroundColor: p.colorEstado || "#38bdf8",
-                          }}
-                        />
-                      </div>
-                    </td>
-                    <td className="py-3.5 px-4 font-mono">
-                      <div className="text-white font-medium">
-                        {formatearMoneda(p.montoCobradoAcumulado, p.moneda)}
-                        <span className="text-neutral-500 text-[11px] font-normal ml-1">
-                          / {formatearMoneda(p.montoTotalContratado, p.moneda)}
-                        </span>
-                      </div>
-                      <div className="text-[11px] text-amber-400/90">
-                        {p.saldoPendiente > 0
-                          ? `Resta: ${formatearMoneda(p.saldoPendiente, p.moneda)}`
-                          : "Liquidado 100%"}
-                      </div>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 font-mono text-[11px] text-neutral-300">
-                        {p.cantidadHitosCompletados} / {p.cantidadHitos ?? 0}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 text-right">
-                      <button
-                        onClick={() => abrirDetalle(p.id)}
-                        className="px-3 py-1.5 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 text-sky-300 font-medium text-xs transition-all inline-flex items-center gap-1.5"
-                      >
-                        <span>Historia Clínica</span>
-                        <ChevronRight className="w-3.5 h-3.5" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
       ) : (
-        /* Vista Tarjetas Grid */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {proyectosFiltrados.map((p) => (
-            <div
-              key={p.id}
-              className="p-5 rounded-2xl bg-neutral-900/50 border border-white/5 hover:border-white/15 transition-all flex flex-col justify-between group shadow-xl"
-            >
-              <div>
-                <div className="flex items-center justify-between gap-2 mb-3">
-                  <span className="font-mono text-xs text-sky-400 font-semibold px-2 py-0.5 rounded-md bg-sky-500/10 border border-sky-500/20">
-                    {p.codigo}
-                  </span>
-                  <span
-                    className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium border"
-                    style={{
-                      backgroundColor: `${p.colorEstado}15`,
-                      borderColor: `${p.colorEstado}40`,
-                      color: p.colorEstado,
-                    }}
-                  >
-                    <span
-                      className="w-1.5 h-1.5 rounded-full"
-                      style={{ backgroundColor: p.colorEstado }}
-                    />
-                    {p.estado}
-                  </span>
-                </div>
-
-                <h3 className="font-bold text-white text-base group-hover:text-sky-300 transition-colors line-clamp-1">
-                  {p.titulo}
-                </h3>
-                <div className="text-xs text-neutral-400 mt-1 flex items-center gap-1.5">
-                  <Building className="w-3.5 h-3.5 text-neutral-500" />
-                  <span>{p.clienteEmpresa || p.clienteNombre}</span>
-                </div>
-
-                {/* Barra de progreso */}
-                <div className="mt-4 space-y-1">
-                  <div className="flex justify-between text-xs font-mono">
-                    <span className="text-neutral-400">Progreso técnico</span>
-                    <span className="text-white font-semibold">{p.progresoPorcentaje}%</span>
-                  </div>
-                  <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
-                    <div
-                      className="h-full rounded-full transition-all"
-                      style={{
-                        width: `${p.progresoPorcentaje}%`,
-                        backgroundColor: p.colorEstado || "#38bdf8",
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* Métricas rápidas */}
-                <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-white/5 text-xs font-mono">
-                  <div>
-                    <span className="text-neutral-500 text-[10px] block uppercase">Cobrado</span>
-                    <span className="text-emerald-400 font-semibold">
-                      {formatearMoneda(p.montoCobradoAcumulado, p.moneda)}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-neutral-500 text-[10px] block uppercase">Saldo</span>
-                    <span className="text-amber-400 font-semibold">
-                      {p.saldoPendiente > 0
-                        ? formatearMoneda(p.saldoPendiente, p.moneda)
-                        : "Saldado"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-5 pt-3 border-t border-white/5 flex items-center justify-between">
-                <div className="text-[11px] text-neutral-400 flex items-center gap-1">
-                  <FileText className="w-3 h-3 text-neutral-500" />
-                  <span>{p.cantidadMinutas} minutas</span>
-                  <span className="mx-1">•</span>
-                  <span>{p.cantidadHitosCompletados}/{p.cantidadHitos ?? 0} hitos</span>
-                </div>
-                <button
-                  onClick={() => abrirDetalle(p.id)}
-                  className="px-3 py-1.5 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 text-sky-300 font-medium text-xs transition-all inline-flex items-center gap-1"
-                >
-                  <span>Abrir Ficha</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
+        <>
+          {/* Vista Tabla Zebra (solo tablet/escritorio cuando el modo activo es tabla) */}
+          <div
+            className={`${
+              vistaModo === "tabla" ? "hidden md:block" : "hidden"
+            } rounded-2xl border border-white/5 bg-neutral-900/50 overflow-hidden shadow-2xl w-full max-w-full min-w-0`}
+          >
+            <div className="w-full overflow-x-auto">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="border-b border-white/10 bg-white/[0.02] text-neutral-400 uppercase tracking-wider font-mono text-[11px]">
+                    <th className="py-3.5 px-3 xl:px-4 font-semibold">Código</th>
+                    <th className="py-3.5 px-3 xl:px-4 font-semibold">Proyecto</th>
+                    <th className="py-3.5 px-3 xl:px-4 font-semibold">Cliente</th>
+                    <th className="py-3.5 px-3 xl:px-4 font-semibold">Estado</th>
+                    <th className="py-3.5 px-3 xl:px-4 font-semibold">Progreso</th>
+                    <th className="py-3.5 px-3 xl:px-4 font-semibold">Cobranzas</th>
+                    <th className="py-3.5 px-3 xl:px-4 font-semibold">Hitos</th>
+                    <th className="py-3.5 px-3 xl:px-4 font-semibold text-right">Acción</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {proyectosFiltrados.map((p, idx) => (
+                    <tr
+                      key={p.id}
+                      className={`transition-colors hover:bg-white/[0.03] ${
+                        idx % 2 === 1 ? "bg-white/[0.01]" : ""
+                      }`}
+                    >
+                      <td className="py-3.5 px-3 xl:px-4 font-mono font-medium text-sky-400 whitespace-nowrap">
+                        {p.codigo}
+                      </td>
+                      <td className="py-3.5 px-3 xl:px-4">
+                        <div className="font-semibold text-white">{p.titulo}</div>
+                        <div className="text-[11px] text-neutral-500 flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5">
+                          <Calendar className="w-3 h-3 shrink-0" />
+                          <span>Inicio: {formatearFecha(p.fechaInicio)}</span>
+                          {p.fechaEstimadaFin && (
+                            <span>• Entrega: {formatearFecha(p.fechaEstimadaFin)}</span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-3.5 px-3 xl:px-4">
+                        <div className="text-neutral-200 font-medium">{p.clienteNombre}</div>
+                        <div className="text-[11px] text-neutral-400">
+                          {p.clienteEmpresa || p.clienteEmail}
+                        </div>
+                      </td>
+                      <td className="py-3.5 px-3 xl:px-4">
+                        <span
+                          className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium border whitespace-nowrap"
+                          style={{
+                            backgroundColor: `${p.colorEstado}15`,
+                            borderColor: `${p.colorEstado}40`,
+                            color: p.colorEstado,
+                          }}
+                        >
+                          <span
+                            className="w-1.5 h-1.5 rounded-full shrink-0"
+                            style={{ backgroundColor: p.colorEstado }}
+                          />
+                          {p.estado}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-3 xl:px-4 min-w-[110px]">
+                        <div className="flex items-center justify-between text-[11px] mb-1 font-mono">
+                          <span className="text-neutral-400">{p.progresoPorcentaje}%</span>
+                        </div>
+                        <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
+                          <div
+                            className="h-full rounded-full transition-all duration-500"
+                            style={{
+                              width: `${p.progresoPorcentaje}%`,
+                              backgroundColor: p.colorEstado || "#38bdf8",
+                            }}
+                          />
+                        </div>
+                      </td>
+                      <td className="py-3.5 px-3 xl:px-4 font-mono whitespace-nowrap">
+                        <div className="text-white font-medium">
+                          {formatearMoneda(p.montoCobradoAcumulado, p.moneda)}
+                          <span className="text-neutral-500 text-[11px] font-normal ml-1">
+                            / {formatearMoneda(p.montoTotalContratado, p.moneda)}
+                          </span>
+                        </div>
+                        <div className="text-[11px] text-amber-400/90">
+                          {p.saldoPendiente > 0
+                            ? `Resta: ${formatearMoneda(p.saldoPendiente, p.moneda)}`
+                            : "Liquidado 100%"}
+                        </div>
+                      </td>
+                      <td className="py-3.5 px-3 xl:px-4 whitespace-nowrap">
+                        <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 font-mono text-[11px] text-neutral-300">
+                          {p.cantidadHitosCompletados} / {p.cantidadHitos ?? 0}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-3 xl:px-4 text-right whitespace-nowrap">
+                        <button
+                          onClick={() => abrirDetalle(p.id)}
+                          className="px-3 py-1.5 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 text-sky-300 font-medium text-xs transition-all inline-flex items-center gap-1.5"
+                        >
+                          <span>Historia Clínica</span>
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          ))}
-        </div>
+          </div>
+
+          {/* Vista Tarjetas Grid (siempre visible en móvil < md y en escritorio si el modo activo es tarjetas) */}
+          <div
+            className={`${
+              vistaModo === "tarjetas" ? "grid" : "grid md:hidden"
+            } grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 min-w-0`}
+          >
+            {proyectosFiltrados.map((p) => (
+              <div
+                key={p.id}
+                className="p-5 rounded-2xl bg-neutral-900/50 border border-white/5 hover:border-white/15 transition-all flex flex-col justify-between group shadow-xl min-w-0"
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <span className="font-mono text-xs text-sky-400 font-semibold px-2 py-0.5 rounded-md bg-sky-500/10 border border-sky-500/20">
+                      {p.codigo}
+                    </span>
+                    <span
+                      className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium border"
+                      style={{
+                        backgroundColor: `${p.colorEstado}15`,
+                        borderColor: `${p.colorEstado}40`,
+                        color: p.colorEstado,
+                      }}
+                    >
+                      <span
+                        className="w-1.5 h-1.5 rounded-full"
+                        style={{ backgroundColor: p.colorEstado }}
+                      />
+                      {p.estado}
+                    </span>
+                  </div>
+
+                  <h3 className="font-bold text-white text-base group-hover:text-sky-300 transition-colors line-clamp-1">
+                    {p.titulo}
+                  </h3>
+                  <div className="text-xs text-neutral-400 mt-1 flex items-center gap-1.5 min-w-0">
+                    <Building className="w-3.5 h-3.5 text-neutral-500 shrink-0" />
+                    <span className="truncate">{p.clienteEmpresa || p.clienteNombre}</span>
+                  </div>
+
+                  {/* Barra de progreso */}
+                  <div className="mt-4 space-y-1">
+                    <div className="flex justify-between text-xs font-mono">
+                      <span className="text-neutral-400">Progreso técnico</span>
+                      <span className="text-white font-semibold">{p.progresoPorcentaje}%</span>
+                    </div>
+                    <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all"
+                        style={{
+                          width: `${p.progresoPorcentaje}%`,
+                          backgroundColor: p.colorEstado || "#38bdf8",
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Métricas rápidas */}
+                  <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-white/5 text-xs font-mono">
+                    <div className="min-w-0">
+                      <span className="text-neutral-500 text-[10px] block uppercase">Cobrado</span>
+                      <span className="text-emerald-400 font-semibold break-words">
+                        {formatearMoneda(p.montoCobradoAcumulado, p.moneda)}
+                      </span>
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-neutral-500 text-[10px] block uppercase">Saldo</span>
+                      <span className="text-amber-400 font-semibold break-words">
+                        {p.saldoPendiente > 0
+                          ? formatearMoneda(p.saldoPendiente, p.moneda)
+                          : "Saldado"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-5 pt-3 border-t border-white/5 flex flex-wrap items-center justify-between gap-2">
+                  <div className="text-[11px] text-neutral-400 flex items-center gap-1">
+                    <FileText className="w-3 h-3 text-neutral-500 shrink-0" />
+                    <span>{p.cantidadMinutas} minutas</span>
+                    <span className="mx-1">•</span>
+                    <span>{p.cantidadHitosCompletados}/{p.cantidadHitos ?? 0} hitos</span>
+                  </div>
+                  <button
+                    onClick={() => abrirDetalle(p.id)}
+                    className="px-3 py-1.5 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 text-sky-300 font-medium text-xs transition-all inline-flex items-center gap-1 shrink-0"
+                  >
+                    <span>Abrir Ficha</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       )}
 
       {/* ========================================================================= */}
@@ -1524,42 +1534,44 @@ function ProyectosContenido() {
                       </p>
                     </div>
                   ) : (
-                    <div className="rounded-2xl border border-white/5 bg-black/20 overflow-hidden">
-                      <table className="w-full text-left border-collapse text-xs">
-                        <thead>
-                          <tr className="border-b border-white/10 bg-white/[0.02] text-neutral-400 uppercase tracking-wider font-mono text-[10px]">
-                            <th className="py-2.5 px-3">Fecha</th>
-                            <th className="py-2.5 px-3">Concepto</th>
-                            <th className="py-2.5 px-3">Método</th>
-                            <th className="py-2.5 px-3">Comprobante</th>
-                            <th className="py-2.5 px-3 text-right">Monto</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-white/5 font-mono">
-                          {proyectoDetalle.pagos.map((pago) => (
-                            <tr key={pago.id} className="hover:bg-white/[0.02]">
-                              <td className="py-2.5 px-3 text-neutral-300">
-                                {formatearFecha(pago.fechaPago)}
-                              </td>
-                              <td className="py-2.5 px-3 font-sans text-white font-medium">
-                                {pago.concepto}
-                                {pago.notas && (
-                                  <span className="block text-[11px] text-neutral-500 font-normal">
-                                    {pago.notas}
-                                  </span>
-                                )}
-                              </td>
-                              <td className="py-2.5 px-3 text-neutral-400">{pago.metodoPago}</td>
-                              <td className="py-2.5 px-3 text-neutral-400">
-                                {pago.numeroComprobante || "-"}
-                              </td>
-                              <td className="py-2.5 px-3 text-right text-emerald-400 font-bold">
-                                {formatearMoneda(pago.monto, pago.moneda)}
-                              </td>
+                    <div className="rounded-2xl border border-white/5 bg-black/20 overflow-hidden w-full min-w-0">
+                      <div className="w-full overflow-x-auto">
+                        <table className="w-full text-left border-collapse text-xs">
+                          <thead>
+                            <tr className="border-b border-white/10 bg-white/[0.02] text-neutral-400 uppercase tracking-wider font-mono text-[10px]">
+                              <th className="py-2.5 px-3">Fecha</th>
+                              <th className="py-2.5 px-3">Concepto</th>
+                              <th className="py-2.5 px-3">Método</th>
+                              <th className="py-2.5 px-3">Comprobante</th>
+                              <th className="py-2.5 px-3 text-right">Monto</th>
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                          </thead>
+                          <tbody className="divide-y divide-white/5 font-mono">
+                            {proyectoDetalle.pagos.map((pago) => (
+                              <tr key={pago.id} className="hover:bg-white/[0.02]">
+                                <td className="py-2.5 px-3 text-neutral-300 whitespace-nowrap">
+                                  {formatearFecha(pago.fechaPago)}
+                                </td>
+                                <td className="py-2.5 px-3 font-sans text-white font-medium">
+                                  {pago.concepto}
+                                  {pago.notas && (
+                                    <span className="block text-[11px] text-neutral-500 font-normal">
+                                      {pago.notas}
+                                    </span>
+                                  )}
+                                </td>
+                                <td className="py-2.5 px-3 text-neutral-400 whitespace-nowrap">{pago.metodoPago}</td>
+                                <td className="py-2.5 px-3 text-neutral-400 whitespace-nowrap">
+                                  {pago.numeroComprobante || "-"}
+                                </td>
+                                <td className="py-2.5 px-3 text-right text-emerald-400 font-bold whitespace-nowrap">
+                                  {formatearMoneda(pago.monto, pago.moneda)}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   )}
                 </div>

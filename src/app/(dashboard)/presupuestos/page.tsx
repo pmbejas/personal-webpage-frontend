@@ -706,7 +706,7 @@ function PresupuestosContenido() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full max-w-full min-w-0">
       {/* Notificación Feedback flotante */}
       {mensajeFeedback && (
         <div className="fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl bg-sky-950/95 border border-sky-500/40 text-sky-200 text-xs shadow-2xl flex items-center gap-2 backdrop-blur-md animate-fade-in">
@@ -799,8 +799,8 @@ function PresupuestosContenido() {
       </div>
 
       {/* Barra de Filtros */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-4 rounded-2xl bg-[#0D121F] border border-white/10">
-        <div className="relative flex-1">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-4 rounded-2xl bg-[#0D121F] border border-white/10 min-w-0">
+        <div className="relative flex-1 min-w-0">
           <Search className="w-4 h-4 text-neutral-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
@@ -814,7 +814,7 @@ function PresupuestosContenido() {
           />
         </div>
 
-        <div className="flex items-center gap-1.5 overflow-x-auto text-xs pb-1 sm:pb-0">
+        <div className="flex items-center gap-1.5 overflow-x-auto max-w-full min-w-0 text-xs pb-1 sm:pb-0">
           <button
             type="button"
             onClick={() => setFiltroEstado(undefined)}
@@ -863,7 +863,7 @@ function PresupuestosContenido() {
       </div>
 
       {/* Tabla de Presupuestos (Estilo Cebra) */}
-      <div className="rounded-2xl bg-[#0D121F] border border-white/10 overflow-hidden shadow-xl">
+      <div className="rounded-2xl bg-[#0D121F] border border-white/10 overflow-hidden shadow-xl w-full max-w-full min-w-0">
         {cargando ? (
           <div className="p-12 text-center text-neutral-400 text-sm flex flex-col items-center gap-3">
             <div className="w-7 h-7 border-2 border-sky-500 border-t-transparent rounded-full animate-spin" />
@@ -879,17 +879,17 @@ function PresupuestosContenido() {
             No se encontraron presupuestos registrados con los filtros actuales.
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="w-full overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead className="bg-white/[0.04] border-b border-white/10 text-neutral-300 font-mono">
                 <tr>
-                  <th className="py-3 px-4">Código & Fecha</th>
-                  <th className="py-3 px-4">Cliente / Empresa</th>
-                  <th className="py-3 px-4">Servicio Principal</th>
-                  <th className="py-3 px-4">Total Cotizado</th>
-                  <th className="py-3 px-4 text-center">Vigencia</th>
-                  <th className="py-3 px-4 text-center">Estado</th>
-                  <th className="py-3 px-4 text-right">Acciones</th>
+                  <th className="py-3 px-3 xl:px-4">Código & Fecha</th>
+                  <th className="py-3 px-3 xl:px-4">Cliente / Empresa</th>
+                  <th className="py-3 px-3 xl:px-4">Servicio Principal</th>
+                  <th className="py-3 px-3 xl:px-4">Total Cotizado</th>
+                  <th className="py-3 px-3 xl:px-4 text-center">Vigencia</th>
+                  <th className="py-3 px-3 xl:px-4 text-center">Estado</th>
+                  <th className="py-3 px-3 xl:px-4 text-right">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/10">
@@ -1095,36 +1095,38 @@ function PresupuestosContenido() {
               )}
 
               {/* Tabla de Ítems */}
-              <div className="rounded-xl border border-white/10 overflow-hidden">
-                <table className="w-full text-left">
-                  <thead className="bg-white/5 font-mono text-neutral-400 border-b border-white/10">
-                    <tr>
-                      <th className="p-2.5">Concepto</th>
-                      <th className="p-2.5 text-center">Cant.</th>
-                      <th className="p-2.5 text-right">Precio Unit.</th>
-                      <th className="p-2.5 text-right">Subtotal</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/5 font-mono">
-                    {presupuestoSeleccionado.items.map((item) => (
-                      <tr key={item.id} className="hover:bg-white/[0.02]">
-                        <td className="p-2.5">
-                          <div className="font-sans font-medium text-white">{item.concepto}</div>
-                          {item.detalle && (
-                            <div className="text-[11px] text-neutral-400 font-sans">{item.detalle}</div>
-                          )}
-                        </td>
-                        <td className="p-2.5 text-center text-neutral-300">{item.cantidad}</td>
-                        <td className="p-2.5 text-right text-neutral-300">
-                          ${item.precioUnitario.toLocaleString("es-AR")}
-                        </td>
-                        <td className="p-2.5 text-right font-bold text-white">
-                          ${item.subtotal.toLocaleString("es-AR")}
-                        </td>
+              <div className="rounded-xl border border-white/10 overflow-hidden w-full min-w-0">
+                <div className="w-full overflow-x-auto">
+                  <table className="w-full text-left">
+                    <thead className="bg-white/5 font-mono text-neutral-400 border-b border-white/10">
+                      <tr>
+                        <th className="p-2.5">Concepto</th>
+                        <th className="p-2.5 text-center">Cant.</th>
+                        <th className="p-2.5 text-right">Precio Unit.</th>
+                        <th className="p-2.5 text-right">Subtotal</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-white/5 font-mono">
+                      {presupuestoSeleccionado.items.map((item) => (
+                        <tr key={item.id} className="hover:bg-white/[0.02]">
+                          <td className="p-2.5">
+                            <div className="font-sans font-medium text-white">{item.concepto}</div>
+                            {item.detalle && (
+                              <div className="text-[11px] text-neutral-400 font-sans">{item.detalle}</div>
+                            )}
+                          </td>
+                          <td className="p-2.5 text-center text-neutral-300">{item.cantidad}</td>
+                          <td className="p-2.5 text-right text-neutral-300 whitespace-nowrap">
+                            ${item.precioUnitario.toLocaleString("es-AR")}
+                          </td>
+                          <td className="p-2.5 text-right font-bold text-white whitespace-nowrap">
+                            ${item.subtotal.toLocaleString("es-AR")}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
 
               {/* Totales y Descuentos */}

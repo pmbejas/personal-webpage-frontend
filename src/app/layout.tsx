@@ -1,7 +1,12 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { AuthProvider } from "@/context/AuthContext";
 import { Toaster } from "sonner";
 import "./globals.css";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
 
 export const metadata: Metadata = {
   title: "Pablo Bejas | ERP Privado",
@@ -18,12 +23,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es" className="dark">
-      <body className="bg-[#0B0F17] text-neutral-100 min-h-screen antialiased selection:bg-sky-500/20 selection:text-sky-300">
+    <html lang="es" className="dark w-full max-w-full overflow-x-clip">
+      <body className="bg-[#0B0F17] text-neutral-100 min-h-screen w-full max-w-full overflow-x-clip antialiased selection:bg-sky-500/20 selection:text-sky-300">
         <AuthProvider>
           {children}
           <Toaster
             position="top-right"
+            mobileOffset={12}
             theme="dark"
             richColors
             closeButton

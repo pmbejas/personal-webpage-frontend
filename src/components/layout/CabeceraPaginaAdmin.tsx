@@ -86,7 +86,7 @@ export function CabeceraPaginaAdmin({
       {contenedorBarraSuperior && createPortal(contenidoCompacto, contenedorBarraSuperior)}
 
       {/* Fallback visible únicamente en pantallas móviles/tablets menores a lg */}
-      <div className="lg:hidden flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/10">
+      <div className="lg:hidden flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/10 w-full max-w-full min-w-0">
         {contenidoCompacto}
       </div>
     </>

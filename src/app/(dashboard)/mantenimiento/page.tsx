@@ -241,7 +241,7 @@ export default function MantenimientoPage() {
   const cargando = cargandoRubros || cargandoCategorias;
 
   return (
-    <div className="space-y-6 pb-16">
+    <div className="space-y-6 pb-16 w-full max-w-full min-w-0">
       <CabeceraPaginaAdmin
         titulo="Mantenimiento"
         subtitulo="Tablas maestras de rubros de clientes y categorías de servicios adicionales."
@@ -282,17 +282,17 @@ export default function MantenimientoPage() {
       />
 
       {/* Pestañas */}
-      <div className="flex border-b border-white/10 gap-2">
+      <div className="flex border-b border-white/10 gap-2 w-full max-w-full overflow-x-auto min-w-0">
         <button
           type="button"
           onClick={() => setPestanaActiva("rubros")}
-          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             pestanaActiva === "rubros"
               ? "border-sky-400 text-sky-400 bg-sky-500/5"
               : "border-transparent text-neutral-400 hover:text-white"
           }`}
         >
-          <Briefcase className="w-4 h-4" />
+          <Briefcase className="w-4 h-4 shrink-0" />
           <span>Rubros de Clientes</span>
           <span className="ml-1 px-2 py-0.5 rounded-full text-[11px] font-mono bg-white/10 text-neutral-200">
             {rubros.length}
@@ -302,13 +302,13 @@ export default function MantenimientoPage() {
         <button
           type="button"
           onClick={() => setPestanaActiva("categorias")}
-          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             pestanaActiva === "categorias"
               ? "border-sky-400 text-sky-400 bg-sky-500/5"
               : "border-transparent text-neutral-400 hover:text-white"
           }`}
         >
-          <FolderTree className="w-4 h-4" />
+          <FolderTree className="w-4 h-4 shrink-0" />
           <span>Categorías de Adicionales</span>
           <span className="ml-1 px-2 py-0.5 rounded-full text-[11px] font-mono bg-white/10 text-neutral-200">
             {categorias.length}
@@ -318,7 +318,7 @@ export default function MantenimientoPage() {
 
       {/* PESTAÑA 1: RUBROS DE CLIENTES */}
       {pestanaActiva === "rubros" && (
-        <div className="rounded-2xl bg-[#0D121F] border border-white/10 overflow-hidden">
+        <div className="rounded-2xl bg-[#0D121F] border border-white/10 overflow-hidden w-full max-w-full min-w-0">
           <div className="p-4 border-b border-white/10 flex items-center justify-between">
             <div>
               <h2 className="text-sm font-semibold text-white">Rubros Comerciales de Clientes</h2>
@@ -335,7 +335,7 @@ export default function MantenimientoPage() {
               Todavía no hay rubros cargados. Hacé clic en &quot;Nuevo Rubro&quot; para agregar el primero.
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="w-full overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead className="bg-white/[0.04] border-b border-white/10 text-neutral-300 font-mono">
                   <tr>
@@ -411,7 +411,7 @@ export default function MantenimientoPage() {
 
       {/* PESTAÑA 2: CATEGORÍAS DE SERVICIOS ADICIONALES */}
       {pestanaActiva === "categorias" && (
-        <div className="rounded-2xl bg-[#0D121F] border border-white/10 overflow-hidden">
+        <div className="rounded-2xl bg-[#0D121F] border border-white/10 overflow-hidden w-full max-w-full min-w-0">
           <div className="p-4 border-b border-white/10 flex items-center justify-between">
             <div>
               <h2 className="text-sm font-semibold text-white">Categorías de Servicios Adicionales</h2>
@@ -428,7 +428,7 @@ export default function MantenimientoPage() {
               Todavía no hay categorías creadas.
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="w-full overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead className="bg-white/[0.04] border-b border-white/10 text-neutral-300 font-mono">
                   <tr>

@@ -78,9 +78,9 @@ export function ShellAdmin({ children }: { children: React.ReactNode }) {
             <>
               <Link
                 href="/dashboard"
-                className="flex items-center overflow-hidden hover:opacity-90 transition-opacity"
+                className="flex items-center min-w-0 overflow-hidden hover:opacity-90 transition-opacity"
               >
-                <LogoAdmin colapsado={false} className="h-8 w-auto" />
+                <LogoAdmin colapsado={false} className="h-8 w-[142px] max-w-full" />
               </Link>
 
               <button
@@ -184,9 +184,12 @@ export function ShellAdmin({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* 2. Barra Superior Móvil */}
-      <header className="lg:hidden sticky top-0 h-14 bg-[#0B0F17]/95 backdrop-blur-md border-b border-white/10 px-4 flex items-center justify-between z-30">
-        <Link href="/dashboard" className="flex items-center">
-          <LogoAdmin colapsado={false} className="h-7 w-auto" />
+      <header className="lg:hidden sticky top-0 h-14 w-full max-w-full overflow-hidden bg-[#0B0F17]/95 backdrop-blur-md border-b border-white/10 px-4 flex items-center justify-between gap-3 z-30">
+        <Link
+          href="/dashboard"
+          className="flex items-center min-w-0 max-w-[calc(100%-3.5rem)] overflow-hidden"
+        >
+          <LogoAdmin colapsado={false} className="h-7 w-[124px] max-w-full" />
         </Link>
 
         <button
@@ -263,7 +266,7 @@ export function ShellAdmin({ children }: { children: React.ReactNode }) {
           </header>
 
           {/* Área de Contenido de la Página */}
-          <main className="flex-1 p-4 sm:p-5 lg:p-6 max-w-7xl w-full mx-auto min-w-0">
+          <main className="flex-1 p-4 sm:p-5 lg:p-6 max-w-7xl w-full mx-auto min-w-0 overflow-x-clip">
             {children}
           </main>
         </div>

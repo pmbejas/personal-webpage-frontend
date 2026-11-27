@@ -13,9 +13,11 @@ export function IsotipoRobotAdmin({ className = "w-8 h-8" }: { className?: strin
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="28 10 144 212"
+      width={164}
+      height={232}
+      viewBox="18 0 164 232"
       fill="none"
-      className={`overflow-visible shrink-0 ${className}`}
+      className={`overflow-hidden shrink-0 max-w-full ${className}`}
       aria-label="Isotipo Robot Pablo Bejas"
     >
       <defs>
@@ -79,9 +81,11 @@ export function LogoCompletoAdmin({ className = "h-10 w-auto" }: { className?: s
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 230 52"
+      width={242}
+      height={64}
+      viewBox="-6 -6 242 64"
       fill="none"
-      className={`overflow-visible shrink-0 ${className}`}
+      className={`overflow-hidden shrink-0 max-w-full ${className}`}
       aria-label="Pablo Bejas ERP Privado Core"
     >
       <defs>

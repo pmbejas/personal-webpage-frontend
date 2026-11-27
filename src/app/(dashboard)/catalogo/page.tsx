@@ -316,7 +316,7 @@ export default function PaginaCatalogoAdmin() {
   };
 
   return (
-    <div className="space-y-6 pb-16">
+    <div className="space-y-6 pb-16 w-full max-w-full min-w-0">
       {/* 1. Cabecera compacta en barra superior */}
       <CabeceraPaginaAdmin
         titulo="Catálogo & Servicios"
@@ -336,16 +336,16 @@ export default function PaginaCatalogoAdmin() {
       />
 
       {/* 2. Selector de Pestañas */}
-      <div className="flex border-b border-white/10 gap-2">
+      <div className="flex border-b border-white/10 gap-2 w-full max-w-full overflow-x-auto min-w-0">
         <button
           onClick={() => setPestanaActiva("servicios")}
-          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             pestanaActiva === "servicios"
               ? "border-sky-400 text-sky-400 bg-sky-500/5"
               : "border-transparent text-neutral-400 hover:text-white"
           }`}
         >
-          <Package className="w-4 h-4" />
+          <Package className="w-4 h-4 shrink-0" />
           <span>Productos Web (Servicios Base)</span>
           <span className="ml-1.5 px-2 py-0.5 rounded-full text-[11px] font-mono bg-white/10 text-neutral-200">
             {servicios.length}
@@ -354,13 +354,13 @@ export default function PaginaCatalogoAdmin() {
 
         <button
           onClick={() => setPestanaActiva("adicionales")}
-          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
+          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             pestanaActiva === "adicionales"
               ? "border-sky-400 text-sky-400 bg-sky-500/5"
               : "border-transparent text-neutral-400 hover:text-white"
           }`}
         >
-          <Layers className="w-4 h-4" />
+          <Layers className="w-4 h-4 shrink-0" />
           <span>Servicios Adicionales (Add-ons)</span>
           <span className="ml-1.5 px-2 py-0.5 rounded-full text-[11px] font-mono bg-white/10 text-neutral-200">
             {adicionales.length}

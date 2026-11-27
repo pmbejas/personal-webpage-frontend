@@ -12,8 +12,14 @@ body {
   background-color: #0B0F17;
   color: #F3F4F6;
   font-family: var(--font-inter);
-  overflow-x: clip;
+  width: 100%;
   max-width: 100%;
+  overflow-x: clip;
+}
+
+/* Garantizar que los toasts flotantes nunca excedan el ancho en pantallas móviles */
+[data-sonner-toaster] {
+  max-width: calc(100vw - 1.5rem) !important;
 }
 
 /* Scrollbar personalizado prémium */

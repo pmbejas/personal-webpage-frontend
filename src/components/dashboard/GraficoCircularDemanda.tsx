@@ -82,8 +82,8 @@ export function GraficoCircularDemanda({
       {/* Gráfico circular tipo dona en SVG */}
       <div className="relative flex items-center justify-center my-auto">
         <svg
-          viewBox="0 0 180 180"
-          className="w-44 h-44 sm:w-48 sm:h-48 -rotate-90 overflow-visible"
+          viewBox="-8 -8 196 196"
+          className="w-44 h-44 sm:w-48 sm:h-48 max-w-full -rotate-90 overflow-hidden"
           role="img"
           aria-label="Gráfico circular de distribución de demanda por producto principal"
         >

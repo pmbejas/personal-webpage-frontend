@@ -106,19 +106,19 @@ export function TablaClientes({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 w-full max-w-full min-w-0">
       {/* Vista tabla escritorio */}
-      <div className="hidden lg:block bg-[#0B0F17] border border-white/10 rounded-2xl overflow-hidden">
-        <div className="overflow-x-auto">
+      <div className="hidden lg:block bg-[#0B0F17] border border-white/10 rounded-2xl overflow-hidden w-full max-w-full min-w-0">
+        <div className="w-full overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-white/10 bg-white/[0.02] text-[11px] font-mono uppercase tracking-wider text-neutral-400">
-                <th className="py-3.5 px-4">Cliente / Empresa</th>
-                <th className="py-3.5 px-4">Contacto y Fiscal</th>
-                <th className="py-3.5 px-4">Estado</th>
-                <th className="py-3.5 px-4">Actividad</th>
-                <th className="py-3.5 px-4 text-right">Contratado / Saldo</th>
-                <th className="py-3.5 px-4 text-right">Acciones</th>
+                <th className="py-3.5 px-3 xl:px-4">Cliente / Empresa</th>
+                <th className="py-3.5 px-3 xl:px-4">Contacto y Fiscal</th>
+                <th className="py-3.5 px-3 xl:px-4">Estado</th>
+                <th className="py-3.5 px-3 xl:px-4">Actividad</th>
+                <th className="py-3.5 px-3 xl:px-4 text-right">Contratado / Saldo</th>
+                <th className="py-3.5 px-3 xl:px-4 text-right">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 text-xs">
@@ -132,7 +132,7 @@ export function TablaClientes({
                     transition={{ delay: indice * 0.025, duration: 0.18 }}
                     className="hover:bg-white/[0.03] transition-colors"
                   >
-                    <td className="py-3.5 px-4">
+                    <td className="py-3.5 px-3 xl:px-4">
                       <button
                         type="button"
                         onClick={() => onVerDetalle(cliente.id)}
@@ -142,18 +142,18 @@ export function TablaClientes({
                           {obtenerIniciales(cliente.nombreCompleto)}
                         </div>
                         <div className="min-w-0">
-                          <p className="font-semibold text-white group-hover:text-sky-300 transition-colors truncate max-w-[220px]">
+                          <p className="font-semibold text-white group-hover:text-sky-300 transition-colors truncate max-w-[200px]">
                             {formatearNombreCliente(cliente)}
                           </p>
                           <div className="flex flex-wrap items-center gap-2 text-[11px] text-neutral-400 mt-0.5">
                             {cliente.empresa && (
-                              <span className="inline-flex items-center gap-1 truncate max-w-[160px]">
+                              <span className="inline-flex items-center gap-1 truncate max-w-[150px]">
                                 <Building2 className="w-3 h-3 text-neutral-500 shrink-0" />
                                 {cliente.empresa}
                               </span>
                             )}
                             {(cliente.localidad || cliente.ubicacion) && (
-                              <span className="inline-flex items-center gap-1 truncate max-w-[160px]">
+                              <span className="inline-flex items-center gap-1 truncate max-w-[150px]">
                                 <MapPin className="w-3 h-3 text-neutral-500 shrink-0" />
                                 {cliente.localidad || cliente.ubicacion}
                               </span>
@@ -163,8 +163,8 @@ export function TablaClientes({
                       </button>
                     </td>
 
-                    <td className="py-3.5 px-4">
-                      <p className="text-neutral-200 truncate max-w-[200px]">{cliente.email}</p>
+                    <td className="py-3.5 px-3 xl:px-4">
+                      <p className="text-neutral-200 truncate max-w-[180px]">{cliente.email}</p>
                       <div className="flex items-center gap-2 text-[11px] text-neutral-400 mt-0.5 font-mono">
                         <span>{cliente.telefonoWhatsApp}</span>
                         {cliente.cuitCuil && (
@@ -176,7 +176,7 @@ export function TablaClientes({
                       </div>
                     </td>
 
-                    <td className="py-3.5 px-4">
+                    <td className="py-3.5 px-3 xl:px-4">
                       <div className="flex flex-wrap items-center gap-1.5">
                         <span
                           className={`px-2 py-0.5 rounded-full text-[11px] font-medium border ${
@@ -193,8 +193,8 @@ export function TablaClientes({
                       </p>
                     </td>
 
-                    <td className="py-3.5 px-4">
-                      <div className="flex items-center gap-2 font-mono text-[11px] text-neutral-300">
+                    <td className="py-3.5 px-3 xl:px-4">
+                      <div className="flex flex-wrap items-center gap-1.5 font-mono text-[11px] text-neutral-300">
                         <span title="Presupuestos" className="px-2 py-0.5 rounded-lg bg-white/5 border border-white/10">
                           {cliente.cantidadPresupuestos} pres.
                         </span>
@@ -207,7 +207,7 @@ export function TablaClientes({
                       </div>
                     </td>
 
-                    <td className="py-3.5 px-4 text-right tabular-nums">
+                    <td className="py-3.5 px-3 xl:px-4 text-right tabular-nums">
                       <p className="font-semibold text-white">
                         {formatearMontoArs(cliente.montoTotalContratado)}
                       </p>
@@ -220,7 +220,7 @@ export function TablaClientes({
                       </p>
                     </td>
 
-                    <td className="py-3.5 px-4">
+                    <td className="py-3.5 px-3 xl:px-4">
                       <div className="grid grid-cols-3 gap-1 w-fit ml-auto">
                         <button
                           type="button"
