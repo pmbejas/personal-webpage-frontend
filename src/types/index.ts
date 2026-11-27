@@ -57,6 +57,9 @@ export interface ClienteListadoResponse {
   rubroId?: string | null;
   rubro?: string | null;
   cuitCuil?: string | null;
+  domicilioCalle1?: string | null;
+  domicilioCalle2?: string | null;
+  localidad?: string | null;
   ubicacion?: string | null;
   activo: boolean;
   esClienteConvertido: boolean;
@@ -111,6 +114,20 @@ export interface ClienteCitaResumenResponse {
   resultadoComercial?: string | null;
 }
 
+export interface ClientePagoResumenResponse {
+  id: string;
+  proyectoId: string;
+  proyectoCodigo: string;
+  proyectoTitulo: string;
+  fechaPago: string;
+  monto: number;
+  moneda: string;
+  metodoPago: string;
+  numeroComprobante?: string | null;
+  concepto: string;
+  notas?: string | null;
+}
+
 export interface ClienteDetalleResponse {
   id: string;
   nombre: string;
@@ -122,6 +139,9 @@ export interface ClienteDetalleResponse {
   rubroId?: string | null;
   rubro?: string | null;
   cuitCuil?: string | null;
+  domicilioCalle1?: string | null;
+  domicilioCalle2?: string | null;
+  localidad?: string | null;
   ubicacion?: string | null;
   notasInternas?: string | null;
   activo: boolean;
@@ -140,6 +160,7 @@ export interface ClienteDetalleResponse {
   saldoPendiente: number;
   presupuestos: ClientePresupuestoResumenResponse[];
   proyectos: ClienteProyectoResumenResponse[];
+  pagos: ClientePagoResumenResponse[];
   citas: ClienteCitaResumenResponse[];
 }
 
@@ -181,6 +202,9 @@ export interface CrearClienteRequest {
   rubroId?: string | null;
   rubro?: string | null;
   cuitCuil?: string | null;
+  domicilioCalle1?: string | null;
+  domicilioCalle2?: string | null;
+  localidad?: string | null;
   ubicacion?: string | null;
   notasInternas?: string | null;
 }
@@ -195,6 +219,9 @@ export interface ActualizarClienteRequest {
   rubroId?: string | null;
   rubro?: string | null;
   cuitCuil?: string | null;
+  domicilioCalle1?: string | null;
+  domicilioCalle2?: string | null;
+  localidad?: string | null;
   ubicacion?: string | null;
   notasInternas?: string | null;
 }

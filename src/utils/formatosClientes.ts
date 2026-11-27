@@ -92,3 +92,45 @@ export function extraerMensajeError(error: unknown, respaldo: string): string {
 
   return respaldo;
 }
+
+/**
+ * Construye de forma segura una URL de Google Maps a partir de coordenadas geodésicas
+ * (ej. "-26.82414, -65.22260"), una dirección o un enlace directo http/https.
+ */
+export function construirUrlGoogleMaps(ubicacion?: string | null): string | null {
+  if (!ubicacion || !ubicacion.trim()) {
+    return null;
+  }
+
+  const limpio = ubicacion.trim();
+  if (/^https?:\/\//i.test(limpio)) {
+    try {
+      const urlParseada = new URL(limpio);
+      if (urlParseada.protocol === "http:" || urlParseada.protocol === "https:") {
+        return urlParseada.toString();
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(limpio)}`;
+}
+
+/**
+ * Compone una línea legible del domicilio completo del cliente (calle 1, calle 2 y localidad).
+ */
+export function formatearDomicilioCliente(cliente: {
+  domicilioCalle1?: string | null;
+  domicilioCalle2?: string | null;
+  localidad?: string | null;
+}): string {
+  const partes = [
+    cliente.domicilioCalle1?.trim(),
+    cliente.domicilioCalle2?.trim(),
+    cliente.localidad?.trim(),
+  ].filter(Boolean);
+
+  return partes.join(", ");
+}

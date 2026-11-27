@@ -152,10 +152,10 @@ export function TablaClientes({
                                 {cliente.empresa}
                               </span>
                             )}
-                            {cliente.ubicacion && (
-                              <span className="inline-flex items-center gap-1 truncate max-w-[140px]">
+                            {(cliente.localidad || cliente.ubicacion) && (
+                              <span className="inline-flex items-center gap-1 truncate max-w-[160px]">
                                 <MapPin className="w-3 h-3 text-neutral-500 shrink-0" />
-                                {cliente.ubicacion}
+                                {cliente.localidad || cliente.ubicacion}
                               </span>
                             )}
                           </div>

@@ -64,6 +64,10 @@ export default function ClientesPage() {
     router.push(`/proyectos?nuevoProyecto=1&clienteId=${encodeURIComponent(clienteId)}`);
   };
 
+  const abrirProyectoExistente = (proyectoId: string) => {
+    router.push(`/proyectos?proyectoId=${encodeURIComponent(proyectoId)}`);
+  };
+
   return (
     <div className="space-y-6">
       {/* Encabezado compacto en barra superior */}
@@ -201,6 +205,7 @@ export default function ClientesPage() {
         procesandoEstado={Boolean(clienteDetalle && procesandoAccionId === clienteDetalle.id)}
         onCerrar={cerrarDetalle}
         onCrearProyecto={abrirNuevoProyectoParaCliente}
+        onAbrirProyecto={abrirProyectoExistente}
         onEditar={abrirModalEditarDesdeDetalle}
         onAlternarEstado={alternarEstadoActivo}
         onGuardarNotas={guardarNotasRapidas}

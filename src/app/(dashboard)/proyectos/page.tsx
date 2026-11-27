@@ -304,7 +304,7 @@ function ProyectosContenido() {
   }, [searchParams, cargarPresupuestos, reiniciarFormularioCrear, router]);
 
   // Abrir detalle del proyecto
-  const abrirDetalle = async (
+  const abrirDetalle = useCallback(async (
     id: string,
     pestana: "general" | "alcance" | "minutas" | "pagos" | "hitos" = "general"
   ) => {
@@ -335,7 +335,18 @@ function ProyectosContenido() {
     } finally {
       setCargandoDetalle(false);
     }
-  };
+  }, []);
+
+  // Abrir directamente un proyecto si se navega desde /clientes con ?proyectoId=...
+  useEffect(() => {
+    const proyectoIdParam = searchParams.get("proyectoId");
+    if (!proyectoIdParam) {
+      return;
+    }
+
+    abrirDetalle(proyectoIdParam);
+    router.replace("/proyectos");
+  }, [searchParams, abrirDetalle, router]);
 
   // Refrescar detalle actual
   const refrescarDetalleActual = async () => {

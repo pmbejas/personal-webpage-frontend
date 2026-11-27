@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { X, Save, UserPlus, Edit3 } from "lucide-react";
+import { X, Save, UserPlus, Edit3, ExternalLink } from "lucide-react";
 import {
   ActualizarClienteRequest,
   ClienteDetalleResponse,
@@ -9,6 +9,7 @@ import {
   RubroClienteResponse,
 } from "@/types";
 import { servicioMantenimiento } from "@/services/mantenimiento.service";
+import { construirUrlGoogleMaps } from "@/utils/formatosClientes";
 
 interface ModalFormularioClienteProps {
   abierto: boolean;
@@ -27,6 +28,9 @@ interface EstadoFormularioCliente {
   rubroId: string;
   rubro: string;
   cuitCuil: string;
+  domicilioCalle1: string;
+  domicilioCalle2: string;
+  localidad: string;
   ubicacion: string;
   notasInternas: string;
 }
@@ -40,6 +44,9 @@ const ESTADO_INICIAL: EstadoFormularioCliente = {
   rubroId: "",
   rubro: "",
   cuitCuil: "",
+  domicilioCalle1: "",
+  domicilioCalle2: "",
+  localidad: "",
   ubicacion: "",
   notasInternas: "",
 };
@@ -101,6 +108,9 @@ export function ModalFormularioCliente({
         rubroId: clienteEditando.rubroId ?? "",
         rubro: clienteEditando.rubro ?? "",
         cuitCuil: clienteEditando.cuitCuil ?? "",
+        domicilioCalle1: clienteEditando.domicilioCalle1 ?? "",
+        domicilioCalle2: clienteEditando.domicilioCalle2 ?? "",
+        localidad: clienteEditando.localidad ?? "",
         ubicacion: clienteEditando.ubicacion ?? "",
         notasInternas: clienteEditando.notasInternas ?? "",
       });
@@ -166,6 +176,9 @@ export function ModalFormularioCliente({
       rubroId: formulario.rubroId || null,
       rubro: formulario.rubro.trim() || null,
       cuitCuil: formulario.cuitCuil.trim() || null,
+      domicilioCalle1: formulario.domicilioCalle1.trim() || null,
+      domicilioCalle2: formulario.domicilioCalle2.trim() || null,
+      localidad: formulario.localidad.trim() || null,
       ubicacion: formulario.ubicacion.trim() || null,
       notasInternas: formulario.notasInternas.trim() || null,
     };
@@ -182,8 +195,8 @@ export function ModalFormularioCliente({
       aria-modal="true"
       aria-labelledby="titulo-modal-cliente"
     >
-      <div className="bg-[#0B0F17] border border-white/10 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden my-auto">
-        <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between">
+      <div className="bg-[#0B0F17] border border-white/10 rounded-2xl w-full max-w-2xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden my-auto">
+        <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-xl bg-sky-500/15 border border-sky-500/30 text-sky-400">
               {esEdicion ? <Edit3 className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
@@ -209,7 +222,7 @@ export function ModalFormularioCliente({
           </button>
         </div>
 
-        <form onSubmit={manejarEnvio} className="p-6 space-y-4">
+        <form onSubmit={manejarEnvio} className="p-6 space-y-4 overflow-y-auto">
           {errorLocal && (
             <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-300">
               {errorLocal}
@@ -359,16 +372,74 @@ export function ModalFormularioCliente({
 
             <div>
               <label className="block text-xs font-medium text-neutral-300 mb-1.5">
-                Ubicación
+                Domicilio — Calle (Línea 1)
               </label>
+              <input
+                type="text"
+                value={formulario.domicilioCalle1}
+                onChange={(e) => actualizarCampo("domicilioCalle1", e.target.value)}
+                placeholder="Ej: Av. Aconquija 1450"
+                maxLength={150}
+                aria-label="Domicilio calle línea 1"
+                className={CLASE_INPUT}
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-neutral-300 mb-1.5">
+                Domicilio — Calle / Piso / Ref. (Línea 2)
+              </label>
+              <input
+                type="text"
+                value={formulario.domicilioCalle2}
+                onChange={(e) => actualizarCampo("domicilioCalle2", e.target.value)}
+                placeholder="Ej: Piso 3, Oficina B (entre Perú y Belgrano)"
+                maxLength={150}
+                aria-label="Domicilio calle línea 2"
+                className={CLASE_INPUT}
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-neutral-300 mb-1.5">
+                Localidad
+              </label>
+              <input
+                type="text"
+                value={formulario.localidad}
+                onChange={(e) => actualizarCampo("localidad", e.target.value)}
+                placeholder="Ej: Yerba Buena, Tucumán"
+                maxLength={120}
+                aria-label="Localidad del cliente"
+                className={CLASE_INPUT}
+              />
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-medium text-neutral-300">
+                  Ubicación Geodésica (Google Maps)
+                </label>
+                {construirUrlGoogleMaps(formulario.ubicacion) && (
+                  <a
+                    href={construirUrlGoogleMaps(formulario.ubicacion)!}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-[11px] text-sky-400 hover:text-sky-300"
+                  >
+                    <span>Probar en Maps</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                )}
+              </div>
               <input
                 type="text"
                 value={formulario.ubicacion}
                 onChange={(e) => actualizarCampo("ubicacion", e.target.value)}
-                placeholder="Ej: San Miguel de Tucumán, Argentina"
-                maxLength={150}
-                aria-label="Ubicación geográfica del cliente"
-                className={CLASE_INPUT}
+                placeholder="Ej: -26.82414, -65.22260 o link de Google Maps"
+                maxLength={250}
+                aria-label="Ubicación geodésica o enlace de Google Maps"
+                className={`${CLASE_INPUT} font-mono`}
               />
             </div>
 
