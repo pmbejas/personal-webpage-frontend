@@ -14,6 +14,7 @@ import {
   OrdenClientesFiltro,
 } from "@/types";
 import { extraerMensajeError } from "@/utils/formatosClientes";
+import { ClienteConfirmacionEstado } from "@/components/clientes/ModalConfirmarEstadoCliente";
 
 const TAMANIO_PAGINA_CLIENTES = 12;
 const RETARDO_DEBOUNCE_MS = 320;
@@ -53,6 +54,8 @@ export function useClientes() {
   // Modales y acciones en curso
   const [modalFormularioAbierto, setModalFormularioAbierto] = useState<boolean>(false);
   const [clienteEditando, setClienteEditando] = useState<ClienteDetalleResponse | null>(null);
+  const [clienteParaCambiarEstado, setClienteParaCambiarEstado] =
+    useState<ClienteConfirmacionEstado | null>(null);
   const [clienteParaEliminar, setClienteParaEliminar] = useState<ClienteListadoResponse | null>(null);
   const [guardandoFormulario, setGuardandoFormulario] = useState<boolean>(false);
   const [guardandoNotas, setGuardandoNotas] = useState<boolean>(false);
@@ -232,6 +235,14 @@ export function useClientes() {
     }
   };
 
+  const solicitarCambioEstado = (cliente: ClienteConfirmacionEstado) => {
+    setClienteParaCambiarEstado(cliente);
+  };
+
+  const cerrarConfirmacionEstado = () => {
+    setClienteParaCambiarEstado(null);
+  };
+
   const alternarEstadoActivo = async (id: string) => {
     try {
       setProcesandoAccionId(id);
@@ -244,6 +255,9 @@ export function useClientes() {
       if (clienteParaEliminar?.id === id) {
         setClienteParaEliminar(null);
       }
+      if (clienteParaCambiarEstado?.id === id) {
+        setClienteParaCambiarEstado(null);
+      }
 
       await cargarDatos();
     } catch (error: unknown) {
@@ -251,6 +265,14 @@ export function useClientes() {
     } finally {
       setProcesandoAccionId(null);
     }
+  };
+
+  const confirmarCambioEstado = async () => {
+    if (!clienteParaCambiarEstado) {
+      return;
+    }
+
+    await alternarEstadoActivo(clienteParaCambiarEstado.id);
   };
 
   const abrirWhatsApp = async (id: string) => {
@@ -326,6 +348,10 @@ export function useClientes() {
     cerrarModalRegistrarPago,
     registrarPagoCliente,
     alternarEstadoActivo,
+    clienteParaCambiarEstado,
+    solicitarCambioEstado,
+    cerrarConfirmacionEstado,
+    confirmarCambioEstado,
     abrirWhatsApp,
     clienteParaEliminar,
     setClienteParaEliminar,

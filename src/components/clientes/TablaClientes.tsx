@@ -34,7 +34,7 @@ interface TablaClientesProps {
   onCrearProyecto: (id: string) => void;
   onWhatsApp: (id: string) => void;
   onEditar: (id: string) => void;
-  onAlternarEstado: (id: string) => void;
+  onSolicitarCambiarEstado: (cliente: ClienteListadoResponse) => void;
   onSolicitarEliminar: (cliente: ClienteListadoResponse) => void;
   onCrearPrimero: () => void;
   onReintentar: () => void;
@@ -49,7 +49,7 @@ export function TablaClientes({
   onCrearProyecto,
   onWhatsApp,
   onEditar,
-  onAlternarEstado,
+  onSolicitarCambiarEstado,
   onSolicitarEliminar,
   onCrearPrimero,
   onReintentar,
@@ -262,7 +262,7 @@ export function TablaClientes({
                         </button>
                         <button
                           type="button"
-                          onClick={() => onAlternarEstado(cliente.id)}
+                          onClick={() => onSolicitarCambiarEstado(cliente)}
                           disabled={ocupado}
                           aria-label={
                             cliente.activo
@@ -389,7 +389,7 @@ export function TablaClientes({
                   </button>
                   <button
                     type="button"
-                    onClick={() => onAlternarEstado(cliente.id)}
+                    onClick={() => onSolicitarCambiarEstado(cliente)}
                     disabled={ocupado}
                     aria-label={
                       cliente.activo

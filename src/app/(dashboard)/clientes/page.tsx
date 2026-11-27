@@ -15,6 +15,7 @@ import { TablaClientes } from "@/components/clientes/TablaClientes";
 import { ModalFormularioCliente } from "@/components/clientes/ModalFormularioCliente";
 import { PanelDetalleCliente } from "@/components/clientes/PanelDetalleCliente";
 import { ModalConfirmarEliminacionCliente } from "@/components/clientes/ModalConfirmarEliminacionCliente";
+import { ModalConfirmarEstadoCliente } from "@/components/clientes/ModalConfirmarEstadoCliente";
 import { ModalRegistrarPagoCliente } from "@/components/clientes/ModalRegistrarPagoCliente";
 import { CabeceraPaginaAdmin } from "@/components/layout/CabeceraPaginaAdmin";
 import {
@@ -60,6 +61,10 @@ export default function ClientesPage() {
     cerrarModalRegistrarPago,
     registrarPagoCliente,
     alternarEstadoActivo,
+    clienteParaCambiarEstado,
+    solicitarCambioEstado,
+    cerrarConfirmacionEstado,
+    confirmarCambioEstado,
     abrirWhatsApp,
     clienteParaEliminar,
     setClienteParaEliminar,
@@ -168,7 +173,7 @@ export default function ClientesPage() {
         onCrearProyecto={abrirNuevoProyectoParaCliente}
         onWhatsApp={abrirWhatsApp}
         onEditar={abrirModalEditarDesdeListado}
-        onAlternarEstado={alternarEstadoActivo}
+        onSolicitarCambiarEstado={solicitarCambioEstado}
         onSolicitarEliminar={setClienteParaEliminar}
         onCrearPrimero={abrirModalCrear}
         onReintentar={recargar}
@@ -226,7 +231,11 @@ export default function ClientesPage() {
         onAbrirProyecto={abrirProyectoExistente}
         onRegistrarPago={abrirModalRegistrarPago}
         onEditar={abrirModalEditarDesdeDetalle}
-        onAlternarEstado={alternarEstadoActivo}
+        onAlternarEstado={async () => {
+          if (clienteDetalle) {
+            solicitarCambioEstado(clienteDetalle);
+          }
+        }}
         onGuardarNotas={guardarNotasRapidas}
       />
 
@@ -237,6 +246,15 @@ export default function ClientesPage() {
         onCerrar={cerrarModalRegistrarPago}
         onCrearProyecto={abrirNuevoProyectoParaCliente}
         onGuardarPago={registrarPagoCliente}
+      />
+
+      <ModalConfirmarEstadoCliente
+        cliente={clienteParaCambiarEstado}
+        procesando={Boolean(
+          clienteParaCambiarEstado && procesandoAccionId === clienteParaCambiarEstado.id
+        )}
+        onCerrar={cerrarConfirmacionEstado}
+        onConfirmar={confirmarCambioEstado}
       />
 
       <ModalConfirmarEliminacionCliente

@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { AlertTriangle, Archive, Trash2, X } from "lucide-react";
 import { ClienteListadoResponse } from "@/types";
+import { formatearNombreCliente } from "@/utils/formatosClientes";
 
 interface ModalConfirmarEliminacionClienteProps {
   cliente: ClienteListadoResponse | null;
@@ -19,6 +20,19 @@ export function ModalConfirmarEliminacionCliente({
   onConfirmarEliminar,
   onArchivarEnSuLugar,
 }: ModalConfirmarEliminacionClienteProps) {
+  useEffect(() => {
+    if (!cliente) return;
+
+    const manejarTecla = (evento: KeyboardEvent) => {
+      if (evento.key === "Escape" && !procesando) {
+        onCerrar();
+      }
+    };
+
+    window.addEventListener("keydown", manejarTecla);
+    return () => window.removeEventListener("keydown", manejarTecla);
+  }, [cliente, procesando, onCerrar]);
+
   if (!cliente) {
     return null;
   }
@@ -29,7 +43,7 @@ export function ModalConfirmarEliminacionCliente({
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4"
+      className="fixed inset-0 z-[60] bg-black/75 backdrop-blur-sm flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="titulo-eliminar-cliente"
@@ -49,15 +63,16 @@ export function ModalConfirmarEliminacionCliente({
             onClick={onCerrar}
             disabled={procesando}
             aria-label="Cerrar confirmación de eliminación"
-            className="p-1.5 rounded-lg text-neutral-400 hover:text-white hover:bg-white/5 transition-colors"
+            className="p-1.5 rounded-lg text-neutral-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         <div className="p-5 space-y-3 text-xs text-neutral-300 leading-relaxed">
-          <p>
-            Cliente: <strong className="text-white">{cliente.nombreCompleto}</strong> ({cliente.email})
+          <p className="break-words">
+            Cliente: <strong className="text-white">{formatearNombreCliente(cliente)}</strong>{" "}
+            <span className="text-neutral-400">({cliente.email})</span>
           </p>
 
           {tieneHistorial ? (
