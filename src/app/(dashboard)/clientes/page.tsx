@@ -17,6 +17,7 @@ import { TablaClientes } from "@/components/clientes/TablaClientes";
 import { ModalFormularioCliente } from "@/components/clientes/ModalFormularioCliente";
 import { PanelDetalleCliente } from "@/components/clientes/PanelDetalleCliente";
 import { ModalConfirmarEliminacionCliente } from "@/components/clientes/ModalConfirmarEliminacionCliente";
+import { CabeceraPaginaAdmin } from "@/components/layout/CabeceraPaginaAdmin";
 import {
   EstadoRegistroClienteFiltro,
   OrdenClientesFiltro,
@@ -71,47 +72,35 @@ export default function ClientesPage() {
 
   return (
     <div className="space-y-6">
-      {/* Encabezado principal */}
-      <motion.div
-        initial={{ opacity: 0, y: -12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25 }}
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-      >
-        <div className="flex items-center gap-3.5">
-          <div className="p-2.5 rounded-2xl bg-sky-500/15 border border-sky-500/30 text-sky-400">
-            <Users className="w-6 h-6" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-white">Clientes & CRM</h1>
-            <p className="text-xs text-neutral-400 mt-0.5">
-              Cartera comercial, prospectos, datos fiscales e historial 360° de operaciones.
-            </p>
-          </div>
-        </div>
+      {/* Encabezado compacto en barra superior */}
+      <CabeceraPaginaAdmin
+        titulo="Clientes & CRM"
+        subtitulo="Cartera comercial, datos fiscales e historial 360° de operaciones."
+        icono={<Users className="w-4 h-4" />}
+        acciones={
+          <>
+            <button
+              type="button"
+              onClick={recargar}
+              disabled={cargando}
+              aria-label="Actualizar listado de clientes"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white/5 hover:bg-white/10 text-neutral-200 border border-white/10 transition-colors disabled:opacity-50 cursor-pointer"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${cargando ? "animate-spin" : ""}`} />
+              <span className="hidden sm:inline">Actualizar</span>
+            </button>
 
-        <div className="flex items-center gap-2.5">
-          <button
-            type="button"
-            onClick={recargar}
-            disabled={cargando}
-            aria-label="Actualizar listado de clientes"
-            className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-medium bg-white/5 hover:bg-white/10 text-neutral-200 border border-white/10 transition-colors disabled:opacity-50"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${cargando ? "animate-spin" : ""}`} />
-            <span>Actualizar</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={abrirModalCrear}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-sky-600 hover:bg-sky-500 text-white shadow-[0_0_20px_rgba(2,132,199,0.25)] transition-colors"
-          >
-            <UserPlus className="w-4 h-4" />
-            <span>Nuevo cliente</span>
-          </button>
-        </div>
-      </motion.div>
+            <button
+              type="button"
+              onClick={abrirModalCrear}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-sky-600 hover:bg-sky-500 text-white shadow-[0_0_16px_rgba(2,132,199,0.25)] transition-colors cursor-pointer"
+            >
+              <UserPlus className="w-3.5 h-3.5" />
+              <span>Nuevo cliente</span>
+            </button>
+          </>
+        }
+      />
 
       {/* Tarjetas KPI ejecutivas */}
       <TarjetaKpiClientes estadisticas={estadisticas} cargando={cargando} />

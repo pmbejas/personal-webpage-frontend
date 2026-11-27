@@ -172,6 +172,7 @@ export interface EstadisticasClientesResponse {
 export interface CrearClienteRequest {
   nombre: string;
   apellido: string;
+  nombreCompleto?: string;
   email: string;
   telefonoWhatsApp: string;
   empresa?: string | null;
@@ -184,6 +185,7 @@ export interface CrearClienteRequest {
 export interface ActualizarClienteRequest {
   nombre: string;
   apellido: string;
+  nombreCompleto?: string;
   email: string;
   telefonoWhatsApp: string;
   empresa?: string | null;

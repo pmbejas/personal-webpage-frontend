@@ -120,9 +120,13 @@ export function ModalFormularioCliente({
       return;
     }
 
+    const nombreLimpio = formulario.nombre.trim();
+    const apellidoLimpio = formulario.apellido.trim();
+
     const cargaUtil: CrearClienteRequest = {
-      apellido: formulario.apellido.trim(),
-      nombre: formulario.nombre.trim(),
+      apellido: apellidoLimpio,
+      nombre: nombreLimpio,
+      nombreCompleto: `${nombreLimpio} ${apellidoLimpio}`.trim(),
       email: formulario.email.trim(),
       telefonoWhatsApp: formulario.telefonoWhatsApp.trim(),
       empresa: formulario.empresa.trim() || null,

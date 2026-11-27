@@ -47,6 +47,7 @@ import {
   AdicionalAdmin,
 } from "@/services/catalogo.service";
 import { SelectorCliente } from "@/components/clientes/SelectorCliente";
+import { CabeceraPaginaAdmin } from "@/components/layout/CabeceraPaginaAdmin";
 import { ClienteSelectorResponse } from "@/types";
 
 // Mapeo amigable de Estados de Presupuesto
@@ -714,39 +715,34 @@ function PresupuestosContenido() {
         </div>
       )}
 
-      {/* Cabecera del Módulo */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white flex items-center gap-2.5">
-            <FileSpreadsheet className="w-6 h-6 text-sky-400" />
-            Bandeja de Presupuestos & Cotizaciones
-          </h1>
-          <p className="text-xs sm:text-sm text-neutral-400 mt-1">
-            Gestión inmutable, reajustes con versión nueva, descuentos en porcentaje y emisión de PDFs formales.
-          </p>
-        </div>
+      {/* Cabecera del Módulo en barra superior */}
+      <CabeceraPaginaAdmin
+        titulo="Presupuestos & Cotizaciones"
+        subtitulo="Gestión inmutable, reajustes, descuentos y emisión de PDFs formales."
+        icono={<FileSpreadsheet className="w-4 h-4" />}
+        acciones={
+          <>
+            <button
+              type="button"
+              onClick={() => cargarDatos()}
+              disabled={cargando}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white/5 hover:bg-white/10 text-neutral-300 hover:text-white border border-white/10 transition-all cursor-pointer"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${cargando ? "animate-spin text-sky-400" : ""}`} />
+              <span className="hidden sm:inline">Actualizar</span>
+            </button>
 
-        <div className="flex items-center gap-2 self-start sm:self-auto">
-          <button
-            type="button"
-            onClick={abrirModalConstructorNuevo}
-            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-sky-500 hover:bg-sky-400 text-neutral-950 transition-all cursor-pointer shadow-lg shadow-sky-500/20"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Nuevo Presupuesto</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => cargarDatos()}
-            disabled={cargando}
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold bg-white/5 hover:bg-white/10 text-neutral-300 hover:text-white border border-white/10 transition-all cursor-pointer"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${cargando ? "animate-spin text-sky-400" : ""}`} />
-            <span>Actualizar</span>
-          </button>
-        </div>
-      </div>
+            <button
+              type="button"
+              onClick={abrirModalConstructorNuevo}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-sky-500 hover:bg-sky-400 text-neutral-950 transition-all cursor-pointer shadow-md shadow-sky-500/20"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Nuevo Presupuesto</span>
+            </button>
+          </>
+        }
+      />
 
       {/* 4 Tarjetas KPI Superiores */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

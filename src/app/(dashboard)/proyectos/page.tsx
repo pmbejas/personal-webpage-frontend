@@ -50,6 +50,7 @@ import {
 } from "@/services/presupuestos.service";
 import { servicioClientes } from "@/services/clientes.service";
 import { SelectorCliente } from "@/components/clientes/SelectorCliente";
+import { CabeceraPaginaAdmin } from "@/components/layout/CabeceraPaginaAdmin";
 import { ClienteSelectorResponse } from "@/types";
 
 // Configuración de Estados predefinidos
@@ -614,46 +615,34 @@ function ProyectosContenido() {
         </div>
       )}
 
-      {/* Cabecera Principal */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400">
-              <FolderGit2 className="w-5 h-5" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-                Seguimiento de Proyectos
-                <span className="text-xs px-2.5 py-0.5 rounded-full font-mono bg-white/5 border border-white/10 text-neutral-400">
-                  Historia Clínica
-                </span>
-              </h1>
-              <p className="text-sm text-neutral-400">
-                Auditoría continua de clientes contratados, minutas de reuniones, entregables e hitos financieros.
-              </p>
-            </div>
-          </div>
-        </div>
+      {/* Cabecera Principal en barra superior */}
+      <CabeceraPaginaAdmin
+        titulo="Proyectos"
+        subtitulo="Auditoría continua de clientes contratados, minutas de reuniones, entregables y cobranzas."
+        icono={<FolderGit2 className="w-4 h-4" />}
+        badge="Historia Clínica"
+        acciones={
+          <>
+            <button
+              onClick={() => cargarDatos()}
+              disabled={cargando}
+              className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-neutral-300 hover:text-white hover:bg-white/10 transition-all flex items-center gap-1.5 text-xs font-medium cursor-pointer"
+              title="Refrescar lista"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${cargando ? "animate-spin" : ""}`} />
+              <span className="hidden sm:inline">Actualizar</span>
+            </button>
 
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => cargarDatos()}
-            disabled={cargando}
-            className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-neutral-300 hover:text-white hover:bg-white/10 transition-all"
-            title="Refrescar lista"
-          >
-            <RefreshCw className={`w-4 h-4 ${cargando ? "animate-spin" : ""}`} />
-          </button>
-
-          <button
-            onClick={abrirModalCrearProyecto}
-            className="px-4 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-neutral-950 font-semibold text-sm transition-all flex items-center gap-2 shadow-lg shadow-sky-500/20"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Nuevo Proyecto</span>
-          </button>
-        </div>
-      </div>
+            <button
+              onClick={abrirModalCrearProyecto}
+              className="px-3 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-neutral-950 font-semibold text-xs transition-all flex items-center gap-1.5 shadow-md shadow-sky-500/20 cursor-pointer"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Nuevo Proyecto</span>
+            </button>
+          </>
+        }
+      />
 
       {/* Tarjetas KPI */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

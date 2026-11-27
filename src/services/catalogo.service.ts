@@ -62,6 +62,7 @@ export interface ActualizarAdicionalDto {
   descripcionComercial: string;
   precio: number;
   diasEntregaExtra: number;
+  esRecurrente?: boolean;
   ordenVisualizacion: number;
 }
 

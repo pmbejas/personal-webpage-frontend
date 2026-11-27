@@ -17,10 +17,10 @@ import {
   Menu,
   X,
   ExternalLink,
-  ChevronRight,
   ShieldCheck,
 } from "lucide-react";
 import { LogoAdmin } from "@/components/ui/LogoAdmin";
+import { ProveedorCabeceraAdmin } from "@/components/layout/CabeceraPaginaAdmin";
 
 interface ElementoNavegacion {
   nombre: string;
@@ -40,23 +40,26 @@ const ELEMENTOS_MENU: ElementoNavegacion[] = [
   { nombre: "Configuración", ruta: "/configuracion", icono: Settings },
 ];
 
+const URL_WEB_PUBLICA = "https://pablobejas.vercel.app";
+
 export function ShellAdmin({ children }: { children: React.ReactNode }) {
   const [menuMovilAbierto, setMenuMovilAbierto] = useState<boolean>(false);
   const [sidebarColapsada, setSidebarColapsada] = useState<boolean>(false);
+  const [contenedorBarraSuperior, setContenedorBarraSuperior] = useState<HTMLDivElement | null>(null);
   const { usuario, logout } = useAuth();
   const pathname = usePathname();
 
   return (
     <div className="min-h-screen bg-[#07090E] flex flex-col lg:flex-row text-neutral-100 antialiased">
-      {/* 1. Barra Lateral de Navegación (Desktop) */}
+      {/* 1. Barra Lateral de Navegación (Desktop: fija al 100% del alto del viewport y más angosta) */}
       <aside
-        className={`hidden lg:flex flex-col bg-[#0B0F17] border-r border-white/10 transition-all duration-300 z-30 shrink-0 ${
-          sidebarColapsada ? "w-20" : "w-64"
+        className={`hidden lg:flex lg:sticky lg:top-0 lg:h-screen flex-col bg-[#0B0F17] border-r border-white/10 transition-all duration-300 z-30 shrink-0 ${
+          sidebarColapsada ? "w-16" : "w-52"
         }`}
       >
         {/* Cabecera Sidebar */}
         <div
-          className={`h-16 px-3 flex items-center border-b border-white/10 ${
+          className={`h-14 px-2.5 flex items-center border-b border-white/10 shrink-0 ${
             sidebarColapsada ? "justify-center" : "justify-between"
           }`}
         >
@@ -75,7 +78,7 @@ export function ShellAdmin({ children }: { children: React.ReactNode }) {
                 href="/dashboard"
                 className="flex items-center overflow-hidden hover:opacity-90 transition-opacity"
               >
-                <LogoAdmin colapsado={false} className="h-9 w-auto" />
+                <LogoAdmin colapsado={false} className="h-8 w-auto" />
               </Link>
 
               <button
@@ -91,7 +94,7 @@ export function ShellAdmin({ children }: { children: React.ReactNode }) {
         </div>
 
         {/* Enlaces de Navegación */}
-        <div className="flex-1 py-4 px-2 space-y-1 overflow-y-auto">
+        <nav className="flex-1 py-3 px-2 space-y-1 overflow-y-auto">
           {ELEMENTOS_MENU.map((item) => {
             const Icono = item.icono;
             const esActivo = pathname === item.ruta || pathname.startsWith(`${item.ruta}/`);
@@ -100,7 +103,9 @@ export function ShellAdmin({ children }: { children: React.ReactNode }) {
               <Link
                 key={item.ruta}
                 href={item.ruta}
-                className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all ${
+                className={`group flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-medium transition-all ${
+                  sidebarColapsada ? "justify-center" : ""
+                } ${
                   esActivo
                     ? "bg-sky-500/15 text-sky-300 border border-sky-500/30 shadow-[0_0_20px_rgba(56,189,248,0.15)] font-semibold"
                     : "text-neutral-400 hover:text-neutral-100 hover:bg-white/5 border border-transparent"
@@ -123,33 +128,52 @@ export function ShellAdmin({ children }: { children: React.ReactNode }) {
               </Link>
             );
           })}
-        </div>
 
-        {/* Pie de Sidebar con Perfil y Logout */}
-        <div className="p-3 border-t border-white/10">
+          {/* Acceso directo a la Web Pública ubicado debajo de Configuración */}
+          <div className="pt-2 mt-2 border-t border-white/10">
+            <a
+              href={URL_WEB_PUBLICA}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={sidebarColapsada ? "Ver Web Pública" : undefined}
+              className={`group flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-medium text-neutral-400 hover:text-sky-300 hover:bg-sky-500/10 border border-transparent hover:border-sky-500/20 transition-all ${
+                sidebarColapsada ? "justify-center" : ""
+              }`}
+            >
+              <ExternalLink className="w-4 h-4 shrink-0 text-neutral-400 group-hover:text-sky-400 transition-colors" />
+              {!sidebarColapsada && <span className="truncate flex-1">Ver Web Pública</span>}
+            </a>
+          </div>
+        </nav>
+
+        {/* Pie de Sidebar con Perfil y Logout siempre visible */}
+        <div className="p-2.5 border-t border-white/10 shrink-0">
           <div
-            className={`flex items-center gap-3 p-2 rounded-xl bg-white/5 border border-white/5 ${
+            className={`flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/5 ${
               sidebarColapsada ? "justify-center" : ""
             }`}
           >
-            <div className="w-8 h-8 rounded-lg bg-sky-500/20 border border-sky-500/40 text-sky-300 flex items-center justify-center font-bold text-xs shrink-0">
-              {usuario?.nombreCompleto?.charAt(0) || "P"}
-            </div>
             {!sidebarColapsada && (
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium text-white truncate">
-                  {usuario?.nombreCompleto || "Pablo Bejas"}
-                </p>
-                <p className="text-[10px] font-mono text-neutral-400 truncate">
-                  {usuario?.rol || "SuperAdmin"}
-                </p>
-              </div>
+              <>
+                <div className="w-7 h-7 rounded-lg bg-sky-500/20 border border-sky-500/40 text-sky-300 flex items-center justify-center font-bold text-xs shrink-0">
+                  {usuario?.nombreCompleto?.charAt(0) || "P"}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium text-white truncate">
+                    {usuario?.nombreCompleto || "Pablo Bejas"}
+                  </p>
+                  <p className="text-[10px] font-mono text-neutral-400 truncate">
+                    {usuario?.rol || "SuperAdmin"}
+                  </p>
+                </div>
+              </>
             )}
             <button
               type="button"
               onClick={logout}
-              className="p-1.5 rounded-lg text-neutral-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+              className="p-1.5 rounded-lg text-neutral-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
               title="Cerrar sesión"
+              aria-label="Cerrar sesión"
             >
               <LogOut className="w-4 h-4" />
             </button>
@@ -158,9 +182,9 @@ export function ShellAdmin({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* 2. Barra Superior Móvil */}
-      <header className="lg:hidden h-16 bg-[#0B0F17] border-b border-white/10 px-4 flex items-center justify-between z-20">
+      <header className="lg:hidden sticky top-0 h-14 bg-[#0B0F17]/95 backdrop-blur-md border-b border-white/10 px-4 flex items-center justify-between z-30">
         <Link href="/dashboard" className="flex items-center">
-          <LogoAdmin colapsado={false} className="h-8 w-auto" />
+          <LogoAdmin colapsado={false} className="h-7 w-auto" />
         </Link>
 
         <button
@@ -175,7 +199,7 @@ export function ShellAdmin({ children }: { children: React.ReactNode }) {
 
       {/* Menú Móvil Desplegable */}
       {menuMovilAbierto && (
-        <div className="lg:hidden fixed inset-0 top-16 bg-black/90 backdrop-blur-xl z-40 p-4 flex flex-col justify-between">
+        <div className="lg:hidden fixed inset-0 top-14 bg-black/95 backdrop-blur-xl z-40 p-4 flex flex-col justify-between overflow-y-auto">
           <div className="space-y-1">
             {ELEMENTOS_MENU.map((item) => {
               const Icono = item.icono;
@@ -185,7 +209,7 @@ export function ShellAdmin({ children }: { children: React.ReactNode }) {
                   key={item.ruta}
                   href={item.ruta}
                   onClick={() => setMenuMovilAbierto(false)}
-                  className={`flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium ${
+                  className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium ${
                     esActivo
                       ? "bg-sky-500/15 text-sky-300 border border-sky-500/30 font-semibold"
                       : "text-neutral-400 hover:text-white hover:bg-white/5"
@@ -196,9 +220,22 @@ export function ShellAdmin({ children }: { children: React.ReactNode }) {
                 </Link>
               );
             })}
+
+            <div className="pt-2 mt-2 border-t border-white/10">
+              <a
+                href={URL_WEB_PUBLICA}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setMenuMovilAbierto(false)}
+                className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-neutral-300 hover:text-sky-300 hover:bg-sky-500/10"
+              >
+                <ExternalLink className="w-4 h-4 text-sky-400" />
+                <span>Ver Web Pública</span>
+              </a>
+            </div>
           </div>
 
-          <div className="pt-4 border-t border-white/10 flex items-center justify-between">
+          <div className="pt-4 mt-4 border-t border-white/10 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-sky-400" />
               <span className="text-xs font-mono text-neutral-400">{usuario?.email}</span>
@@ -216,35 +253,19 @@ export function ShellAdmin({ children }: { children: React.ReactNode }) {
       )}
 
       {/* 3. Contenido Principal */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-        {/* Cabecera Superior con Enlace Rápido al Sitio Web */}
-        <header className="hidden lg:flex h-16 border-b border-white/10 bg-[#0B0F17]/50 backdrop-blur-md px-6 items-center justify-between">
-          <div className="flex items-center gap-2 text-xs font-mono text-neutral-400">
-            <span>ERP</span>
-            <ChevronRight className="w-3.5 h-3.5 text-neutral-600" />
-            <span className="text-neutral-200 capitalize">
-              {pathname.replace("/", "").replace("-", " ") || "Dashboard"}
-            </span>
-          </div>
+      <ProveedorCabeceraAdmin contenedorBarraSuperior={contenedorBarraSuperior}>
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Barra Superior Fija (Desktop): aloja el título compacto y botones de acción de cada pantalla */}
+          <header className="hidden lg:flex sticky top-0 z-20 h-14 border-b border-white/10 bg-[#0B0F17]/85 backdrop-blur-md px-5 items-center">
+            <div ref={setContenedorBarraSuperior} className="w-full min-w-0" />
+          </header>
 
-          <div className="flex items-center gap-4">
-            <a
-              href="https://pablobejas.vercel.app"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-mono text-neutral-400 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
-            >
-              <span>Ver Web Pública</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </a>
-          </div>
-        </header>
-
-        {/* Área de Contenido de la Página */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
-          {children}
-        </main>
-      </div>
+          {/* Área de Contenido de la Página */}
+          <main className="flex-1 p-4 sm:p-5 lg:p-6 max-w-7xl w-full mx-auto">
+            {children}
+          </main>
+        </div>
+      </ProveedorCabeceraAdmin>
     </div>
   );
 }

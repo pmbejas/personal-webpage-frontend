@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { CabeceraPaginaAdmin } from "@/components/layout/CabeceraPaginaAdmin";
 import {
   servicioCupones,
   CuponAdminDto,
@@ -243,42 +244,32 @@ export default function PaginaPromocionesAdmin() {
   const tasaUsoGeneral = usosMaximosTotales > 0 ? Math.round((canjesTotales / usosMaximosTotales) * 100) : 0;
 
   return (
-    <div className="space-y-8 pb-16">
-      {/* 1. Cabecera con Título, Pestañas y Botón Primario */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="p-2 rounded-xl bg-sky-500/10 text-sky-400 border border-sky-500/20">
-              <Tag className="w-5 h-5" />
-            </span>
-            <h1 className="text-2xl font-bold tracking-tight text-white">Promociones & Descuentos</h1>
-          </div>
-          <p className="text-sm text-neutral-400 mt-1">
-            Gestión de códigos de descuento canjeables en el cotizador web y campañas comerciales estacionales.
-          </p>
-        </div>
-
-        {/* Acciones Rápidas */}
-        <div className="flex items-center gap-2">
-          {pestanaActiva === "cupones" ? (
+    <div className="space-y-6 pb-16">
+      {/* 1. Cabecera compacta en barra superior */}
+      <CabeceraPaginaAdmin
+        titulo="Promociones & Descuentos"
+        subtitulo="Códigos de descuento canjeables en el cotizador y campañas comerciales."
+        icono={<Tag className="w-4 h-4" />}
+        acciones={
+          pestanaActiva === "cupones" ? (
             <button
               onClick={() => setModalNuevoCuponAbierto(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-sky-500 hover:bg-sky-400 text-black shadow-[0_0_20px_rgba(56,189,248,0.3)] transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-sky-500 hover:bg-sky-400 text-black shadow-[0_0_16px_rgba(56,189,248,0.25)] transition-all cursor-pointer"
             >
-              <Plus className="w-4 h-4" />
-              Nuevo Cupón
+              <Plus className="w-3.5 h-3.5" />
+              <span>Nuevo Cupón</span>
             </button>
           ) : (
             <button
               onClick={() => setModalNuevaCampanaAbierto(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-black shadow-[0_0_20px_rgba(245,158,11,0.3)] transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-black shadow-[0_0_16px_rgba(245,158,11,0.25)] transition-all cursor-pointer"
             >
-              <Plus className="w-4 h-4" />
-              Nueva Campaña
+              <Plus className="w-3.5 h-3.5" />
+              <span>Nueva Campaña</span>
             </button>
-          )}
-        </div>
-      </div>
+          )
+        }
+      />
 
       {/* 2. Selector de Pestañas */}
       <div className="flex border-b border-white/10 gap-2">

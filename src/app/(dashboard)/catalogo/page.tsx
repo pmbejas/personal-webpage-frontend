@@ -31,6 +31,7 @@ import {
   FolderTree,
 } from "lucide-react";
 import { toast } from "sonner";
+import { CabeceraPaginaAdmin } from "@/components/layout/CabeceraPaginaAdmin";
 
 export default function PaginaCatalogoAdmin() {
   const [pestanaActiva, setPestanaActiva] = useState<"servicios" | "adicionales">("servicios");
@@ -277,6 +278,7 @@ export default function PaginaCatalogoAdmin() {
       descripcionComercial: adicional.descripcionComercial,
       precio: adicional.precio,
       diasEntregaExtra: adicional.diasEntregaExtra,
+      esRecurrente: adicional.esRecurrente,
       ordenVisualizacion: adicional.ordenVisualizacion,
     });
   };
@@ -315,31 +317,23 @@ export default function PaginaCatalogoAdmin() {
 
   return (
     <div className="space-y-6 pb-16">
-      {/* 1. Cabecera */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-white/10">
-        <div>
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-sky-500/10 border border-sky-500/20 text-xs font-mono text-sky-400 mb-2">
-            <Package className="w-3.5 h-3.5" />
-            CATÁLOGO & SERVICIOS
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-            Administración del Catálogo
-          </h1>
-          <p className="text-sm text-neutral-400 mt-1 max-w-2xl">
-            Gestioná los productos base, adicionales comerciales y configurá qué adicionales están asociados a cada solución web.
-          </p>
-        </div>
-
-        {pestanaActiva === "adicionales" && (
-          <button
-            onClick={() => setModalNuevoAdicionalAbierto(true)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-sky-500 hover:bg-sky-400 text-black shadow-[0_0_20px_rgba(56,189,248,0.3)] transition-all cursor-pointer self-start sm:self-auto"
-          >
-            <Plus className="w-4 h-4" />
-            Nuevo Adicional
-          </button>
-        )}
-      </div>
+      {/* 1. Cabecera compacta en barra superior */}
+      <CabeceraPaginaAdmin
+        titulo="Catálogo & Servicios"
+        subtitulo="Productos base, adicionales comerciales y compatibilidades del cotizador."
+        icono={<Package className="w-4 h-4" />}
+        acciones={
+          pestanaActiva === "adicionales" ? (
+            <button
+              onClick={() => setModalNuevoAdicionalAbierto(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-sky-500 hover:bg-sky-400 text-black shadow-[0_0_16px_rgba(56,189,248,0.25)] transition-all cursor-pointer"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Nuevo Adicional</span>
+            </button>
+          ) : undefined
+        }
+      />
 
       {/* 2. Selector de Pestañas */}
       <div className="flex border-b border-white/10 gap-2">
@@ -609,89 +603,153 @@ export default function PaginaCatalogoAdmin() {
                 No hay adicionales creados aún. Hacé clic en "Nuevo Adicional" para comenzar.
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-white/[0.04] border-b border-white/10 text-neutral-300 font-mono">
-                    <tr>
-                      <th className="py-3 px-4">Nombre y Clave</th>
-                      <th className="py-3 px-4">Categoría</th>
-                      <th className="py-3 px-4">Descripción Comercial</th>
-                      <th className="py-3 px-4">Precio</th>
-                      <th className="py-3 px-4">Plazo Extra</th>
-                      <th className="py-3 px-4 text-center">Modalidad</th>
-                      <th className="py-3 px-4 text-center">Estado</th>
-                      <th className="py-3 px-4 text-right">Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/10">
-                    {adicionales.map((adicional) => (
-                      <tr
-                        key={adicional.id}
-                        className="border-b border-white/[0.08] odd:bg-white/[0.015] even:bg-white/[0.04] hover:bg-sky-500/[0.08] transition-colors duration-150"
-                      >
-                        <td className="py-4 px-4 align-middle">
-                          <div className="font-semibold text-white">{adicional.nombre}</div>
-                          <div className="font-mono text-[11px] text-sky-400 mt-0.5">{adicional.clave}</div>
-                        </td>
-
-                        <td className="py-4 px-4 align-middle">
-                          <span className="inline-flex items-center whitespace-nowrap px-2.5 py-1 rounded-md text-[11px] font-mono bg-sky-500/10 border border-sky-500/20 text-sky-300">
-                            {adicional.nombreGrupo}
-                          </span>
-                        </td>
-
-                        <td className="py-4 px-4 text-neutral-300 min-w-[280px] max-w-md text-xs leading-relaxed break-words align-middle">
-                          {adicional.descripcionComercial}
-                        </td>
-
-                        <td className="py-4 px-4 font-mono font-bold text-white whitespace-nowrap align-middle">
-                          ${adicional.precio.toLocaleString("es-AR")} ARS
-                        </td>
-
-                        <td className="py-4 px-4 font-mono text-neutral-300 whitespace-nowrap align-middle">
-                          {adicional.diasEntregaExtra > 0 ? `+${adicional.diasEntregaExtra} días` : "Inmediato"}
-                        </td>
-
-                        <td className="py-4 px-4 text-center font-mono align-middle">
-                          {adicional.esRecurrente ? (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/30 whitespace-nowrap">
-                              <Repeat className="w-3 h-3" /> Mensual
-                            </span>
-                          ) : (
-                            <span className="inline-block px-2 py-0.5 rounded-full text-[10px] bg-white/5 text-neutral-300 border border-white/10 whitespace-nowrap">
-                              Pago único
-                            </span>
-                          )}
-                        </td>
-
-                        <td className="py-4 px-4 text-center align-middle">
-                          <button
-                            onClick={() => conmutarEstadoAdicional(adicional)}
-                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all cursor-pointer whitespace-nowrap ${
-                              adicional.activo
-                                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20"
-                                : "bg-neutral-800 text-neutral-400 border border-white/10 hover:bg-neutral-700"
-                            }`}
-                          >
-                            {adicional.activo ? <CheckCircle2 className="w-3.5 h-3.5" /> : <XCircle className="w-3.5 h-3.5" />}
-                            <span>{adicional.activo ? "Activo" : "Pausado"}</span>
-                          </button>
-                        </td>
-
-                        <td className="py-4 px-4 text-right align-middle">
-                          <button
-                            onClick={() => abrirEdicionAdicional(adicional)}
-                            className="p-1.5 text-neutral-400 hover:text-white rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
-                            title="Editar adicional"
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </button>
-                        </td>
+              <>
+                {/* Vista Tabla Compacta (sin desborde horizontal en escritorio) */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-white/[0.04] border-b border-white/10 text-neutral-300 font-mono">
+                      <tr>
+                        <th className="py-3 px-4">Adicional y Descripción</th>
+                        <th className="py-3 px-3">Categoría</th>
+                        <th className="py-3 px-3">Precio</th>
+                        <th className="py-3 px-3">Plazo / Modalidad</th>
+                        <th className="py-3 px-3 text-center">Estado</th>
+                        <th className="py-3 px-4 text-right">Acciones</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="divide-y divide-white/10">
+                      {adicionales.map((adicional) => (
+                        <tr
+                          key={adicional.id}
+                          className="border-b border-white/[0.08] odd:bg-white/[0.015] even:bg-white/[0.04] hover:bg-sky-500/[0.08] transition-colors duration-150"
+                        >
+                          <td className="py-3.5 px-4 align-middle max-w-md">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-semibold text-white">{adicional.nombre}</span>
+                              <span className="font-mono text-[10px] text-sky-400/90 bg-sky-500/10 px-1.5 py-0.5 rounded">
+                                {adicional.clave}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-neutral-400 mt-1 line-clamp-2 leading-relaxed">
+                              {adicional.descripcionComercial}
+                            </p>
+                          </td>
+
+                          <td className="py-3.5 px-3 align-middle">
+                            <span className="inline-flex items-center whitespace-nowrap px-2 py-0.5 rounded-md text-[11px] font-mono bg-sky-500/10 border border-sky-500/20 text-sky-300">
+                              {adicional.nombreGrupo}
+                            </span>
+                          </td>
+
+                          <td className="py-3.5 px-3 font-mono font-bold text-white whitespace-nowrap align-middle">
+                            ${adicional.precio.toLocaleString("es-AR")}
+                          </td>
+
+                          <td className="py-3.5 px-3 font-mono align-middle whitespace-nowrap">
+                            <div className="text-neutral-200 text-[11px]">
+                              {adicional.diasEntregaExtra > 0 ? `+${adicional.diasEntregaExtra} días` : "Inmediato"}
+                            </div>
+                            <div className="mt-1">
+                              {adicional.esRecurrente ? (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                                  <Repeat className="w-2.5 h-2.5" /> Mensual
+                                </span>
+                              ) : (
+                                <span className="inline-block px-2 py-0.5 rounded-full text-[10px] bg-white/5 text-neutral-300 border border-white/10">
+                                  Pago único
+                                </span>
+                              )}
+                            </div>
+                          </td>
+
+                          <td className="py-3.5 px-3 text-center align-middle">
+                            <button
+                              type="button"
+                              onClick={() => conmutarEstadoAdicional(adicional)}
+                              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all cursor-pointer whitespace-nowrap ${
+                                adicional.activo
+                                  ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20"
+                                  : "bg-neutral-800 text-neutral-400 border border-white/10 hover:bg-neutral-700"
+                              }`}
+                            >
+                              {adicional.activo ? <CheckCircle2 className="w-3.5 h-3.5" /> : <XCircle className="w-3.5 h-3.5" />}
+                              <span>{adicional.activo ? "Activo" : "Pausado"}</span>
+                            </button>
+                          </td>
+
+                          <td className="py-3.5 px-4 text-right align-middle whitespace-nowrap">
+                            <button
+                              type="button"
+                              onClick={() => abrirEdicionAdicional(adicional)}
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-sky-500/10 hover:bg-sky-500/20 text-sky-300 border border-sky-500/30 transition-colors cursor-pointer"
+                              title="Editar servicio adicional"
+                            >
+                              <Edit2 className="w-3.5 h-3.5" />
+                              <span>Editar</span>
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Vista Tarjetas Móvil */}
+                <div className="md:hidden divide-y divide-white/10">
+                  {adicionales.map((adicional) => (
+                    <div key={adicional.id} className="p-4 space-y-2.5">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <h4 className="text-sm font-semibold text-white">{adicional.nombre}</h4>
+                          <span className="font-mono text-[10px] text-sky-400">{adicional.clave}</span>
+                        </div>
+                        <span className="font-mono font-bold text-sm text-white shrink-0">
+                          ${adicional.precio.toLocaleString("es-AR")}
+                        </span>
+                      </div>
+
+                      <p className="text-xs text-neutral-400 leading-relaxed">
+                        {adicional.descripcionComercial}
+                      </p>
+
+                      <div className="flex flex-wrap items-center gap-2 text-[11px]">
+                        <span className="px-2 py-0.5 rounded bg-sky-500/10 text-sky-300 border border-sky-500/20 font-mono">
+                          {adicional.nombreGrupo}
+                        </span>
+                        <span className="text-neutral-300 font-mono">
+                          {adicional.diasEntregaExtra > 0 ? `+${adicional.diasEntregaExtra} días` : "Inmediato"}
+                        </span>
+                        <span className="text-neutral-400">
+                          · {adicional.esRecurrente ? "Mensual" : "Pago único"}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-2 border-t border-white/5">
+                        <button
+                          type="button"
+                          onClick={() => conmutarEstadoAdicional(adicional)}
+                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold ${
+                            adicional.activo
+                              ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
+                              : "bg-neutral-800 text-neutral-400 border border-white/10"
+                          }`}
+                        >
+                          {adicional.activo ? "Activo" : "Pausado"}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => abrirEdicionAdicional(adicional)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-sky-500/15 text-sky-300 border border-sky-500/30"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                          <span>Editar</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
             )}
           </div>
         </div>
@@ -1193,7 +1251,7 @@ export default function PaginaCatalogoAdmin() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="text-xs font-semibold text-neutral-300 block mb-1">Precio ($ ARS)</label>
                   <input
@@ -1209,7 +1267,7 @@ export default function PaginaCatalogoAdmin() {
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-neutral-300 block mb-1">Días de Entrega Extra</label>
+                  <label className="text-xs font-semibold text-neutral-300 block mb-1">Días Extra</label>
                   <input
                     type="number"
                     min={0}
@@ -1224,6 +1282,38 @@ export default function PaginaCatalogoAdmin() {
                     className="w-full bg-white/5 border border-white/15 focus:border-sky-400 rounded-xl px-3 py-2 text-sm font-mono text-white focus:outline-none"
                   />
                 </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-neutral-300 block mb-1">Orden</label>
+                  <input
+                    type="number"
+                    min={0}
+                    required
+                    value={formEditarAdicional.ordenVisualizacion}
+                    onChange={(e) =>
+                      setFormEditarAdicional({
+                        ...formEditarAdicional,
+                        ordenVisualizacion: parseInt(e.target.value, 10) || 0,
+                      })
+                    }
+                    className="w-full bg-white/5 border border-white/15 focus:border-sky-400 rounded-xl px-3 py-2 text-sm font-mono text-white focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 pt-1">
+                <input
+                  type="checkbox"
+                  id="esRecurrenteEditar"
+                  checked={Boolean(formEditarAdicional.esRecurrente)}
+                  onChange={(e) =>
+                    setFormEditarAdicional({ ...formEditarAdicional, esRecurrente: e.target.checked })
+                  }
+                  className="w-4 h-4 rounded text-sky-500 bg-white/5 border-white/15 focus:ring-0 cursor-pointer"
+                />
+                <label htmlFor="esRecurrenteEditar" className="text-xs text-neutral-300 cursor-pointer select-none">
+                  Es un servicio recurrente mensual (ej. Mantenimiento, Hosting, Soporte)
+                </label>
               </div>
 
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
