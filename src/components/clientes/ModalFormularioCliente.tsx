@@ -68,7 +68,10 @@ export function ModalFormularioCliente({
       .obtenerRubros(true)
       .then((lista) => {
         if (activo) {
-          setRubrosDisponibles(lista || []);
+          const ordenados = [...(lista || [])].sort((a, b) =>
+            a.nombre.localeCompare(b.nombre, "es", { sensitivity: "base" })
+          );
+          setRubrosDisponibles(ordenados);
         }
       })
       .catch(() => {

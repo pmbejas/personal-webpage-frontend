@@ -12,6 +12,7 @@ import {
   servicioPromociones,
   PromocionAdminDto,
   CrearPromocionDto,
+  ActualizarPromocionDto,
 } from "@/services/promociones.service";
 import {
   Tag,
@@ -24,6 +25,7 @@ import {
   Copy,
   Check,
   Edit2,
+  Trash2,
   Save,
   X,
   Sparkles,
@@ -64,6 +66,8 @@ export default function PaginaPromocionesAdmin() {
   const [campanas, setCampanas] = useState<PromocionAdminDto[]>([]);
   const [cargandoCampanas, setCargandoCampanas] = useState<boolean>(true);
   const [modalNuevaCampanaAbierto, setModalNuevaCampanaAbierto] = useState<boolean>(false);
+  const [campanaEnEdicion, setCampanaEnEdicion] = useState<PromocionAdminDto | null>(null);
+  const [formEditarCampana, setFormEditarCampana] = useState<ActualizarPromocionDto | null>(null);
   const [guardandoCampana, setGuardandoCampana] = useState<boolean>(false);
 
   // Formulario Nueva Campaña
@@ -201,6 +205,12 @@ export default function PaginaPromocionesAdmin() {
     }
   };
 
+  const normalizarInicioUtc = (fecha: string): string =>
+    fecha.length === 10 ? `${fecha}T00:00:00.000Z` : new Date(fecha).toISOString();
+
+  const normalizarFinUtc = (fecha: string): string =>
+    fecha.length === 10 ? `${fecha}T23:59:59.000Z` : new Date(fecha).toISOString();
+
   const manejarCrearCampana = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formNuevaCampana.clave.trim() || !formNuevaCampana.nombre.trim()) {
@@ -213,8 +223,8 @@ export default function PaginaPromocionesAdmin() {
       await servicioPromociones.crear({
         ...formNuevaCampana,
         clave: formNuevaCampana.clave.trim().toLowerCase(),
-        fechaInicio: new Date(formNuevaCampana.fechaInicio).toISOString(),
-        fechaFin: new Date(formNuevaCampana.fechaFin).toISOString(),
+        fechaInicio: normalizarInicioUtc(formNuevaCampana.fechaInicio),
+        fechaFin: normalizarFinUtc(formNuevaCampana.fechaFin),
       });
       toast.success("¡Campaña comercial creada y revalidada!");
       setModalNuevaCampanaAbierto(false);
@@ -233,6 +243,79 @@ export default function PaginaPromocionesAdmin() {
       toast.error(msg);
     } finally {
       setGuardandoCampana(false);
+    }
+  };
+
+  const abrirEdicionCampana = (campana: PromocionAdminDto) => {
+    setCampanaEnEdicion(campana);
+    setFormEditarCampana({
+      nombre: campana.nombre,
+      textoBanner: campana.textoBanner,
+      tipoDescuento: campana.tipoDescuento,
+      valorDescuento: campana.valorDescuento,
+      fechaInicio: campana.fechaInicio ? campana.fechaInicio.split("T")[0] : "",
+      fechaFin: campana.fechaFin ? campana.fechaFin.split("T")[0] : "",
+      activo: campana.activo,
+    });
+  };
+
+  const manejarGuardarEdicionCampana = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!campanaEnEdicion || !formEditarCampana) return;
+    if (!formEditarCampana.nombre.trim() || !formEditarCampana.textoBanner.trim()) {
+      toast.error("El nombre y el texto del banner son obligatorios.");
+      return;
+    }
+    if (formEditarCampana.valorDescuento <= 0) {
+      toast.error("El valor del descuento debe ser mayor a 0.");
+      return;
+    }
+
+    setGuardandoCampana(true);
+    try {
+      await servicioPromociones.actualizar(campanaEnEdicion.id, {
+        ...formEditarCampana,
+        nombre: formEditarCampana.nombre.trim(),
+        textoBanner: formEditarCampana.textoBanner.trim(),
+        fechaInicio: normalizarInicioUtc(formEditarCampana.fechaInicio),
+        fechaFin: normalizarFinUtc(formEditarCampana.fechaFin),
+      });
+      toast.success("Campaña comercial actualizada y revalidada.");
+      setCampanaEnEdicion(null);
+      setFormEditarCampana(null);
+      await cargarCampanas();
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : "Error al actualizar la campaña.";
+      toast.error(msg);
+    } finally {
+      setGuardandoCampana(false);
+    }
+  };
+
+  const manejarAlternarEstadoCampana = async (campana: PromocionAdminDto) => {
+    const nuevoEstado = !campana.activo;
+    try {
+      await servicioPromociones.cambiarEstado(campana.id, nuevoEstado);
+      toast.success(`Campaña "${campana.nombre}" ${nuevoEstado ? "activada" : "pausada"}.`);
+      await cargarCampanas();
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : "Error al cambiar el estado de la campaña.";
+      toast.error(msg);
+    }
+  };
+
+  const manejarEliminarCampana = async (campana: PromocionAdminDto) => {
+    if (!window.confirm(`¿Eliminar definitivamente la campaña "${campana.nombre}"?`)) {
+      return;
+    }
+
+    try {
+      await servicioPromociones.eliminar(campana.id);
+      toast.success("Campaña comercial eliminada.");
+      await cargarCampanas();
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : "Error al eliminar la campaña.";
+      toast.error(msg);
     }
   };
 
@@ -533,6 +616,7 @@ export default function PaginaPromocionesAdmin() {
                       <th className="py-3 px-4">Descuento</th>
                       <th className="py-3 px-4">Vigencia</th>
                       <th className="py-3 px-4 text-center">Estado</th>
+                      <th className="py-3 px-4 text-right">Acciones</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
@@ -557,18 +641,57 @@ export default function PaginaPromocionesAdmin() {
                           )}
                         </td>
                         <td className="py-3.5 px-4 font-mono text-[11px] text-neutral-400">
-                          Hasta {new Date(campana.fechaFin).toLocaleDateString("es-AR")}
+                          <div>Hasta {new Date(campana.fechaFin).toLocaleDateString("es-AR")}</div>
+                          <div className="mt-0.5">
+                            {campana.estaVigente ? (
+                              <span className="inline-block px-1.5 py-0.2 rounded text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                                En curso
+                              </span>
+                            ) : (
+                              <span className="inline-block px-1.5 py-0.2 rounded text-[10px] bg-neutral-800 text-neutral-400 border border-white/10">
+                                Fuera de fecha
+                              </span>
+                            )}
+                          </div>
                         </td>
                         <td className="py-3.5 px-4 text-center">
-                          {campana.estaVigente ? (
-                            <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-                              Activa
-                            </span>
-                          ) : (
-                            <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold bg-neutral-800 text-neutral-400 border border-white/10">
-                              Finalizada
-                            </span>
-                          )}
+                          <button
+                            type="button"
+                            onClick={() => manejarAlternarEstadoCampana(campana)}
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all cursor-pointer ${
+                              campana.activo
+                                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20"
+                                : "bg-neutral-800 text-neutral-400 border border-white/10 hover:bg-neutral-700"
+                            }`}
+                          >
+                            {campana.activo ? (
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                            ) : (
+                              <XCircle className="w-3.5 h-3.5" />
+                            )}
+                            <span>{campana.activo ? "Activa" : "Pausada"}</span>
+                          </button>
+                        </td>
+                        <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                          <div className="inline-flex items-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => abrirEdicionCampana(campana)}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 transition-colors cursor-pointer"
+                              title="Editar campaña comercial"
+                            >
+                              <Edit2 className="w-3.5 h-3.5" />
+                              <span>Editar</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => manejarEliminarCampana(campana)}
+                              className="p-1.5 text-neutral-400 hover:text-rose-400 rounded-lg hover:bg-rose-500/10 transition-colors cursor-pointer"
+                              title="Eliminar campaña"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -983,6 +1106,146 @@ export default function PaginaPromocionesAdmin() {
                   className="px-5 py-2 rounded-xl text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-black font-bold shadow-[0_0_15px_rgba(245,158,11,0.3)] disabled:opacity-50 transition-all cursor-pointer"
                 >
                   {guardandoCampana ? "Guardando..." : "Crear Campaña"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 8. MODAL: EDITAR CAMPAÑA COMERCIAL */}
+      {campanaEnEdicion && formEditarCampana && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="relative w-full max-w-lg rounded-2xl bg-[#0D121F] border border-white/10 shadow-2xl p-6 overflow-hidden">
+            <div className="flex items-center justify-between pb-4 border-b border-white/10">
+              <div className="flex items-center gap-2">
+                <Edit2 className="w-5 h-5 text-amber-400" />
+                <h3 className="text-lg font-bold text-white">
+                  Editar Campaña: <span className="font-mono text-amber-400">{campanaEnEdicion.clave}</span>
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setCampanaEnEdicion(null);
+                  setFormEditarCampana(null);
+                }}
+                className="p-1 rounded-lg text-neutral-400 hover:text-white hover:bg-white/10 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={manejarGuardarEdicionCampana} className="space-y-4 mt-4">
+              <div>
+                <label className="text-xs font-semibold text-neutral-300 block mb-1">Nombre de la Campaña</label>
+                <input
+                  type="text"
+                  required
+                  value={formEditarCampana.nombre}
+                  onChange={(e) => setFormEditarCampana({ ...formEditarCampana, nombre: e.target.value })}
+                  className="w-full bg-white/5 border border-white/15 focus:border-amber-400 rounded-xl px-3 py-2 text-sm text-white focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-neutral-300 block mb-1">
+                  Texto del Banner Web
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formEditarCampana.textoBanner}
+                  onChange={(e) => setFormEditarCampana({ ...formEditarCampana, textoBanner: e.target.value })}
+                  className="w-full bg-white/5 border border-white/15 focus:border-amber-400 rounded-xl px-3 py-2 text-sm text-white focus:outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-semibold text-neutral-300 block mb-1">Tipo de Descuento</label>
+                  <select
+                    value={formEditarCampana.tipoDescuento}
+                    onChange={(e) =>
+                      setFormEditarCampana({ ...formEditarCampana, tipoDescuento: parseInt(e.target.value, 10) })
+                    }
+                    className="w-full bg-[#0D121F] border border-white/15 focus:border-amber-400 rounded-xl px-3 py-2 text-sm text-white focus:outline-none"
+                  >
+                    <option value={0}>Porcentaje (%)</option>
+                    <option value={1}>Monto Fijo ($ ARS)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-neutral-300 block mb-1">
+                    Valor {formEditarCampana.tipoDescuento === 0 ? "(%)" : "($ ARS)"}
+                  </label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={formEditarCampana.tipoDescuento === 0 ? 100 : 10000000}
+                    required
+                    value={formEditarCampana.valorDescuento}
+                    onChange={(e) =>
+                      setFormEditarCampana({ ...formEditarCampana, valorDescuento: parseFloat(e.target.value) || 0 })
+                    }
+                    className="w-full bg-white/5 border border-white/15 focus:border-amber-400 rounded-xl px-3 py-2 text-sm font-mono text-white focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-semibold text-neutral-300 block mb-1">Fecha de Inicio</label>
+                  <input
+                    type="date"
+                    required
+                    value={formEditarCampana.fechaInicio}
+                    onChange={(e) => setFormEditarCampana({ ...formEditarCampana, fechaInicio: e.target.value })}
+                    className="w-full bg-white/5 border border-white/15 focus:border-amber-400 rounded-xl px-3 py-2 text-sm font-mono text-white focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-neutral-300 block mb-1">Fecha de Fin</label>
+                  <input
+                    type="date"
+                    required
+                    value={formEditarCampana.fechaFin}
+                    onChange={(e) => setFormEditarCampana({ ...formEditarCampana, fechaFin: e.target.value })}
+                    className="w-full bg-white/5 border border-white/15 focus:border-amber-400 rounded-xl px-3 py-2 text-sm font-mono text-white focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <label className="flex items-center gap-2.5 pt-1 text-xs text-neutral-300 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={formEditarCampana.activo}
+                  onChange={(e) => setFormEditarCampana({ ...formEditarCampana, activo: e.target.checked })}
+                  className="w-4 h-4 rounded accent-amber-500"
+                />
+                <span>Campaña activa (visible en la web durante el período de vigencia)</span>
+              </label>
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCampanaEnEdicion(null);
+                    setFormEditarCampana(null);
+                  }}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-neutral-300 hover:text-white hover:bg-white/5 transition-all"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={guardandoCampana}
+                  className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-black font-bold shadow-[0_0_15px_rgba(245,158,11,0.3)] disabled:opacity-50 transition-all cursor-pointer"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  <span>{guardandoCampana ? "Guardando..." : "Actualizar Campaña"}</span>
                 </button>
               </div>
             </form>

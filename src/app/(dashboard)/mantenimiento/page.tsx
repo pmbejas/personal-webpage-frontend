@@ -39,7 +39,6 @@ export default function MantenimientoPage() {
   const [formRubro, setFormRubro] = useState({
     nombre: "",
     descripcion: "",
-    ordenVisualizacion: 0,
   });
 
   // Categorías de Servicios Adicionales
@@ -52,8 +51,10 @@ export default function MantenimientoPage() {
     clave: "",
     nombre: "",
     descripcion: "",
-    ordenVisualizacion: 0,
   });
+
+  const ordenarAlfabeticamente = <T extends { nombre: string }>(lista: T[]): T[] =>
+    [...lista].sort((a, b) => a.nombre.localeCompare(b.nombre, "es", { sensitivity: "base" }));
 
   const cargarTodo = useCallback(async () => {
     setCargandoRubros(true);
@@ -63,8 +64,8 @@ export default function MantenimientoPage() {
         servicioMantenimiento.obtenerRubros(false),
         servicioMantenimiento.obtenerCategoriasAdicionales(false),
       ]);
-      setRubros(listaRubros || []);
-      setCategorias(listaCategorias || []);
+      setRubros(ordenarAlfabeticamente(listaRubros || []));
+      setCategorias(ordenarAlfabeticamente(listaCategorias || []));
     } catch (error: unknown) {
       const mensaje = error instanceof Error ? error.message : "No se pudieron cargar las tablas de mantenimiento.";
       toast.error(mensaje);
@@ -84,7 +85,6 @@ export default function MantenimientoPage() {
     setFormRubro({
       nombre: "",
       descripcion: "",
-      ordenVisualizacion: rubros.length + 1,
     });
     setModalRubroAbierto(true);
   };
@@ -94,7 +94,6 @@ export default function MantenimientoPage() {
     setFormRubro({
       nombre: rubro.nombre,
       descripcion: rubro.descripcion ?? "",
-      ordenVisualizacion: rubro.ordenVisualizacion,
     });
     setModalRubroAbierto(true);
   };
@@ -111,7 +110,7 @@ export default function MantenimientoPage() {
       const payload = {
         nombre: formRubro.nombre.trim(),
         descripcion: formRubro.descripcion.trim() || null,
-        ordenVisualizacion: Math.max(0, formRubro.ordenVisualizacion),
+        ordenVisualizacion: 0,
       };
 
       if (rubroEditando) {
@@ -163,7 +162,6 @@ export default function MantenimientoPage() {
       clave: "",
       nombre: "",
       descripcion: "",
-      ordenVisualizacion: categorias.length + 1,
     });
     setModalCategoriaAbierto(true);
   };
@@ -174,7 +172,6 @@ export default function MantenimientoPage() {
       clave: categoria.clave,
       nombre: categoria.nombre,
       descripcion: categoria.descripcion ?? "",
-      ordenVisualizacion: categoria.ordenVisualizacion,
     });
     setModalCategoriaAbierto(true);
   };
@@ -192,7 +189,7 @@ export default function MantenimientoPage() {
         await servicioMantenimiento.actualizarCategoriaAdicional(categoriaEditando.id, {
           nombre: formCategoria.nombre.trim(),
           descripcion: formCategoria.descripcion.trim() || null,
-          ordenVisualizacion: Math.max(0, formCategoria.ordenVisualizacion),
+          ordenVisualizacion: 0,
         });
         toast.success("Categoría actualizada correctamente.");
       } else {
@@ -200,7 +197,7 @@ export default function MantenimientoPage() {
           clave: formCategoria.clave.trim() || null,
           nombre: formCategoria.nombre.trim(),
           descripcion: formCategoria.descripcion.trim() || null,
-          ordenVisualizacion: Math.max(0, formCategoria.ordenVisualizacion),
+          ordenVisualizacion: 0,
         });
         toast.success("Categoría creada correctamente.");
       }
@@ -342,7 +339,6 @@ export default function MantenimientoPage() {
               <table className="w-full text-left text-xs">
                 <thead className="bg-white/[0.04] border-b border-white/10 text-neutral-300 font-mono">
                   <tr>
-                    <th className="py-3 px-4">Orden</th>
                     <th className="py-3 px-4">Rubro y Descripción</th>
                     <th className="py-3 px-4 text-center">Clientes</th>
                     <th className="py-3 px-4 text-center">Estado</th>
@@ -352,9 +348,6 @@ export default function MantenimientoPage() {
                 <tbody className="divide-y divide-white/10">
                   {rubros.map((rubro) => (
                     <tr key={rubro.id} className="hover:bg-sky-500/[0.06] transition-colors">
-                      <td className="py-3.5 px-4 font-mono text-neutral-400 whitespace-nowrap">
-                        #{rubro.ordenVisualizacion}
-                      </td>
                       <td className="py-3.5 px-4">
                         <div className="font-semibold text-white">{rubro.nombre}</div>
                         {rubro.descripcion && (
@@ -439,7 +432,6 @@ export default function MantenimientoPage() {
               <table className="w-full text-left text-xs">
                 <thead className="bg-white/[0.04] border-b border-white/10 text-neutral-300 font-mono">
                   <tr>
-                    <th className="py-3 px-4">Orden</th>
                     <th className="py-3 px-4">Categoría y Clave</th>
                     <th className="py-3 px-4 text-center">Adicionales</th>
                     <th className="py-3 px-4 text-center">Estado</th>
@@ -449,9 +441,6 @@ export default function MantenimientoPage() {
                 <tbody className="divide-y divide-white/10">
                   {categorias.map((categoria) => (
                     <tr key={categoria.id} className="hover:bg-sky-500/[0.06] transition-colors">
-                      <td className="py-3.5 px-4 font-mono text-neutral-400 whitespace-nowrap">
-                        #{categoria.ordenVisualizacion}
-                      </td>
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-semibold text-white">{categoria.nombre}</span>
@@ -561,19 +550,6 @@ export default function MantenimientoPage() {
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-medium text-neutral-300 mb-1.5">Orden de visualización</label>
-                <input
-                  type="number"
-                  min={0}
-                  value={formRubro.ordenVisualizacion}
-                  onChange={(e) =>
-                    setFormRubro({ ...formRubro, ordenVisualizacion: parseInt(e.target.value, 10) || 0 })
-                  }
-                  className={`${CLASE_INPUT} font-mono`}
-                />
-              </div>
-
               <div className="pt-3 border-t border-white/10 flex justify-end gap-2">
                 <button
                   type="button"
@@ -652,19 +628,6 @@ export default function MantenimientoPage() {
                   onChange={(e) => setFormCategoria({ ...formCategoria, descripcion: e.target.value })}
                   placeholder="Qué tipo de servicios adicionales agrupa esta categoría..."
                   className={`${CLASE_INPUT} resize-none`}
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-neutral-300 mb-1.5">Orden de visualización</label>
-                <input
-                  type="number"
-                  min={0}
-                  value={formCategoria.ordenVisualizacion}
-                  onChange={(e) =>
-                    setFormCategoria({ ...formCategoria, ordenVisualizacion: parseInt(e.target.value, 10) || 0 })
-                  }
-                  className={`${CLASE_INPUT} font-mono`}
                 />
               </div>
 
