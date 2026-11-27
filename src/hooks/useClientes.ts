@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { servicioClientes } from "@/services/clientes.service";
+import { RegistrarPagoRequest, servicioProyectos } from "@/services/proyectos.service";
 import {
   ActualizarClienteRequest,
   ClienteDetalleResponse,
@@ -55,6 +56,8 @@ export function useClientes() {
   const [clienteParaEliminar, setClienteParaEliminar] = useState<ClienteListadoResponse | null>(null);
   const [guardandoFormulario, setGuardandoFormulario] = useState<boolean>(false);
   const [guardandoNotas, setGuardandoNotas] = useState<boolean>(false);
+  const [modalPagoAbierto, setModalPagoAbierto] = useState<boolean>(false);
+  const [guardandoPago, setGuardandoPago] = useState<boolean>(false);
   const [procesandoAccionId, setProcesandoAccionId] = useState<string | null>(null);
 
   // Debounce de búsqueda textual
@@ -131,6 +134,36 @@ export function useClientes() {
 
   const cerrarDetalle = () => {
     setClienteDetalle(null);
+    setModalPagoAbierto(false);
+  };
+
+  const abrirModalRegistrarPago = () => {
+    if (!clienteDetalle) return;
+    setModalPagoAbierto(true);
+  };
+
+  const cerrarModalRegistrarPago = () => {
+    setModalPagoAbierto(false);
+  };
+
+  const registrarPagoCliente = async (proyectoId: string, datos: RegistrarPagoRequest) => {
+    const clienteIdActual = clienteDetalle?.id;
+    try {
+      setGuardandoPago(true);
+      await servicioProyectos.agregarPago(proyectoId, datos);
+      toast.success("Pago registrado e imputado al proyecto correctamente.");
+      setModalPagoAbierto(false);
+
+      if (clienteIdActual) {
+        const detalleActualizado = await servicioClientes.obtenerPorId(clienteIdActual);
+        setClienteDetalle(detalleActualizado);
+      }
+      await cargarDatos();
+    } catch (error: unknown) {
+      toast.error(extraerMensajeError(error, "No se pudo registrar el pago."));
+    } finally {
+      setGuardandoPago(false);
+    }
   };
 
   const abrirModalCrear = () => {
@@ -287,6 +320,11 @@ export function useClientes() {
     guardandoFormulario,
     guardarNotasRapidas,
     guardandoNotas,
+    modalPagoAbierto,
+    guardandoPago,
+    abrirModalRegistrarPago,
+    cerrarModalRegistrarPago,
+    registrarPagoCliente,
     alternarEstadoActivo,
     abrirWhatsApp,
     clienteParaEliminar,

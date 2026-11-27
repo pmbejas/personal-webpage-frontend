@@ -15,6 +15,7 @@ import { TablaClientes } from "@/components/clientes/TablaClientes";
 import { ModalFormularioCliente } from "@/components/clientes/ModalFormularioCliente";
 import { PanelDetalleCliente } from "@/components/clientes/PanelDetalleCliente";
 import { ModalConfirmarEliminacionCliente } from "@/components/clientes/ModalConfirmarEliminacionCliente";
+import { ModalRegistrarPagoCliente } from "@/components/clientes/ModalRegistrarPagoCliente";
 import { CabeceraPaginaAdmin } from "@/components/layout/CabeceraPaginaAdmin";
 import {
   EstadoRegistroClienteFiltro,
@@ -53,6 +54,11 @@ export default function ClientesPage() {
     guardandoFormulario,
     guardarNotasRapidas,
     guardandoNotas,
+    modalPagoAbierto,
+    guardandoPago,
+    abrirModalRegistrarPago,
+    cerrarModalRegistrarPago,
+    registrarPagoCliente,
     alternarEstadoActivo,
     abrirWhatsApp,
     clienteParaEliminar,
@@ -218,9 +224,19 @@ export default function ClientesPage() {
         onCerrar={cerrarDetalle}
         onCrearProyecto={abrirNuevoProyectoParaCliente}
         onAbrirProyecto={abrirProyectoExistente}
+        onRegistrarPago={abrirModalRegistrarPago}
         onEditar={abrirModalEditarDesdeDetalle}
         onAlternarEstado={alternarEstadoActivo}
         onGuardarNotas={guardarNotasRapidas}
+      />
+
+      <ModalRegistrarPagoCliente
+        abierto={modalPagoAbierto}
+        cliente={clienteDetalle}
+        guardando={guardandoPago}
+        onCerrar={cerrarModalRegistrarPago}
+        onCrearProyecto={abrirNuevoProyectoParaCliente}
+        onGuardarPago={registrarPagoCliente}
       />
 
       <ModalConfirmarEliminacionCliente

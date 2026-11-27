@@ -52,7 +52,7 @@ export function ShellAdmin({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   return (
-    <div className="min-h-screen bg-[#07090E] flex flex-col lg:flex-row text-neutral-100 antialiased">
+    <div className="min-h-screen w-full max-w-full overflow-x-clip bg-[#07090E] flex flex-col lg:flex-row text-neutral-100 antialiased">
       {/* 1. Barra Lateral de Navegación (Desktop: fija al 100% del alto del viewport y más angosta) */}
       <aside
         className={`hidden lg:flex lg:sticky lg:top-0 lg:h-screen flex-col bg-[#0B0F17] border-r border-white/10 transition-all duration-300 z-30 shrink-0 ${
@@ -256,14 +256,14 @@ export function ShellAdmin({ children }: { children: React.ReactNode }) {
 
       {/* 3. Contenido Principal */}
       <ProveedorCabeceraAdmin contenedorBarraSuperior={contenedorBarraSuperior}>
-        <div className="flex-1 flex flex-col min-w-0">
+        <div className="flex-1 flex flex-col min-w-0 max-w-full overflow-x-clip">
           {/* Barra Superior Fija (Desktop): aloja el título compacto y botones de acción de cada pantalla */}
           <header className="hidden lg:flex sticky top-0 z-20 h-14 border-b border-white/10 bg-[#0B0F17]/85 backdrop-blur-md px-5 items-center">
             <div ref={setContenedorBarraSuperior} className="w-full min-w-0" />
           </header>
 
           {/* Área de Contenido de la Página */}
-          <main className="flex-1 p-4 sm:p-5 lg:p-6 max-w-7xl w-full mx-auto">
+          <main className="flex-1 p-4 sm:p-5 lg:p-6 max-w-7xl w-full mx-auto min-w-0">
             {children}
           </main>
         </div>

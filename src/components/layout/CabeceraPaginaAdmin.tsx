@@ -47,14 +47,14 @@ export function CabeceraPaginaAdmin({
   const { contenedorBarraSuperior } = useContext(ContextoCabeceraAdmin);
 
   const contenidoCompacto = (
-    <div className="flex items-center justify-between gap-3 w-full min-w-0">
-      <div className="flex items-center gap-2.5 min-w-0">
+    <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5 sm:gap-3 w-full min-w-0">
+      <div className="flex items-center gap-2.5 min-w-0 flex-1">
         {icono && (
           <div className="w-8 h-8 rounded-xl bg-sky-500/15 border border-sky-500/30 text-sky-400 flex items-center justify-center shrink-0">
             {icono}
           </div>
         )}
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 min-w-0">
             <h1 className="text-sm sm:text-base font-bold tracking-tight text-white truncate">
               {titulo}
@@ -74,7 +74,7 @@ export function CabeceraPaginaAdmin({
       </div>
 
       {acciones && (
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2 shrink-0 max-w-full flex-wrap">
           {acciones}
         </div>
       )}

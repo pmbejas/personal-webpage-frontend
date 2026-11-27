@@ -22,6 +22,7 @@ import {
   Clock,
   ExternalLink,
   Wallet,
+  DollarSign,
   ArrowUpRight,
   ArrowDownLeft,
   ChevronRight,
@@ -65,6 +66,7 @@ interface PanelDetalleClienteProps {
   onCerrar: () => void;
   onCrearProyecto: (id: string) => void;
   onAbrirProyecto: (proyectoId: string) => void;
+  onRegistrarPago: () => void;
   onEditar: (cliente: ClienteDetalleResponse) => void;
   onAlternarEstado: (id: string) => Promise<void>;
   onGuardarNotas: (id: string, notas: string) => Promise<void>;
@@ -106,6 +108,7 @@ export function PanelDetalleCliente({
   onCerrar,
   onCrearProyecto,
   onAbrirProyecto,
+  onRegistrarPago,
   onEditar,
   onAlternarEstado,
   onGuardarNotas,
@@ -253,6 +256,15 @@ export function PanelDetalleCliente({
                     <span>WhatsApp</span>
                   </a>
                 )}
+
+                <button
+                  type="button"
+                  onClick={onRegistrarPago}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-neutral-950 transition-colors cursor-pointer"
+                >
+                  <DollarSign className="w-3.5 h-3.5" />
+                  <span>Registrar pago</span>
+                </button>
 
                 <button
                   type="button"
@@ -494,6 +506,23 @@ export function PanelDetalleCliente({
               {/* PESTAÑA 2: CUENTA CORRIENTE */}
               {pestana === "cuenta_corriente" && (
                 <div className="space-y-5">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <h3 className="text-sm font-semibold text-white">Estado de Cuenta Corriente</h3>
+                      <p className="text-[11px] text-neutral-400">
+                        Cargos por proyectos contratados y pagos imputados ordenados cronológicamente.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={onRegistrarPago}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-neutral-950 transition-colors cursor-pointer"
+                    >
+                      <DollarSign className="w-3.5 h-3.5" />
+                      <span>Registrar pago</span>
+                    </button>
+                  </div>
+
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                     <div className="bg-[#07090E] border border-white/10 rounded-xl p-4">
                       <p className="text-[11px] font-mono uppercase text-neutral-400">
