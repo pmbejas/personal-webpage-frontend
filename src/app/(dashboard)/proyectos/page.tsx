@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useEffect, useState, useCallback, useMemo, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   FolderGit2,
   Search,
@@ -47,6 +48,9 @@ import {
   servicioPresupuestos,
   PresupuestoListadoAdminDto,
 } from "@/services/presupuestos.service";
+import { servicioClientes } from "@/services/clientes.service";
+import { SelectorCliente } from "@/components/clientes/SelectorCliente";
+import { ClienteSelectorResponse } from "@/types";
 
 // Configuración de Estados predefinidos
 const ESTADOS_PREDEFINIDOS = [
@@ -66,6 +70,23 @@ interface TareaMinutaItem {
 }
 
 export default function ProyectosPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="p-12 text-center text-neutral-400 font-mono text-xs flex flex-col items-center gap-3">
+          <div className="w-7 h-7 border-2 border-sky-500 border-t-transparent rounded-full animate-spin" />
+          <span>Cargando módulo de proyectos y seguimiento...</span>
+        </div>
+      }
+    >
+      <ProyectosContenido />
+    </Suspense>
+  );
+}
+
+function ProyectosContenido() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [proyectos, setProyectos] = useState<ProyectoListadoAdminDto[]>([]);
   const [estadisticas, setEstadisticas] = useState<EstadisticasProyectosDto | null>(null);
   const [cargando, setCargando] = useState<boolean>(true);
@@ -91,8 +112,9 @@ export default function ProyectosPage() {
   const [modalHitoAbierto, setModalHitoAbierto] = useState<boolean>(false);
   const [guardando, setGuardando] = useState<boolean>(false);
 
-  // Lista de presupuestos para enlazar al crear
+  // Lista de presupuestos y cliente seleccionado para enlazar al crear
   const [presupuestosDisponibles, setPresupuestosDisponibles] = useState<PresupuestoListadoAdminDto[]>([]);
+  const [clienteSeleccionadoCrear, setClienteSeleccionadoCrear] = useState<ClienteSelectorResponse | null>(null);
 
   // Formularios de Creación / Edición
   const [formCrear, setFormCrear] = useState<CrearProyectoRequest>({
@@ -189,14 +211,77 @@ export default function ProyectosPage() {
   }, [cargarDatos]);
 
   // Cargar presupuestos disponibles para modal de creación
-  const cargarPresupuestos = async () => {
+  const cargarPresupuestos = useCallback(async () => {
     try {
       const res = await servicioPresupuestos.listar({ tamanioPagina: 50 });
       setPresupuestosDisponibles(res.elementos || []);
     } catch {
       // Silencioso
     }
-  };
+  }, []);
+
+  const reiniciarFormularioCrear = useCallback((clienteInicial: ClienteSelectorResponse | null = null) => {
+    setClienteSeleccionadoCrear(clienteInicial);
+    setFormCrear({
+      titulo: "",
+      descripcion: "",
+      clienteId: clienteInicial?.id || "",
+      presupuestoId: undefined,
+      montoTotalContratado: 0,
+      moneda: "ARS",
+      fechaInicio: new Date().toISOString().substring(0, 10),
+      fechaEstimadaFin: "",
+      repositorioGitUrl: "",
+      urlStaging: "",
+      urlProduccion: "",
+      notasInternas: "",
+    });
+  }, []);
+
+  const abrirModalCrearProyecto = useCallback(() => {
+    reiniciarFormularioCrear(null);
+    cargarPresupuestos();
+    setModalCrearAbierto(true);
+  }, [cargarPresupuestos, reiniciarFormularioCrear]);
+
+  // Preseleccionar cliente si viene desde el botón "Nuevo proyecto" en /clientes
+  useEffect(() => {
+    const abrirNuevo = searchParams.get("nuevoProyecto");
+    const clienteIdParam = searchParams.get("clienteId");
+    if (abrirNuevo !== "1" || !clienteIdParam) {
+      return;
+    }
+
+    let activo = true;
+    const inicializarDesdeCliente = async () => {
+      cargarPresupuestos();
+      try {
+        const detalle = await servicioClientes.obtenerPorId(clienteIdParam);
+        if (!activo) return;
+        reiniciarFormularioCrear({
+          id: detalle.id,
+          nombreCompleto: detalle.nombreCompleto,
+          email: detalle.email,
+          telefonoWhatsApp: detalle.telefonoWhatsApp,
+          empresa: detalle.empresa,
+          cuitCuil: detalle.cuitCuil,
+        });
+      } catch {
+        if (!activo) return;
+        reiniciarFormularioCrear(null);
+      } finally {
+        if (activo) {
+          setModalCrearAbierto(true);
+          router.replace("/proyectos");
+        }
+      }
+    };
+
+    inicializarDesdeCliente();
+    return () => {
+      activo = false;
+    };
+  }, [searchParams, cargarPresupuestos, reiniciarFormularioCrear, router]);
 
   // Abrir detalle del proyecto
   const abrirDetalle = async (id: string, pestana: "general" | "minutas" | "pagos" | "hitos" = "general") => {
@@ -244,7 +329,7 @@ export default function ProyectosPage() {
   // Crear Proyecto
   const guardarNuevoProyecto = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formCrear.titulo.trim() || !formCrear.clienteId) {
+    if (!formCrear.titulo.trim() || (!formCrear.clienteId && !formCrear.presupuestoId)) {
       alert("Por favor complete el título y seleccione un cliente o presupuesto.");
       return;
     }
@@ -252,6 +337,7 @@ export default function ProyectosPage() {
     try {
       await servicioProyectos.crear(formCrear);
       setModalCrearAbierto(false);
+      setClienteSeleccionadoCrear(null);
       setMensajeFeedback("¡Proyecto creado y dado de alta exitosamente!");
       setTimeout(() => setMensajeFeedback(null), 4000);
       cargarDatos();
@@ -512,10 +598,7 @@ export default function ProyectosPage() {
           </button>
 
           <button
-            onClick={() => {
-              cargarPresupuestos();
-              setModalCrearAbierto(true);
-            }}
+            onClick={abrirModalCrearProyecto}
             className="px-4 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-neutral-950 font-semibold text-sm transition-all flex items-center gap-2 shadow-lg shadow-sky-500/20"
           >
             <Plus className="w-4 h-4" />
@@ -662,10 +745,7 @@ export default function ProyectosPage() {
               : "Comienza dando de alta el primer proyecto contratado desde una cotización o de forma directa."}
           </p>
           <button
-            onClick={() => {
-              cargarPresupuestos();
-              setModalCrearAbierto(true);
-            }}
+            onClick={abrirModalCrearProyecto}
             className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-neutral-300 hover:text-white transition-all inline-flex items-center gap-2"
           >
             <Plus className="w-3.5 h-3.5" />
@@ -1472,12 +1552,28 @@ export default function ProyectosPage() {
             </div>
 
             <form onSubmit={guardarNuevoProyecto} className="flex-1 overflow-y-auto py-4 space-y-4 text-xs">
-              {/* Opcional: Cargar desde presupuesto existente */}
+              {/* 1. Buscador y Selector de Cliente (Principal) */}
+              <SelectorCliente
+                clienteSeleccionado={clienteSeleccionadoCrear}
+                onSeleccionar={(cliente) => {
+                  setClienteSeleccionadoCrear(cliente);
+                  setFormCrear((prev) => ({
+                    ...prev,
+                    clienteId: cliente?.id || "",
+                  }));
+                }}
+                etiqueta="Cliente asociado al proyecto"
+                descripcion="Buscá por nombre, email, empresa o CUIT/CUIL para asignar el proyecto."
+                obligatorio={!formCrear.presupuestoId}
+              />
+
+              {/* 2. Opcional: Cargar desde presupuesto existente */}
               <div>
                 <label className="block text-neutral-400 mb-1">
-                  Vincular desde Cotización / Presupuesto (Recomendado)
+                  Vincular desde Cotización / Presupuesto (Opcional)
                 </label>
                 <select
+                  value={formCrear.presupuestoId || ""}
                   onChange={async (e) => {
                     const selId = e.target.value;
                     if (!selId) {
@@ -1491,20 +1587,30 @@ export default function ProyectosPage() {
                     if (pres) {
                       try {
                         const detalle = await servicioPresupuestos.obtenerPorId(pres.id);
+                        if (detalle.cliente.id) {
+                          setClienteSeleccionadoCrear({
+                            id: detalle.cliente.id,
+                            nombreCompleto: detalle.cliente.nombreCompleto,
+                            email: detalle.cliente.email,
+                            telefonoWhatsApp: detalle.cliente.telefonoWhatsApp,
+                            empresa: detalle.cliente.empresa,
+                            cuitCuil: null,
+                          });
+                        }
                         setFormCrear((prev) => ({
                           ...prev,
                           presupuestoId: detalle.id,
-                          clienteId: detalle.cliente.id || "",
-                          titulo: `Proyecto ${pres.servicioPrincipal} - ${detalle.cliente.nombreCompleto}`,
+                          clienteId: detalle.cliente.id || prev.clienteId,
+                          titulo: prev.titulo || `Proyecto ${pres.servicioPrincipal} - ${detalle.cliente.nombreCompleto}`,
                           montoTotalContratado: detalle.totalPresupuestado,
                           moneda: detalle.moneda,
-                          notasInternas: detalle.descripcionNecesidad || "",
+                          notasInternas: detalle.descripcionNecesidad || prev.notasInternas,
                         }));
                       } catch {
                         setFormCrear((prev) => ({
                           ...prev,
                           presupuestoId: pres.id,
-                          titulo: `Proyecto ${pres.servicioPrincipal} - ${pres.clienteNombre}`,
+                          titulo: prev.titulo || `Proyecto ${pres.servicioPrincipal} - ${pres.clienteNombre}`,
                           montoTotalContratado: pres.totalPresupuestado,
                           moneda: pres.moneda,
                         }));
@@ -1513,7 +1619,7 @@ export default function ProyectosPage() {
                   }}
                   className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-neutral-200 focus:outline-none focus:border-sky-500"
                 >
-                  <option value="">-- Seleccionar cotización aprobada o registrada --</option>
+                  <option value="">-- Sin presupuesto vinculado (alta directa) --</option>
                   {presupuestosDisponibles.map((p) => (
                     <option key={p.id} value={p.id}>
                       {p.codigo} - {p.clienteNombre} ({p.servicioPrincipal}) - ${p.totalPresupuestado}
@@ -1532,24 +1638,6 @@ export default function ProyectosPage() {
                   onChange={(e) => setFormCrear({ ...formCrear, titulo: e.target.value })}
                   className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-sky-500"
                 />
-              </div>
-
-              {/* Cliente Vinculado */}
-              <div>
-                <label className="block text-neutral-400 mb-1">
-                  ID del Cliente o Seleccionado *
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="ID UUID del cliente (se auto-completa al elegir una cotización)"
-                  value={formCrear.clienteId}
-                  onChange={(e) => setFormCrear({ ...formCrear, clienteId: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white font-mono text-[11px] focus:outline-none focus:border-sky-500"
-                />
-                <p className="text-[10px] text-neutral-500 mt-1">
-                  Al seleccionar una cotización de la lista superior, el identificador único del cliente se vincula automáticamente.
-                </p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

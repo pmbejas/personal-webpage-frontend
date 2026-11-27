@@ -46,6 +46,8 @@ import {
   ServicioBaseAdmin,
   AdicionalAdmin,
 } from "@/services/catalogo.service";
+import { SelectorCliente } from "@/components/clientes/SelectorCliente";
+import { ClienteSelectorResponse } from "@/types";
 
 // Mapeo amigable de Estados de Presupuesto
 const ESTADOS_MAPA: Record<number, { etiqueta: string; color: string; badgeClase: string }> = {
@@ -137,6 +139,7 @@ function PresupuestosContenido() {
   const [adicionalSeleccionadoId, setAdicionalSeleccionadoId] = useState<string>("");
   const [cantidadSeccionesExtra, setCantidadSeccionesExtra] = useState<number>(1);
   const [modoDescuento, setModoDescuento] = useState<"porcentaje" | "montoFijo">("porcentaje");
+  const [clienteSeleccionadoConstructor, setClienteSeleccionadoConstructor] = useState<ClienteSelectorResponse | null>(null);
 
   const [formConstructor, setFormConstructor] = useState<CrearPresupuestoManualDto>({
     clienteId: null,
@@ -278,6 +281,7 @@ function PresupuestosContenido() {
     setAdicionalSeleccionadoId("");
     setCantidadSeccionesExtra(1);
     setModoDescuento("porcentaje");
+    setClienteSeleccionadoConstructor(null);
     cargarCatalogo();
     setFormConstructor({
       clienteId: null,
@@ -1271,6 +1275,32 @@ function PresupuestosContenido() {
                   <User className="w-3.5 h-3.5 text-sky-400" />
                   <span>1. Datos del Cliente / Destinatario</span>
                 </h4>
+
+                {!esReajuste && (
+                  <SelectorCliente
+                    clienteSeleccionado={clienteSeleccionadoConstructor}
+                    onSeleccionar={(cliente) => {
+                      setClienteSeleccionadoConstructor(cliente);
+                      if (cliente) {
+                        setFormConstructor((prev) => ({
+                          ...prev,
+                          clienteId: cliente.id,
+                          clienteNombre: cliente.nombreCompleto,
+                          clienteEmail: cliente.email,
+                          clienteTelefonoWhatsApp: cliente.telefonoWhatsApp,
+                          clienteEmpresa: cliente.empresa || "",
+                        }));
+                      } else {
+                        setFormConstructor((prev) => ({
+                          ...prev,
+                          clienteId: null,
+                        }));
+                      }
+                    }}
+                    etiqueta="Elegir cliente existente (opcional)"
+                    descripcion="Seleccioná un cliente de tu cartera para autocompletar sus datos, o completá los campos manualmente para un nuevo prospecto."
+                  />
+                )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>

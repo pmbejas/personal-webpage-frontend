@@ -13,6 +13,7 @@ import {
   FileBadge2,
   Building2,
   UserPlus,
+  FolderPlus,
   AlertCircle,
   RefreshCw,
 } from "lucide-react";
@@ -29,6 +30,7 @@ interface TablaClientesProps {
   errorCarga: string | null;
   procesandoAccionId: string | null;
   onVerDetalle: (id: string) => void;
+  onCrearProyecto: (id: string) => void;
   onWhatsApp: (id: string) => void;
   onEditar: (id: string) => void;
   onAlternarEstado: (id: string) => void;
@@ -43,6 +45,7 @@ export function TablaClientes({
   errorCarga,
   procesandoAccionId,
   onVerDetalle,
+  onCrearProyecto,
   onWhatsApp,
   onEditar,
   onAlternarEstado,
@@ -234,6 +237,15 @@ export function TablaClientes({
                         </button>
                         <button
                           type="button"
+                          onClick={() => onCrearProyecto(cliente.id)}
+                          aria-label={`Crear nuevo proyecto para ${cliente.nombreCompleto}`}
+                          title="Crear proyecto nuevo"
+                          className="p-2 rounded-lg text-neutral-400 hover:text-indigo-300 hover:bg-indigo-500/10 transition-colors"
+                        >
+                          <FolderPlus className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
                           onClick={() => onWhatsApp(cliente.id)}
                           disabled={ocupado}
                           aria-label={`Contactar por WhatsApp a ${cliente.nombreCompleto}`}
@@ -349,6 +361,15 @@ export function TablaClientes({
                   <span>Ver ficha 360°</span>
                 </button>
                 <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => onCrearProyecto(cliente.id)}
+                    aria-label={`Crear nuevo proyecto para ${cliente.nombreCompleto}`}
+                    title="Crear proyecto nuevo"
+                    className="p-2 rounded-lg text-neutral-400 hover:text-indigo-300 hover:bg-indigo-500/10"
+                  >
+                    <FolderPlus className="w-4 h-4" />
+                  </button>
                   <button
                     type="button"
                     onClick={() => onWhatsApp(cliente.id)}

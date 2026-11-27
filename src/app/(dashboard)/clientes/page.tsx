@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   Users,
@@ -23,6 +24,7 @@ import {
 } from "@/types";
 
 export default function ClientesPage() {
+  const router = useRouter();
   const {
     clientes,
     estadisticas,
@@ -62,6 +64,10 @@ export default function ClientesPage() {
     procesandoAccionId,
     recargar,
   } = useClientes();
+
+  const abrirNuevoProyectoParaCliente = (clienteId: string) => {
+    router.push(`/proyectos?nuevoProyecto=1&clienteId=${encodeURIComponent(clienteId)}`);
+  };
 
   return (
     <div className="space-y-6">
@@ -168,6 +174,7 @@ export default function ClientesPage() {
         errorCarga={errorCarga}
         procesandoAccionId={procesandoAccionId}
         onVerDetalle={abrirDetalle}
+        onCrearProyecto={abrirNuevoProyectoParaCliente}
         onWhatsApp={abrirWhatsApp}
         onEditar={abrirModalEditarDesdeListado}
         onAlternarEstado={alternarEstadoActivo}
@@ -224,6 +231,7 @@ export default function ClientesPage() {
         guardandoNotas={guardandoNotas}
         procesandoEstado={Boolean(clienteDetalle && procesandoAccionId === clienteDetalle.id)}
         onCerrar={cerrarDetalle}
+        onCrearProyecto={abrirNuevoProyectoParaCliente}
         onEditar={abrirModalEditarDesdeDetalle}
         onAlternarEstado={alternarEstadoActivo}
         onGuardarNotas={guardarNotasRapidas}

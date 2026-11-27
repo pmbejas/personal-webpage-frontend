@@ -15,6 +15,7 @@ import {
   Save,
   FileSpreadsheet,
   FolderGit2,
+  FolderPlus,
   CalendarDays,
   Tag,
   Clock,
@@ -35,6 +36,7 @@ interface PanelDetalleClienteProps {
   guardandoNotas: boolean;
   procesandoEstado: boolean;
   onCerrar: () => void;
+  onCrearProyecto: (id: string) => void;
   onEditar: (cliente: ClienteDetalleResponse) => void;
   onAlternarEstado: (id: string) => Promise<void>;
   onGuardarNotas: (id: string, notas: string) => Promise<void>;
@@ -74,6 +76,7 @@ export function PanelDetalleCliente({
   guardandoNotas,
   procesandoEstado,
   onCerrar,
+  onCrearProyecto,
   onEditar,
   onAlternarEstado,
   onGuardarNotas,
@@ -178,6 +181,15 @@ export function PanelDetalleCliente({
                     <span>WhatsApp</span>
                   </a>
                 )}
+
+                <button
+                  type="button"
+                  onClick={() => onCrearProyecto(cliente.id)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 border border-indigo-500/30 transition-colors"
+                >
+                  <FolderPlus className="w-3.5 h-3.5" />
+                  <span>Nuevo proyecto</span>
+                </button>
 
                 <button
                   type="button"
